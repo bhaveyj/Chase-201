@@ -1,0 +1,52 @@
+import { defineConfig, devices } from "@playwright/test";
+import path from "node:path";
+
+const root = path.resolve(__dirname, "../..");
+const python =
+  process.env.API_PYTHON ||
+  path.join(
+    root,
+    ".venv",
+    process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
+  );
+export default defineConfig({
+  testDir: "./e2e",
+  outputDir: process.env.PLAYWRIGHT_OUTPUT_DIR || "test-results",
+  fullyParallel: false,
+  workers: 1,
+  timeout: 120_000,
+  expect: { timeout: 15_000 },
+  use: {
+    baseURL: "http://localhost:3000",
+    trace: "retain-on-failure",
+    screenshot: "only-on-failure",
+  },
+  projects: [
+    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    {
+      name: "mobile",
+      use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" },
+    },
+  ],
+  webServer: [
+    {
+      command: `"${python}" tests/e2e_server.py`,
+      cwd: path.join(root, "apps/api"),
+      url: "http://localhost:8001/health",
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command: "npm run dev",
+      cwd: path.join(root, "apps/web"),
+      url: "http://localhost:3000",
+      reuseExistingServer: false,
+      timeout: 120_000,
+      env: {
+        NEXT_PUBLIC_API_URL: "http://localhost:8001",
+        NEXT_TELEMETRY_DISABLED: "1",
+        NEXT_OUTPUT_DIR: ".next-e2e",
+      },
+    },
+  ],
+});

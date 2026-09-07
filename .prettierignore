@@ -1,0 +1,7 @@
+apps/web/src/lib/api.generated.ts
+apps/api/openapi.json
+package-lock.json
+node_modules
+.next
+work
+outputs
