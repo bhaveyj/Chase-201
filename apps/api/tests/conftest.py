@@ -1,5 +1,8 @@
 import os
 
+# Keep catalog tests independent of a developer's local catalog setting.
+os.environ["CATALOG_VERSION"] = "fictional-v2"
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event

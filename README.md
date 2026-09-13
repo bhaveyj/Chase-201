@@ -37,6 +37,8 @@ npm run dev
 
 Open [the game](http://localhost:3000). [Interactive API documentation](http://localhost:8000/docs) is available locally. On macOS/Linux, use `.venv/bin/python`, `.venv/bin/alembic`, and `cp` instead of the Windows equivalents. Run API commands from `apps/api` so the environment file and migration configuration resolve correctly.
 
+For a local production preview, run `npm run build` followed by `npm run start --workspace apps/web`, with `NEXT_OUTPUT_DIR` unset for both commands. The standard `.next` build contains the current 38-0-inspired design. Historical output folders such as `.next-release` contain older UI builds and should not be used to restart the current game.
+
 If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` file and change the port in `apps/api/.env` and `TEST_DATABASE_URL` to 5433. The current workspace uses this override. Compose keeps the database volume when its published port changes.
 
 ## What is implemented
@@ -45,7 +47,8 @@ If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` fil
 - Immediate guest play; resumable drafts and live matches; 30-day retention **per guest game**, with a renewable guest access cookie.
 - Google OIDC authorization code flow with PKCE, nonce, browser-bound single-use state, verified RS256 ID tokens, opaque backend sessions, token rotation, and guest-to-user claiming.
 - Immutable catalog versions and private simulation profiles; exact 5/1/2/3 role composition; five disjoint offers per slot; unique selections and complete batting-order validation.
-- One match per confirmed XI and a balanced AI XI from the same catalog. There are no prices, budgets, or rating caps.
+- One match per confirmed XI and a balanced AI XI from the same catalog. New drafts have one star batter and one star all-rounder rated 90–92, with nine core players rated 78–85. Stars may bat anywhere; the server validates the limits at every team boundary.
+- Five distinct batting plans; per-delivery matchup/context simulation; wicket and free-hit interruptions; recent deliveries, partnerships, setness and qualitative risk feedback.
 - Server-owned deterministic seeds, versioned rules, transactionally stored decisions/events/state/scorecards, ownership checks, CSRF, expected revisions, and idempotent retries.
 - Desktop/mobile UI, keyboard-operable team ordering and strategy controls, accessible status/error messages, reduced-motion support, and automated WCAG AA checks.
 - Alembic migration, Docker image, Railway/Vercel configuration, CI, cleanup command, generated API types, calibration report command, and deployment smoke test.
@@ -100,7 +103,7 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Playwright starts isolated servers on ports 3000 and 8001; stop any existing server on 3000 first. It uses `apps/api/e2e.db` and a test-only Google exchange in `tests/e2e_server.py`. That file is neither packaged nor copied into the deployment image. Real OAuth state, cookies and history claiming still run in the browser tests. On Windows, if OneDrive holds an old test output folder open, set `PLAYWRIGHT_OUTPUT_DIR` to a fresh path under `outputs/`.
+Playwright starts isolated servers on ports 3000 and 8001; stop any existing server on 3000 first. It uses a fresh temporary SQLite database per run and a test-only Google exchange in `tests/e2e_server.py`. That file is neither packaged nor copied into the deployment image. Real OAuth state, cookies and history claiming still run in the browser tests. On Windows, if OneDrive holds an old test output folder open, set `PLAYWRIGHT_OUTPUT_DIR` to a fresh path under `outputs/`.
 
 Refresh generated contracts after changing API schemas:
 
@@ -111,7 +114,9 @@ cd ../..
 npm run api:types
 ```
 
-CI checks migration upgrade/downgrade and schema drift, architecture boundaries, Python/TypeScript typing, both unit suites, PostgreSQL concurrency, generated-contract drift, the production build, and browser journeys.
+CI checks migration upgrade/downgrade and schema drift, architecture boundaries, Python/TypeScript typing, both unit suites, common-seed gameplay balance and catalog sensitivity, PostgreSQL concurrency, generated-contract drift, the production build, and browser journeys.
+
+New matches use ruleset `v2.1`, with reduced All Out six/power/setness boosts. Saved `v1.0` and `v2.0` matches retain their original rules. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and use `CATALOG_VERSION=fictional-v2` for local development. Existing drafts keep their original offers and selection rules; start a new chase for the rating caps. See [engine semantics and calibration](docs/engine.md).
 
 See the [verification record](docs/verification.md) for completed local checks and their limits.
 

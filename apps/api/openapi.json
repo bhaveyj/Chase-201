@@ -713,7 +713,15 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/StrategyDecision"
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/StrategyDecision"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LegacyStrategyDecision"
+                  }
+                ],
+                "title": "Body"
               }
             }
           }
@@ -852,6 +860,63 @@
   },
   "components": {
     "schemas": {
+      "AssessmentView": {
+        "properties": {
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyId"
+          },
+          "scoring": {
+            "type": "string",
+            "enum": [
+              "Very low",
+              "Low",
+              "Moderate",
+              "High",
+              "Very high"
+            ],
+            "title": "Scoring"
+          },
+          "wicketRisk": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Very low",
+                  "Low",
+                  "Moderate",
+                  "High",
+                  "Very high"
+                ]
+              },
+              {
+                "type": "string",
+                "const": "None (free hit)"
+              }
+            ],
+            "title": "Wicketrisk"
+          },
+          "boundary": {
+            "type": "string",
+            "enum": [
+              "Very low",
+              "Low",
+              "Moderate",
+              "High",
+              "Very high"
+            ],
+            "title": "Boundary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "strategy",
+          "scoring",
+          "wicketRisk",
+          "boundary"
+        ],
+        "title": "AssessmentView"
+      },
       "BatterView": {
         "properties": {
           "player_id": {
@@ -920,6 +985,109 @@
         ],
         "title": "BowlerView"
       },
+      "ContextSummary": {
+        "properties": {
+          "pressure": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Building",
+              "High",
+              "Extreme"
+            ],
+            "title": "Pressure"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "POWERPLAY",
+              "MIDDLE",
+              "DEATH"
+            ],
+            "title": "Phase"
+          },
+          "strikerSetness": {
+            "type": "string",
+            "enum": [
+              "New",
+              "Settling",
+              "Set"
+            ],
+            "title": "Strikersetness"
+          },
+          "nonStrikerSetness": {
+            "type": "string",
+            "enum": [
+              "New",
+              "Settling",
+              "Set"
+            ],
+            "title": "Nonstrikersetness"
+          },
+          "matchup": {
+            "type": "string",
+            "title": "Matchup"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "pressure",
+          "phase",
+          "strikerSetness",
+          "nonStrikerSetness",
+          "matchup"
+        ],
+        "title": "ContextSummary"
+      },
+      "DeliveryView": {
+        "properties": {
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "fromBall": {
+            "type": "integer",
+            "title": "Fromball"
+          },
+          "toBall": {
+            "type": "integer",
+            "title": "Toball"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "wickets": {
+            "type": "integer",
+            "title": "Wickets"
+          },
+          "batterId": {
+            "type": "string",
+            "title": "Batterid"
+          },
+          "bowlerId": {
+            "type": "string",
+            "title": "Bowlerid"
+          },
+          "freeHit": {
+            "type": "boolean",
+            "title": "Freehit"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "outcome",
+          "fromBall",
+          "toBall",
+          "runs",
+          "wickets",
+          "batterId",
+          "bowlerId",
+          "freeHit"
+        ],
+        "title": "DeliveryView"
+      },
       "DraftView": {
         "properties": {
           "id": {
@@ -937,6 +1105,11 @@
           "catalogVersion": {
             "type": "string",
             "title": "Catalogversion"
+          },
+          "selectionRuleset": {
+            "type": "string",
+            "title": "Selectionruleset",
+            "default": "open-v1"
           },
           "slots": {
             "items": {
@@ -1043,6 +1216,61 @@
               }
             ],
             "title": "Bowlerid"
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StrategyId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "interruption": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "WINDOW_END",
+                  "WICKET",
+                  "NO_BALL",
+                  "FREE_HIT",
+                  "INNINGS_COMPLETE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interruption"
+          },
+          "deliveries": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryView"
+            },
+            "type": "array",
+            "title": "Deliveries"
+          },
+          "contextBefore": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contextAfter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -1143,6 +1371,41 @@
         ],
         "title": "HistoryView"
       },
+      "LegacyStrategyDecision": {
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expectedrevision"
+          },
+          "intent": {
+            "type": "string",
+            "enum": [
+              "DEFEND",
+              "ROTATE",
+              "ATTACK"
+            ],
+            "title": "Intent"
+          },
+          "riskFocus": {
+            "type": "string",
+            "enum": [
+              "PROTECT_WICKETS",
+              "BALANCED",
+              "MAXIMIZE_RUNS"
+            ],
+            "title": "Riskfocus"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expectedRevision",
+          "intent",
+          "riskFocus"
+        ],
+        "title": "LegacyStrategyDecision"
+      },
       "MatchIn": {
         "properties": {
           "expectedRevision": {
@@ -1212,6 +1475,30 @@
           "createdAt": {
             "type": "string",
             "title": "Createdat"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategyAssessments": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentView"
+            },
+            "type": "array",
+            "title": "Strategyassessments"
+          },
+          "upcomingBowlers": {
+            "items": {
+              "$ref": "#/components/schemas/UpcomingBowler"
+            },
+            "type": "array",
+            "title": "Upcomingbowlers"
           }
         },
         "additionalProperties": false,
@@ -1254,6 +1541,21 @@
           "playerIds"
         ],
         "title": "OrderIn"
+      },
+      "Outcome": {
+        "type": "string",
+        "enum": [
+          "DOT",
+          "ONE",
+          "TWO",
+          "THREE",
+          "FOUR",
+          "SIX",
+          "WICKET",
+          "WIDE",
+          "NO_BALL"
+        ],
+        "title": "Outcome"
       },
       "PlayerSummary": {
         "properties": {
@@ -1436,6 +1738,21 @@
               }
             ],
             "title": "Selectedplayerid"
+          },
+          "ratingLabel": {
+            "type": "string",
+            "title": "Ratinglabel",
+            "default": "Open selection"
+          },
+          "minimumRating": {
+            "type": "integer",
+            "title": "Minimumrating",
+            "default": 1
+          },
+          "maximumRating": {
+            "type": "integer",
+            "title": "Maximumrating",
+            "default": 100
           }
         },
         "additionalProperties": false,
@@ -1511,6 +1828,34 @@
             },
             "type": "array",
             "title": "Over Bowlers"
+          },
+          "recent_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/Outcome"
+            },
+            "type": "array",
+            "title": "Recent Outcomes"
+          },
+          "partnership_runs": {
+            "type": "integer",
+            "title": "Partnership Runs",
+            "default": 0
+          },
+          "partnership_balls": {
+            "type": "integer",
+            "title": "Partnership Balls",
+            "default": 0
+          },
+          "last_wicket_ball": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Wicket Ball"
           }
         },
         "additionalProperties": false,
@@ -1539,33 +1884,77 @@
             "minimum": 0.0,
             "title": "Expectedrevision"
           },
-          "intent": {
-            "type": "string",
-            "enum": [
-              "DEFEND",
-              "ROTATE",
-              "ATTACK"
-            ],
-            "title": "Intent"
-          },
-          "riskFocus": {
-            "type": "string",
-            "enum": [
-              "PROTECT_WICKETS",
-              "BALANCED",
-              "MAXIMIZE_RUNS"
-            ],
-            "title": "Riskfocus"
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyId"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "expectedRevision",
-          "intent",
-          "riskFocus"
+          "strategy"
         ],
         "title": "StrategyDecision"
+      },
+      "StrategyId": {
+        "type": "string",
+        "enum": [
+          "PRESERVE",
+          "ROTATE",
+          "BALANCED",
+          "ATTACK",
+          "ALL_OUT"
+        ],
+        "title": "StrategyId"
+      },
+      "UpcomingBowler": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "BATTER",
+              "WICKETKEEPER",
+              "ALL_ROUNDER",
+              "BOWLER"
+            ],
+            "title": "Role"
+          },
+          "overallRating": {
+            "type": "integer",
+            "title": "Overallrating"
+          },
+          "style": {
+            "type": "string",
+            "enum": [
+              "PACE",
+              "SPIN"
+            ],
+            "title": "Style"
+          },
+          "over": {
+            "type": "integer",
+            "title": "Over"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "overallRating",
+          "style",
+          "over"
+        ],
+        "title": "UpcomingBowler"
       },
       "ValidationError": {
         "properties": {

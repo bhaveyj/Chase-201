@@ -4,14 +4,16 @@ import json
 import random
 from collections import Counter
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from chase201.draft_rules import ROLES
 from chase201.models import CatalogVersion, Player, SimulationProfile
+from chase201.profile_defaults import expanded_profile
 
-ROLES = [*(["BATTER"] * 5), "WICKETKEEPER", "ALL_ROUNDER", "ALL_ROUNDER", *(["BOWLER"] * 3)]
 COMPOSITION = Counter(ROLES)
 
 
@@ -22,6 +24,12 @@ class ImportPlayer(BaseModel):
     overallRating: int = Field(ge=1, le=100)
     batting: float = Field(ge=1, le=100)
     bowling: float = Field(ge=1, le=100)
+    batting_control: float | None = Field(default=None, ge=1, le=100)
+    batting_rotation: float | None = Field(default=None, ge=1, le=100)
+    batting_power: float | None = Field(default=None, ge=1, le=100)
+    bowling_control: float | None = Field(default=None, ge=1, le=100)
+    bowling_threat: float | None = Field(default=None, ge=1, le=100)
+    bowling_style: Literal["PACE", "SPIN"] | None = None
 
 
 class CatalogImport(BaseModel):
@@ -62,16 +70,38 @@ async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
         )
     await db.flush()
     for p in data.players:
+        attributes = expanded_profile(f"{data.version}:{p.id}", p.batting, p.bowling)
+        attributes.update(
+            {key: getattr(p, key) for key in attributes if getattr(p, key) is not None}
+        )
         db.add(
             SimulationProfile(
-                player_id=f"{data.version}:{p.id}", batting=p.batting, bowling=p.bowling
+                player_id=f"{data.version}:{p.id}",
+                batting=p.batting,
+                bowling=p.bowling,
+                **attributes,
             )
         )
 
 
 async def seed_fictional(db: AsyncSession) -> None:
-    if await db.get(CatalogVersion, "fictional-v1"):
-        return
+    for version, players in (
+        ("fictional-v1", fictional_players()),
+        ("fictional-v2", balanced_fictional_players()),
+    ):
+        if not await db.get(CatalogVersion, version):
+            await import_catalog(
+                db,
+                CatalogImport(
+                    version=version,
+                    source="Original fictional development identities",
+                    license="Project-owned fictional fixture. Not real players.",
+                    players=players,
+                ),
+            )
+
+
+def fictional_players() -> list[ImportPlayer]:
     rng = random.Random(201)
     first = [
         "Ari",
@@ -106,15 +136,30 @@ async def seed_fictional(db: AsyncSession) -> None:
                 else rating * (0.90 if role == "ALL_ROUNDER" else 0.35),
             )
         )
-    await import_catalog(
-        db,
-        CatalogImport(
-            version="fictional-v1",
-            source="Original fictional development identities",
-            license="Project-owned fictional fixture. Not real players.",
-            players=players,
-        ),
-    )
+    return players
+
+
+def balanced_fictional_players() -> list[ImportPlayer]:
+    """A new immutable catalog; old ratings/profiles remain available for saved games."""
+    counts: Counter[str] = Counter()
+    players = []
+    for p in fictional_players():
+        index = counts[p.role]
+        counts[p.role] += 1
+        star = p.role in {"BATTER", "ALL_ROUNDER"} and index < 5
+        rating = 90 + index % 3 if star else 78 + (index * 3) % 8
+        players.append(
+            p.model_copy(
+                update={
+                    "overallRating": rating,
+                    "batting": rating if p.role != "BOWLER" else rating * 0.57,
+                    "bowling": rating
+                    if p.role == "BOWLER"
+                    else rating * (0.90 if p.role == "ALL_ROUNDER" else 0.35),
+                }
+            )
+        )
+    return players
 
 
 async def main() -> None:

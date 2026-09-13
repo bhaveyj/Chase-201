@@ -2,6 +2,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from chase_engine.types import Outcome, StrategyId
+
 
 class APIModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -24,6 +26,10 @@ class MatchIn(Revision):
 
 
 class StrategyDecision(Revision):
+    strategy: StrategyId
+
+
+class LegacyStrategyDecision(Revision):
     intent: Literal["DEFEND", "ROTATE", "ATTACK"]
     riskFocus: Literal["PROTECT_WICKETS", "BALANCED", "MAXIMIZE_RUNS"]
 
@@ -52,6 +58,9 @@ class SlotView(APIModel):
     position: int
     options: list[PlayerSummary]
     selectedPlayerId: str | None
+    ratingLabel: str = "Open selection"
+    minimumRating: int = 1
+    maximumRating: int = 100
 
 
 class DraftView(APIModel):
@@ -59,6 +68,7 @@ class DraftView(APIModel):
     revision: int
     status: str
     catalogVersion: str
+    selectionRuleset: str = "open-v1"
     slots: list[SlotView]
     battingOrder: list[str]
     matchId: str | None = None
@@ -94,6 +104,44 @@ class StateView(APIModel):
     batting: list[BatterView]
     bowling: list[BowlerView]
     over_bowlers: list[str]
+    recent_outcomes: list[Outcome] = Field(default_factory=list)
+    partnership_runs: int = 0
+    partnership_balls: int = 0
+    last_wicket_ball: int | None = None
+
+
+class ContextSummary(APIModel):
+    pressure: Literal["Low", "Building", "High", "Extreme"]
+    phase: Literal["POWERPLAY", "MIDDLE", "DEATH"]
+    strikerSetness: Literal["New", "Settling", "Set"]
+    nonStrikerSetness: Literal["New", "Settling", "Set"]
+    matchup: str
+
+
+Band = Literal["Very low", "Low", "Moderate", "High", "Very high"]
+
+
+class AssessmentView(APIModel):
+    strategy: StrategyId
+    scoring: Band
+    wicketRisk: Band | Literal["None (free hit)"]
+    boundary: Band
+
+
+class UpcomingBowler(PlayerSummary):
+    style: Literal["PACE", "SPIN"]
+    over: int
+
+
+class DeliveryView(APIModel):
+    outcome: Outcome
+    fromBall: int
+    toBall: int
+    runs: int
+    wickets: int
+    batterId: str
+    bowlerId: str
+    freeHit: bool
 
 
 class EventView(APIModel):
@@ -110,6 +158,13 @@ class EventView(APIModel):
     freeHit: bool
     batterId: str | None = None
     bowlerId: str | None = None
+    strategy: StrategyId | None = None
+    interruption: (
+        Literal["WINDOW_END", "WICKET", "NO_BALL", "FREE_HIT", "INNINGS_COMPLETE"] | None
+    ) = None
+    deliveries: list[DeliveryView] = Field(default_factory=list)
+    contextBefore: ContextSummary | None = None
+    contextAfter: ContextSummary | None = None
 
 
 class MatchView(APIModel):
@@ -123,6 +178,9 @@ class MatchView(APIModel):
     opponent: list[PlayerSummary]
     events: list[EventView]
     createdAt: str
+    context: ContextSummary | None = None
+    strategyAssessments: list[AssessmentView] = Field(default_factory=list)
+    upcomingBowlers: list[UpcomingBowler] = Field(default_factory=list)
 
 
 class HistoryEntry(APIModel):

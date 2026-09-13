@@ -61,13 +61,7 @@ describe("server state client", () => {
   it("formats legal balls and validates strategy values", () => {
     expect(overs(119)).toBe("19.5");
     expect(overs(120)).toBe("20.0");
-    expect(
-      strategySchema.safeParse({ intent: "ATTACK", riskFocus: "BALANCED" })
-        .success,
-    ).toBe(true);
-    expect(
-      strategySchema.safeParse({ intent: "CHEAT", riskFocus: "BALANCED" })
-        .success,
-    ).toBe(false);
+    expect(strategySchema.safeParse("ATTACK").success).toBe(true);
+    expect(strategySchema.safeParse("CHEAT").success).toBe(false);
   });
 });

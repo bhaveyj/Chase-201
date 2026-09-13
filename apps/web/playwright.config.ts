@@ -45,7 +45,7 @@ export default defineConfig({
       env: {
         NEXT_PUBLIC_API_URL: "http://localhost:8001",
         NEXT_TELEMETRY_DISABLED: "1",
-        NEXT_OUTPUT_DIR: ".next-e2e",
+        NEXT_OUTPUT_DIR: process.env.PLAYWRIGHT_NEXT_OUTPUT_DIR || ".next-e2e",
       },
     },
   ],

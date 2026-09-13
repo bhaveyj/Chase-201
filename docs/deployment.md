@@ -22,6 +22,8 @@ The fragment illustrates the schema, not a valid full catalog. Include at least 
 
 After migrating, run `python -m chase201.catalog --file /path/to/approved.json` against the intended database, and set `CATALOG_VERSION` to its version. `approved: true` records an actual human approval; the importer cannot determine legal rights. Recalibrate the engine against the imported catalog.
 
+Rating-limited drafts require at least 5 batters and 5 all-rounders rated 90–92, plus 20 batters, 5 keepers, 5 all-rounders and 15 bowlers rated 78–85. These pools supply five disjoint offers per slot. Additional players outside these bands may remain in the catalog but cannot be offered in a new draft. Verify the active catalog before rollout; draft creation returns 503 if any eligible pool is too small. For local development, seed both immutable fixture versions with `python -m chase201.catalog` and select `fictional-v2`; do not edit existing `fictional-v1` profiles.
+
 ## Railway
 
 1. Create a PostgreSQL service and API service using the repository root as build context. `railway.json` points to `apps/api/Dockerfile`.

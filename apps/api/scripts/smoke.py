@@ -26,6 +26,12 @@ def main() -> None:
         session = write("POST", "/api/v1/guest-sessions", {"expectedRevision": 0})
         client.headers["X-CSRF-Token"] = session["csrfToken"]
         draft = write("POST", "/api/v1/drafts", {"expectedRevision": session["revision"]})
+        assert draft["selectionRuleset"] == "balanced-v1"
+        assert len(draft["slots"]) == 11
+        for position, slot in enumerate(draft["slots"]):
+            minimum, maximum = (90, 92) if position in (0, 6) else (78, 85)
+            assert len(slot["options"]) == 5
+            assert all(minimum <= p["overallRating"] <= maximum for p in slot["options"])
         for slot in draft["slots"]:
             draft = write(
                 "PUT",
@@ -48,6 +54,7 @@ def main() -> None:
             "/api/v1/matches",
             {"draftId": draft["id"], "expectedRevision": draft["revision"]},
         )
+        assert match["rulesetVersion"] == "v2.1"
         for _ in range(100):
             if match["state"]["status"] != "LIVE":
                 break
@@ -56,8 +63,7 @@ def main() -> None:
                 f"/api/v1/matches/{match['id']}/decisions",
                 {
                     "expectedRevision": match["revision"],
-                    "intent": "ROTATE",
-                    "riskFocus": "BALANCED",
+                    "strategy": "BALANCED",
                 },
             )
         state = match["state"]

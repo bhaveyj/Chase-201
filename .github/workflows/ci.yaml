@@ -62,6 +62,10 @@ jobs:
           cd ../..
           npm run api:types
           git diff --exit-code -- apps/api/openapi.json apps/web/src/lib/api.generated.ts
+      - name: Common-seed gameplay balance gate
+        run: .venv/bin/python apps/api/scripts/calibrate.py --seeds 300 --check --catalog --output balance-report.json
+      - name: Rating caps and All Out scoring balance
+        run: .venv/bin/python apps/api/scripts/draft_balance.py --seeds 300 --check --output draft-balance-report.json
       - name: Frontend validation
         run: |
           npm run lint

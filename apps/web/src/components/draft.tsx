@@ -14,6 +14,7 @@ import { api, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, Loading, Steps, useSession } from "./common";
 import { SquadPitch } from "./squad-pitch";
+import { DraftLimits } from "./draft-limits";
 
 export function DraftScreen({ id }: { id: string }) {
   const queryClient = useQueryClient();
@@ -82,6 +83,7 @@ export function DraftScreen({ id }: { id: string }) {
           </div>
         </div>
       </div>
+      <DraftLimits draft={draft} />
       <div className="draft-layout">
         <aside className="squad-panel">
           <div className="panel-title">
@@ -160,7 +162,11 @@ export function DraftScreen({ id }: { id: string }) {
                   ? "Bring a little of everything."
                   : "Round out your XI."}
           </h2>
-          <p className="subtle">Select one player to fill this spot.</p>
+          <p className="subtle">
+            {draft.selectionRuleset === "balanced-v1"
+              ? `${slot.ratingLabel} · ${slot.minimumRating}–${slot.maximumRating} OVR. Select one player.`
+              : "Select one player to fill this spot."}
+          </p>
           <div className="player-grid">
             {slot.options.map((player) => {
               const selected = player.id === slot.selectedPlayerId;
@@ -247,7 +253,9 @@ export function DraftScreen({ id }: { id: string }) {
             )}
           </div>
           <p className="draft-note">
-            No budgets. No credits. Just cricket judgment.
+            {draft.selectionRuleset === "balanced-v1"
+              ? "Your two star picks can bat anywhere in the XI. Set the order next."
+              : "No budgets. No credits. Just cricket judgment."}
           </p>
         </div>
       </div>

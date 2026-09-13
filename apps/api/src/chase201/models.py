@@ -85,6 +85,20 @@ class SimulationProfile(Base):
     player_id: Mapped[str] = mapped_column(ForeignKey("players.id"), primary_key=True)
     batting: Mapped[float]
     bowling: Mapped[float]
+    batting_control: Mapped[float]
+    batting_rotation: Mapped[float]
+    batting_power: Mapped[float]
+    bowling_control: Mapped[float]
+    bowling_threat: Mapped[float]
+    bowling_style: Mapped[str] = mapped_column(String(10))
+    __table_args__ = (
+        CheckConstraint("batting_control BETWEEN 1 AND 100", name="profile_batting_control"),
+        CheckConstraint("batting_rotation BETWEEN 1 AND 100", name="profile_batting_rotation"),
+        CheckConstraint("batting_power BETWEEN 1 AND 100", name="profile_batting_power"),
+        CheckConstraint("bowling_control BETWEEN 1 AND 100", name="profile_bowling_control"),
+        CheckConstraint("bowling_threat BETWEEN 1 AND 100", name="profile_bowling_threat"),
+        CheckConstraint("bowling_style IN ('PACE', 'SPIN')", name="profile_bowling_style"),
+    )
 
 
 class Draft(Base):
@@ -93,6 +107,7 @@ class Draft(Base):
     session_id: Mapped[str | None] = mapped_column(ForeignKey("sessions.id"), index=True)
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     catalog_id: Mapped[str] = mapped_column(ForeignKey("catalog_versions.id"))
+    selection_ruleset: Mapped[str] = mapped_column(String(40), default="balanced-v1")
     revision: Mapped[int] = mapped_column(default=0)
     status: Mapped[str] = mapped_column(String(20), default="DRAFTING")
     batting_order: Mapped[list[str]] = mapped_column(JSON, default=list)
@@ -150,7 +165,7 @@ class Match(Base):
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     opponent: Mapped[list[str]] = mapped_column(JSON)
     seed: Mapped[str] = mapped_column(String(100))
-    ruleset: Mapped[str] = mapped_column(String(40), default="v1.0")
+    ruleset: Mapped[str] = mapped_column(String(40), default="v2.1")
     revision: Mapped[int] = mapped_column(default=0)
     state: Mapped[dict[str, Any]] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
@@ -163,8 +178,18 @@ class Decision(Base):
         ForeignKey("matches.id", ondelete="CASCADE"), primary_key=True
     )
     revision: Mapped[int] = mapped_column(primary_key=True)
-    intent: Mapped[str] = mapped_column(String(20))
-    risk_focus: Mapped[str] = mapped_column(String(30))
+    intent: Mapped[str | None] = mapped_column(String(20))
+    risk_focus: Mapped[str | None] = mapped_column(String(30))
+    strategy: Mapped[str | None] = mapped_column(String(20))
+    context_summary: Mapped[dict[str, Any] | None] = mapped_column(JSON)
+    __table_args__ = (
+        CheckConstraint(
+            "(strategy IS NULL AND intent IS NOT NULL AND risk_focus IS NOT NULL) OR "
+            "(strategy IS NOT NULL AND strategy IN ('PRESERVE', 'ROTATE', 'BALANCED', 'ATTACK', 'ALL_OUT') "
+            "AND intent IS NULL AND risk_focus IS NULL)",
+            name="decision_strategy_shape",
+        ),
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 

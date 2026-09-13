@@ -10,6 +10,7 @@ from chase201.schemas import (
     DraftView,
     EventView,
     HistoryView,
+    LegacyStrategyDecision,
     MatchIn,
     MatchView,
     OrderIn,
@@ -126,7 +127,7 @@ async def read_match(match_id: str, db: DB, session: Principal) -> dict:
 @router.post("/matches/{match_id}/decisions", response_model=MatchView)
 async def decide(
     match_id: str,
-    body: StrategyDecision,
+    body: StrategyDecision | LegacyStrategyDecision,
     db: DB,
     session: MutationPrincipal,
     idempotency_key: str = Header(),
@@ -136,7 +137,7 @@ async def decide(
     if result := await svc.replay(db, session, idempotency_key, scope, payload):
         return result
     svc.check_revision(match, body.expectedRevision)
-    await svc.advance_match(db, match, body.intent, body.riskFocus)
+    await svc.advance_match(db, match, body)
     return svc.remember(
         db, session, idempotency_key, scope, payload, await svc.match_view(db, match)
     )

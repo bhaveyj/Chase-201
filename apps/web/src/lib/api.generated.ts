@@ -280,6 +280,22 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AssessmentView */
+        AssessmentView: {
+            strategy: components["schemas"]["StrategyId"];
+            /**
+             * Scoring
+             * @enum {string}
+             */
+            scoring: "Very low" | "Low" | "Moderate" | "High" | "Very high";
+            /** Wicketrisk */
+            wicketRisk: ("Very low" | "Low" | "Moderate" | "High" | "Very high") | "None (free hit)";
+            /**
+             * Boundary
+             * @enum {string}
+             */
+            boundary: "Very low" | "Low" | "Moderate" | "High" | "Very high";
+        };
         /** BatterView */
         BatterView: {
             /** Player Id */
@@ -306,6 +322,49 @@ export interface components {
             /** Wickets */
             wickets: number;
         };
+        /** ContextSummary */
+        ContextSummary: {
+            /**
+             * Pressure
+             * @enum {string}
+             */
+            pressure: "Low" | "Building" | "High" | "Extreme";
+            /**
+             * Phase
+             * @enum {string}
+             */
+            phase: "POWERPLAY" | "MIDDLE" | "DEATH";
+            /**
+             * Strikersetness
+             * @enum {string}
+             */
+            strikerSetness: "New" | "Settling" | "Set";
+            /**
+             * Nonstrikersetness
+             * @enum {string}
+             */
+            nonStrikerSetness: "New" | "Settling" | "Set";
+            /** Matchup */
+            matchup: string;
+        };
+        /** DeliveryView */
+        DeliveryView: {
+            outcome: components["schemas"]["Outcome"];
+            /** Fromball */
+            fromBall: number;
+            /** Toball */
+            toBall: number;
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
+            /** Batterid */
+            batterId: string;
+            /** Bowlerid */
+            bowlerId: string;
+            /** Freehit */
+            freeHit: boolean;
+        };
         /** DraftView */
         DraftView: {
             /** Id */
@@ -316,6 +375,11 @@ export interface components {
             status: string;
             /** Catalogversion */
             catalogVersion: string;
+            /**
+             * Selectionruleset
+             * @default open-v1
+             */
+            selectionRuleset: string;
             /** Slots */
             slots: components["schemas"]["SlotView"][];
             /** Battingorder */
@@ -351,6 +415,13 @@ export interface components {
             batterId?: string | null;
             /** Bowlerid */
             bowlerId?: string | null;
+            strategy?: components["schemas"]["StrategyId"] | null;
+            /** Interruption */
+            interruption?: ("WINDOW_END" | "WICKET" | "NO_BALL" | "FREE_HIT" | "INNINGS_COMPLETE") | null;
+            /** Deliveries */
+            deliveries?: components["schemas"]["DeliveryView"][];
+            contextBefore?: components["schemas"]["ContextSummary"] | null;
+            contextAfter?: components["schemas"]["ContextSummary"] | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -378,6 +449,21 @@ export interface components {
             matches: components["schemas"]["HistoryEntry"][];
             /** Nextoffset */
             nextOffset: number | null;
+        };
+        /** LegacyStrategyDecision */
+        LegacyStrategyDecision: {
+            /** Expectedrevision */
+            expectedRevision: number;
+            /**
+             * Intent
+             * @enum {string}
+             */
+            intent: "DEFEND" | "ROTATE" | "ATTACK";
+            /**
+             * Riskfocus
+             * @enum {string}
+             */
+            riskFocus: "PROTECT_WICKETS" | "BALANCED" | "MAXIMIZE_RUNS";
         };
         /** MatchIn */
         MatchIn: {
@@ -407,6 +493,11 @@ export interface components {
             events: components["schemas"]["EventView"][];
             /** Createdat */
             createdAt: string;
+            context?: components["schemas"]["ContextSummary"] | null;
+            /** Strategyassessments */
+            strategyAssessments?: components["schemas"]["AssessmentView"][];
+            /** Upcomingbowlers */
+            upcomingBowlers?: components["schemas"]["UpcomingBowler"][];
         };
         /** OrderIn */
         OrderIn: {
@@ -415,6 +506,11 @@ export interface components {
             /** Playerids */
             playerIds: string[];
         };
+        /**
+         * Outcome
+         * @enum {string}
+         */
+        Outcome: "DOT" | "ONE" | "TWO" | "THREE" | "FOUR" | "SIX" | "WICKET" | "WIDE" | "NO_BALL";
         /** PlayerSummary */
         PlayerSummary: {
             /** Id */
@@ -475,6 +571,21 @@ export interface components {
             options: components["schemas"]["PlayerSummary"][];
             /** Selectedplayerid */
             selectedPlayerId: string | null;
+            /**
+             * Ratinglabel
+             * @default Open selection
+             */
+            ratingLabel: string;
+            /**
+             * Minimumrating
+             * @default 1
+             */
+            minimumRating: number;
+            /**
+             * Maximumrating
+             * @default 100
+             */
+            maximumRating: number;
         };
         /** StateView */
         StateView: {
@@ -504,21 +615,52 @@ export interface components {
             bowling: components["schemas"]["BowlerView"][];
             /** Over Bowlers */
             over_bowlers: string[];
+            /** Recent Outcomes */
+            recent_outcomes?: components["schemas"]["Outcome"][];
+            /**
+             * Partnership Runs
+             * @default 0
+             */
+            partnership_runs: number;
+            /**
+             * Partnership Balls
+             * @default 0
+             */
+            partnership_balls: number;
+            /** Last Wicket Ball */
+            last_wicket_ball?: number | null;
         };
         /** StrategyDecision */
         StrategyDecision: {
             /** Expectedrevision */
             expectedRevision: number;
+            strategy: components["schemas"]["StrategyId"];
+        };
+        /**
+         * StrategyId
+         * @enum {string}
+         */
+        StrategyId: "PRESERVE" | "ROTATE" | "BALANCED" | "ATTACK" | "ALL_OUT";
+        /** UpcomingBowler */
+        UpcomingBowler: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
             /**
-             * Intent
+             * Role
              * @enum {string}
              */
-            intent: "DEFEND" | "ROTATE" | "ATTACK";
+            role: "BATTER" | "WICKETKEEPER" | "ALL_ROUNDER" | "BOWLER";
+            /** Overallrating */
+            overallRating: number;
             /**
-             * Riskfocus
+             * Style
              * @enum {string}
              */
-            riskFocus: "PROTECT_WICKETS" | "BALANCED" | "MAXIMIZE_RUNS";
+            style: "PACE" | "SPIN";
+            /** Over */
+            over: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -971,7 +1113,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StrategyDecision"];
+                "application/json": components["schemas"]["StrategyDecision"] | components["schemas"]["LegacyStrategyDecision"];
             };
         };
         responses: {

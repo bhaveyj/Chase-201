@@ -6,14 +6,18 @@ export type Session = components["schemas"]["SessionView"];
 export type Draft = components["schemas"]["DraftView"];
 export type Match = components["schemas"]["MatchView"];
 export type Player = components["schemas"]["PlayerSummary"];
-export type Strategy = Pick<
-  components["schemas"]["StrategyDecision"],
+export type Strategy = components["schemas"]["StrategyId"];
+export type LegacyStrategy = Pick<
+  components["schemas"]["LegacyStrategyDecision"],
   "intent" | "riskFocus"
 >;
-export const strategySchema = z.object({
-  intent: z.enum(["DEFEND", "ROTATE", "ATTACK"]),
-  riskFocus: z.enum(["PROTECT_WICKETS", "BALANCED", "MAXIMIZE_RUNS"]),
-});
+export const strategySchema = z.enum([
+  "PRESERVE",
+  "ROTATE",
+  "BALANCED",
+  "ATTACK",
+  "ALL_OUT",
+]);
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -132,13 +136,20 @@ export const api = {
         params: { path: { match_id: id } },
       }),
     ),
-  decide: async (s: Session, m: Match, strategy: Strategy, key: string) =>
+  decide: async (
+    s: Session,
+    m: Match,
+    strategy: Strategy | LegacyStrategy,
+    key: string,
+  ) =>
     unwrap(
       await client.POST("/api/v1/matches/{match_id}/decisions", {
         params: { path: { match_id: m.id }, header: headers(s, key) },
         body: {
           expectedRevision: m.revision,
-          ...strategySchema.parse(strategy),
+          ...(typeof strategy === "string"
+            ? { strategy: strategySchema.parse(strategy) }
+            : strategy),
         },
       }),
     ),

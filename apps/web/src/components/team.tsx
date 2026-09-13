@@ -14,6 +14,7 @@ import { api, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, Loading, Steps, useSession } from "./common";
 import { SquadPitch } from "./squad-pitch";
+import { DraftLimits } from "./draft-limits";
 
 export function TeamScreen({ id }: { id: string }) {
   const router = useRouter();
@@ -144,6 +145,7 @@ export function TeamScreen({ id }: { id: string }) {
           })}
         </ol>
         <aside className="team-confirm-panel">
+          <DraftLimits draft={draft} />
           <SquadPitch draft={draft} />
           <Flag size={26} />
           <p className="eyebrow">YOUR MISSION</p>

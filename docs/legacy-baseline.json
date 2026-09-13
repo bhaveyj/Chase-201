@@ -1,0 +1,114 @@
+{
+  "ruleset": "v1.0",
+  "seeds": 500,
+  "policies": [
+    {
+      "intent": "DEFEND",
+      "riskFocus": "PROTECT_WICKETS",
+      "first18Runs": 24.488,
+      "first18Wickets": 0.21,
+      "winRate": 0.008,
+      "replaySHA256": [
+        "e0edf4e79276305fc49ed7fb40ae091e4ef3757b5a55528d7d353d0dc762638b",
+        "403dbc3173f1b98b75634d940a1e20c4867fc2610d9cc8cb088089db2ddf0e6e",
+        "729daa88479a833265a6005ec110eaab768f0afe090870379f0fb1030c7ad184"
+      ]
+    },
+    {
+      "intent": "DEFEND",
+      "riskFocus": "BALANCED",
+      "first18Runs": 27.452,
+      "first18Wickets": 0.462,
+      "winRate": 0.102,
+      "replaySHA256": [
+        "21d320b2f956cab98491fa7ff492619b2f04c927c28e265ece661f2825adf1df",
+        "dd2662eb5fdf2b1bcd9513736082f8a7222b735a18779b8184a5b1e5436efb1c",
+        "0dd9c4ebe5e3bcdfb4a732e3f62bd73b53d32ef254d1a7b2cb08b63271882961"
+      ]
+    },
+    {
+      "intent": "DEFEND",
+      "riskFocus": "MAXIMIZE_RUNS",
+      "first18Runs": 30.536,
+      "first18Wickets": 0.716,
+      "winRate": 0.36,
+      "replaySHA256": [
+        "4b50d43aaaf9c67ea74b34aa39416e2e14f4a92851b940f9ec064dda3866535b",
+        "bcad99cbafde12c984939017686d5f5985539851bbf1abb9c08e752c03a93459",
+        "11054452eab066f24ab971208e7b6ed8bef9eece6488d103a6f344518dcdf837"
+      ]
+    },
+    {
+      "intent": "ROTATE",
+      "riskFocus": "PROTECT_WICKETS",
+      "first18Runs": 30.272,
+      "first18Wickets": 0.648,
+      "winRate": 0.356,
+      "replaySHA256": [
+        "4e8bcb1d6cee5fa747188e1255d72c2da84281bed4522bb2d2e1f9d91ae0a1ab",
+        "9217980e3dade7f8287b6cd5aa8ed076d94c491cbb480655b9cb8e3537016a9f",
+        "a0711a7278dde3f2252b3b4f4516bf0d1f4c0a6f772abc056eda0d7c582cc0ab"
+      ]
+    },
+    {
+      "intent": "ROTATE",
+      "riskFocus": "BALANCED",
+      "first18Runs": 32.682,
+      "first18Wickets": 0.922,
+      "winRate": 0.572,
+      "replaySHA256": [
+        "04e1e654da17847db3ea5ade9d41a3f32728fb551172bc3b984af1d65b9300b6",
+        "d66d6ebe4e905067f8a7f5b8c1e9acd56a73a88b4f6a0af251246d840deed8cf",
+        "eccda99e6b3ae8ef7c3456dd3681100df1847fcf04d50b7f113e7d0d586fbd21"
+      ]
+    },
+    {
+      "intent": "ROTATE",
+      "riskFocus": "MAXIMIZE_RUNS",
+      "first18Runs": 35.006,
+      "first18Wickets": 1.236,
+      "winRate": 0.65,
+      "replaySHA256": [
+        "e08c075cd7ef28a872d37853746c728903bf78dcb4f6cd3cef70d25a757f583c",
+        "fdea3e0b16f9e98af456e236521e29b591da1671863e0858d7b3317f44188bce",
+        "e14fa59f571a78eb5d8960a5ed86c8d2f0404cd4f3cc2d5c2768c56e33429065"
+      ]
+    },
+    {
+      "intent": "ATTACK",
+      "riskFocus": "PROTECT_WICKETS",
+      "first18Runs": 35.284,
+      "first18Wickets": 1.23,
+      "winRate": 0.676,
+      "replaySHA256": [
+        "d20734d4a042428f446b2bf6dbf4ed4318d65b23ff5aaa5bdd766e40f75eb337",
+        "fdea3e0b16f9e98af456e236521e29b591da1671863e0858d7b3317f44188bce",
+        "e14fa59f571a78eb5d8960a5ed86c8d2f0404cd4f3cc2d5c2768c56e33429065"
+      ]
+    },
+    {
+      "intent": "ATTACK",
+      "riskFocus": "BALANCED",
+      "first18Runs": 37.23,
+      "first18Wickets": 1.402,
+      "winRate": 0.64,
+      "replaySHA256": [
+        "ff0b004d434747ab3754ddca3dffe3711845738be8b1c507f0e8569cf047096f",
+        "b8285ab5b20c13db410d7523ef1ab069d6b44f4c2efbcc6053f0ab0a03282917",
+        "264bf29392a035303bab143b521cc9882883066174a5a6cef03b99db9f63e665"
+      ]
+    },
+    {
+      "intent": "ATTACK",
+      "riskFocus": "MAXIMIZE_RUNS",
+      "first18Runs": 39.076,
+      "first18Wickets": 1.622,
+      "winRate": 0.538,
+      "replaySHA256": [
+        "df43b4bcd3c7e500c2c350bbec8f5d0e74c393518332f4e8c8c49fa1d6601610",
+        "b8285ab5b20c13db410d7523ef1ab069d6b44f4c2efbcc6053f0ab0a03282917",
+        "fa34f8595a2fc032d2ca47d77e03568412aa8243108f531725dc53933c58d071"
+      ]
+    }
+  ]
+}

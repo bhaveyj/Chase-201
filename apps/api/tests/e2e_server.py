@@ -6,11 +6,15 @@ authorization redirect. The production callback, cookies, state and claiming run
 
 import asyncio
 import os
+import tempfile
+from pathlib import Path
 
 if os.environ.get("ENVIRONMENT") == "production":
     raise RuntimeError("The E2E test server must never run in production")
 os.environ["ENVIRONMENT"] = "test"
-os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./e2e.db"
+os.environ["CATALOG_VERSION"] = "fictional-v2"
+scratch = tempfile.TemporaryDirectory(prefix="chase201-e2e-")
+os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{(Path(scratch.name) / 'e2e.db').as_posix()}"
 os.environ["API_URL"] = "http://localhost:8001"
 os.environ["GOOGLE_CLIENT_ID"] = "e2e-client"
 os.environ["GOOGLE_CLIENT_SECRET"] = "e2e-secret"

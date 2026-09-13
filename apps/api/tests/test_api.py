@@ -14,7 +14,7 @@ from chase201.catalog import COMPOSITION
 from chase201.cleanup import cleanup
 from chase201.config import get_settings
 from chase201.main import app
-from chase201.models import BattingPerformance, Draft, Match, MatchEvent, Session, now
+from chase201.models import BattingPerformance, Decision, Draft, Match, MatchEvent, Session, now
 
 
 async def guest(client):
@@ -150,23 +150,41 @@ async def test_offer_role_order_and_revision_validation(client):
 async def test_complete_guest_chase_idempotency_and_scorecards(client, database):
     m = await match(client)
     match_id = m["id"]
+    assert m["rulesetVersion"] == "v2.1" and m["decisionWindow"] == 12
+    assert len(m["strategyAssessments"]) == 5 and len(m["upcomingBowlers"]) == 2
+    assert m["context"]["strikerSetness"] == "New"
     assert "seed" not in m and "batting" not in m["team"][0]
     path = f"/api/v1/matches/{match_id}/decisions"
-    old = {"expectedRevision": 0, "intent": "ROTATE", "riskFocus": "BALANCED"}
+    old = {"expectedRevision": 0, "strategy": "BALANCED"}
     first_key = str(uuid.uuid4())
     first = await mutate(client, "POST", path, old, first_key)
     assert first.status_code == 200, first.text
     assert (await mutate(client, "POST", path, old, first_key)).json() == first.json()
     assert (await mutate(client, "POST", path, old)).status_code == 409
     m = first.json()
-    for _ in range(65):
+    assert m["events"][0]["strategy"] == "BALANCED"
+    assert m["events"][0]["contextBefore"] is not None
+    assert m["events"][0]["deliveries"]
+    async with database() as db:
+        decision = await db.get(Decision, (match_id, 1))
+        assert decision.strategy == "BALANCED" and decision.intent is None
+        assert decision.context_summary == m["events"][0]["contextBefore"]
+    for hidden in (
+        "batting_control",
+        "bowling_threat",
+        "expected_runs",
+        "wicket_probability",
+        '"seed"',
+    ):
+        assert hidden not in first.text
+    for _ in range(90):
         if m["state"]["status"] != "LIVE":
             break
         r = await mutate(
             client,
             "POST",
             path,
-            {"expectedRevision": m["revision"], "intent": "ROTATE", "riskFocus": "BALANCED"},
+            {"expectedRevision": m["revision"], "strategy": "BALANCED"},
         )
         assert r.status_code == 200, r.text
         m = r.json()
@@ -254,7 +272,7 @@ async def test_google_state_claiming_and_authenticated_ownership(client, databas
             client,
             "POST",
             f"/api/v1/matches/{m['id']}/decisions",
-            {"expectedRevision": 0, "intent": "DEFEND", "riskFocus": "BALANCED"},
+            {"expectedRevision": 0, "strategy": "PRESERVE"},
         )
     ).status_code == 200
     async with AsyncClient(
@@ -294,7 +312,7 @@ async def test_expiry_removes_guest_game_data(client, database):
 async def test_concurrent_decisions_and_duplicate_retries(client):
     m = await match(client)
     path = f"/api/v1/matches/{m['id']}/decisions"
-    body = {"expectedRevision": 0, "intent": "ROTATE", "riskFocus": "BALANCED"}
+    body = {"expectedRevision": 0, "strategy": "BALANCED"}
     first, second = await asyncio.gather(
         mutate(client, "POST", path, body), mutate(client, "POST", path, body)
     )
@@ -346,7 +364,7 @@ async def test_concurrent_same_user_different_sessions(client, database):
             headers={"Origin": "http://localhost:3000", "X-CSRF-Token": csrf[1]},
         ) as two,
     ):
-        body = {"expectedRevision": 0, "intent": "ROTATE", "riskFocus": "BALANCED"}
+        body = {"expectedRevision": 0, "strategy": "BALANCED"}
         path = f"/api/v1/matches/{m['id']}/decisions"
         responses = await asyncio.gather(
             mutate(one, "POST", path, body), mutate(two, "POST", path, body)

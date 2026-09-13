@@ -31,7 +31,20 @@ async function setupXI(page: Page) {
     page.getByRole("button", { name: /^Select .+, .+, rating/ }).first(),
   ).toBeVisible();
   await accessible(page);
+  await expect(page.getByLabel("XI rating limits")).toContainText(
+    "One batter and one all-rounder rated 90–92",
+  );
+  await page.screenshot({ path: test.info().outputPath("draft.png"), fullPage: true });
   for (let slot = 0; slot < 11; slot++) {
+    const ratings = await page
+      .locator(".player-card .rating")
+      .allTextContents();
+    expect(ratings).toHaveLength(5);
+    for (const text of ratings) {
+      const rating = parseInt(text, 10);
+      expect(rating).toBeGreaterThanOrEqual(slot === 0 || slot === 6 ? 90 : 78);
+      expect(rating).toBeLessThanOrEqual(slot === 0 || slot === 6 ? 92 : 85);
+    }
     const card = page
       .getByRole("button", { name: /^Select .+, .+, rating/ })
       .first();
@@ -46,6 +59,9 @@ async function setupXI(page: Page) {
     page.getByRole("button", { name: "Confirm XI & play" }),
   ).toBeVisible();
   await accessible(page);
+  await expect(page.getByLabel("XI rating limits")).toContainText(
+    "Core players9/9",
+  );
   // Reordering must be available to keyboard users, without drag-and-drop.
   const move = page.getByRole("button", { name: /^Move .+ down$/ }).first();
   await move.focus();
@@ -67,7 +83,16 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
   await setupXI(page);
   await expect(page.getByText("How do you play this?")).toBeVisible();
   const matchUrl = page.url();
-  await page.getByRole("radio", { name: /Attack/ }).check();
+  await expect(page.getByRole("radio")).toHaveCount(5);
+  await expect(page.locator(".bowler-current")).toBeVisible();
+  await expect(page.locator(".bowler-current")).toContainText(
+    /OVR · (Pace|Spin)/,
+  );
+  await expect(page.getByLabel("Chase context")).toContainText("Partnership");
+  await expect(
+    page.getByText("Two-over game plan", { exact: false }),
+  ).toBeVisible();
+  await page.getByRole("radio", { name: "Attack", exact: true }).check();
   await page.getByRole("radio", { name: "Balanced", exact: true }).check();
   await page.reload();
   await expect(page.getByText("How do you play this?")).toBeVisible();
@@ -81,7 +106,7 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       .analyze()
   ).violations;
   expect(violations).toEqual([]);
-  for (let step = 0; step < 65; step++) {
+  for (let step = 0; step < 90; step++) {
     if (page.url().endsWith("/result")) break;
     const button = page.getByRole("button", { name: /^Play next/ });
     if (await button.count()) {
@@ -90,7 +115,22 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
           r.url().endsWith("/decisions") && r.request().method() === "POST",
       );
       await button.click();
-      const state = (await (await response).json()).state;
+      const responseBody = await (await response).json();
+      const state = responseBody.state;
+      const event = responseBody.events.at(-1);
+      expect(event.strategy).toBeTruthy();
+      expect(event.deliveries.length).toBeGreaterThan(0);
+      if (state.status === "LIVE") {
+        await expect(
+          page
+            .getByLabel("Last six deliveries, oldest first")
+            .getByRole("listitem"),
+        ).toHaveCount(state.recent_outcomes.length);
+        if (event.interruption === "WICKET")
+          await expect(page.getByRole("status")).toContainText("new batter");
+        if (state.free_hit)
+          await expect(page.getByRole("status")).toContainText("Free hit");
+      }
       if (state.status !== "LIVE") {
         await expect(page).toHaveURL(/\/result$/);
         break;

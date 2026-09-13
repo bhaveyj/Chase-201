@@ -3,65 +3,12 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowRight,
-  Check,
-  CircleDot,
-  Shield,
-  Target,
-  TrendingUp,
-  Zap,
-} from "lucide-react";
-import { api, Match, overs, Strategy } from "@/lib/api";
+import { ArrowRight, Check, CircleDot, Target } from "lucide-react";
+import { api, Match, overs, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, GoogleLink, Loading, useSession } from "./common";
 
-const intents: {
-  value: Strategy["intent"];
-  title: string;
-  description: string;
-  icon: typeof Shield;
-}[] = [
-  {
-    value: "DEFEND",
-    title: "Defend",
-    description: "Stay in. Build a platform.",
-    icon: Shield,
-  },
-  {
-    value: "ROTATE",
-    title: "Rotate",
-    description: "Find gaps. Keep it moving.",
-    icon: TrendingUp,
-  },
-  {
-    value: "ATTACK",
-    title: "Attack",
-    description: "Go big. Take them on.",
-    icon: Zap,
-  },
-];
-const risks: {
-  value: Strategy["riskFocus"];
-  title: string;
-  description: string;
-}[] = [
-  {
-    value: "PROTECT_WICKETS",
-    title: "Protect wickets",
-    description: "Keep your batters in the game.",
-  },
-  {
-    value: "BALANCED",
-    title: "Balanced",
-    description: "A measured approach to the chase.",
-  },
-  {
-    value: "MAXIMIZE_RUNS",
-    title: "Maximize runs",
-    description: "More scoring ambition, more wicket risk.",
-  },
-];
+import { BattingPlans, LegacyPlans } from "./batting-plans";
 
 export function Scorecard({ match }: { match: Match }) {
   const s = match.state;
@@ -202,10 +149,17 @@ export function MatchScreen({
   });
   const strategy = useUI((s) => s.strategy);
   const setStrategy = useUI((s) => s.setStrategy);
+  const legacyStrategy = useUI((s) => s.legacyStrategy);
+  const setLegacyStrategy = useUI((s) => s.setLegacyStrategy);
   const m = query.data;
   const action = useMutation({
     mutationFn: () =>
-      api.decide(session.data!, m!, strategy, crypto.randomUUID()),
+      api.decide(
+        session.data!,
+        m!,
+        m?.rulesetVersion === "v1.0" ? legacyStrategy : strategy,
+        crypto.randomUUID(),
+      ),
     onSuccess: (next) => client.setQueryData(["match", id], next),
     onError: () => {
       void client.invalidateQueries({ queryKey: ["match", id] });
@@ -224,15 +178,17 @@ export function MatchScreen({
       </section>
     );
   const s = m.state;
-  const needed = Math.max(0, 201 - s.runs),
+  const needed = Math.max(0, m.target - s.runs),
     left = 120 - s.balls;
   const live = s.status === "LIVE";
+  const legacy = m.rulesetVersion === "v1.0";
   const windowLabel =
-    s.balls >= 108
+    s.balls >= 108 || (!legacy && s.free_hit)
       ? "delivery"
-      : m.decisionWindow === 3
-        ? "3 balls"
+      : m.decisionWindow % 6 !== 0
+        ? `${m.decisionWindow} ${m.decisionWindow === 1 ? "ball" : "balls"}`
         : `${m.decisionWindow / 6} ${m.decisionWindow === 6 ? "over" : "overs"}`;
+  const lastEvent = m.events.at(-1);
   const phase =
     s.balls < 36
       ? "POWERPLAY"
@@ -257,7 +213,7 @@ export function MatchScreen({
           <span className="live-dot" />
           {live ? "CHASE IN PROGRESS" : "MATCH COMPLETE"}
         </p>
-        <span className="subtle">T20 · TARGET 201</span>
+        <span className="subtle">T20 · TARGET {m.target}</span>
       </div>
       {!live && (
         <div className={`result-title ${s.status.toLowerCase()}`}>
@@ -292,8 +248,8 @@ export function MatchScreen({
             {s.status === "WON"
               ? `You won by ${10 - s.wickets} wickets with ${left} balls to spare.`
               : s.status === "TIED"
-                ? "200 apiece. The match is tied. No super over."
-                : `The opposition won by ${200 - s.runs} runs.`}
+                ? `${m.target - 1} apiece. The match is tied. No super over.`
+                : `The opposition won by ${m.target - 1 - s.runs} runs.`}
           </p>
         </div>
       )}
@@ -311,7 +267,7 @@ export function MatchScreen({
         <div className="score-stats">
           <div>
             <span>{live ? "RUNS NEEDED" : "TARGET"}</span>
-            <strong>{live ? needed : 201}</strong>
+            <strong>{live ? needed : m.target}</strong>
           </div>
           <div>
             <span>BALLS LEFT</span>
@@ -331,7 +287,9 @@ export function MatchScreen({
           </div>
         </div>
         <div className="chase-track">
-          <i style={{ width: `${Math.min(100, (s.runs / 201) * 100)}%` }} />
+          <i
+            style={{ width: `${Math.min(100, (s.runs / m.target) * 100)}%` }}
+          />
         </div>
         <div className="scoreboard-bottom">
           <span>
@@ -356,7 +314,15 @@ export function MatchScreen({
                 </span>
                 <span>
                   {m.team[index].name}
-                  <small>{i === 0 ? "ON STRIKE" : "NON-STRIKER"}</small>
+                  <small>
+                    {i === 0 ? "ON STRIKE" : "NON-STRIKER"} ·{" "}
+                    {m.team[index].overallRating} OVR
+                  </small>
+                  <small>
+                    {roleLabel[m.team[index].role]}
+                    {m.context &&
+                      ` · ${i === 0 ? m.context.strikerSetness : m.context.nonStrikerSetness}`}
+                  </small>
                 </span>
                 <strong>
                   {s.batting[index].runs}
@@ -376,9 +342,58 @@ export function MatchScreen({
                     )?.name
                   }
                 </small>
+                {m.upcomingBowlers?.[0] && (
+                  <small>
+                    {m.upcomingBowlers[0].overallRating} OVR ·{" "}
+                    {m.upcomingBowlers[0].style === "PACE" ? "Pace" : "Spin"}
+                  </small>
+                )}
               </span>
             </div>
           </div>
+          {!legacy && (
+            <div className="match-context" aria-label="Chase context">
+              <div>
+                <span>Pressure</span>
+                <strong>{m.context?.pressure}</strong>
+                <small>{m.context?.matchup}</small>
+              </div>
+              <div>
+                <span>Partnership</span>
+                <strong>{s.partnership_runs} runs</strong>
+                <small>from {s.partnership_balls} balls</small>
+              </div>
+              <div className="recent-deliveries">
+                <span>Last six deliveries</span>
+                <ol aria-label="Last six deliveries, oldest first">
+                  {s.recent_outcomes?.map((outcome, index) => (
+                    <li
+                      key={index}
+                      className={`recent-ball ${outcome.toLowerCase()}`}
+                      aria-label={outcome.replaceAll("_", " ").toLowerCase()}
+                    >
+                      {
+                        {
+                          DOT: "·",
+                          ONE: "1",
+                          TWO: "2",
+                          THREE: "3",
+                          FOUR: "4",
+                          SIX: "6",
+                          WICKET: "W",
+                          WIDE: "Wd",
+                          NO_BALL: "Nb",
+                        }[outcome]
+                      }
+                    </li>
+                  ))}
+                </ol>
+                {!s.recent_outcomes?.length && (
+                  <small>Ready for the first ball</small>
+                )}
+              </div>
+            </div>
+          )}
           <div className="play-layout">
             <div className="strategy-panel">
               <div className="section-heading">
@@ -390,54 +405,47 @@ export function MatchScreen({
                   NEXT: {windowLabel.toUpperCase()}
                 </span>
               </div>
-              <fieldset disabled={action.isPending}>
-                <legend>Batting intent</legend>
-                <div className="intent-grid">
-                  {intents.map(({ value, title, description, icon: Icon }) => (
-                    <label
-                      key={value}
-                      className={`intent-option ${strategy.intent === value ? "selected" : ""}`}
-                    >
-                      <input
-                        type="radio"
-                        name="intent"
-                        value={value}
-                        checked={strategy.intent === value}
-                        onChange={() => setStrategy({ intent: value })}
-                      />
-                      <Icon size={23} />
-                      <strong>{title}</strong>
-                      <span>{description}</span>
-                      <i>{strategy.intent === value && <Check size={12} />}</i>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
-              <fieldset disabled={action.isPending} className="risk-field">
-                <legend>Risk focus</legend>
-                <div className="risk-options">
-                  {risks.map(({ value, title }) => (
-                    <label
-                      key={value}
-                      className={strategy.riskFocus === value ? "selected" : ""}
-                    >
-                      <input
-                        type="radio"
-                        name="risk"
-                        checked={strategy.riskFocus === value}
-                        onChange={() => setStrategy({ riskFocus: value })}
-                      />
-                      {title}
-                    </label>
-                  ))}
-                </div>
-                <p className="subtle">
-                  {
-                    risks.find((r) => r.value === strategy.riskFocus)
-                      ?.description
-                  }
-                </p>
-              </fieldset>
+              {!legacy && (
+                <>
+                  {lastEvent?.interruption === "WICKET" && (
+                    <p className="interruption-note" role="status">
+                      Wicket—choose a plan for the new batter.{" "}
+                      {m.team[s.striker].name} is on strike.
+                    </p>
+                  )}
+                  {s.free_hit && (
+                    <p className="interruption-note" role="status">
+                      Free hit—choose your plan for one delivery. Your wicket is
+                      protected.
+                    </p>
+                  )}
+                  {(m.upcomingBowlers?.length ?? 0) > 1 && (
+                    <p className="upcoming-spell">
+                      Two-over game plan ·{" "}
+                      {m.upcomingBowlers
+                        ?.map(
+                          (bowler) =>
+                            `Over ${bowler.over}: ${bowler.name} (${bowler.overallRating}, ${bowler.style === "PACE" ? "pace" : "spin"})`,
+                        )
+                        .join(" · ")}
+                    </p>
+                  )}
+                </>
+              )}
+              {legacy ? (
+                <LegacyPlans
+                  strategy={legacyStrategy}
+                  onChange={setLegacyStrategy}
+                  disabled={action.isPending}
+                />
+              ) : (
+                <BattingPlans
+                  strategy={strategy}
+                  assessments={m.strategyAssessments}
+                  onChange={setStrategy}
+                  disabled={action.isPending}
+                />
+              )}
               <button
                 className="button primary play-button"
                 disabled={action.isPending || !session.data}
@@ -450,8 +458,10 @@ export function MatchScreen({
               </button>
               {action.error && <ErrorPanel error={action.error} />}
               <p className="strategy-footnote">
-                Your next call comes after this window. In the last two overs,
-                you decide every delivery.
+                {legacy
+                  ? "Your next call comes after this window."
+                  : "A wicket or no-ball brings your next decision forward. Free hits get their own plan."}{" "}
+                In the last two overs, you decide every delivery.
               </p>
             </div>
             <EventFeed match={m} />
@@ -516,6 +526,16 @@ function EventFeed({ match }: { match: Match }) {
                     : "Delivery"}
                   {e.freeHit && " · Free hit next"}
                 </p>
+                {e.interruption === "WICKET" && (
+                  <p className="event-interruption">
+                    Wicket—choose a plan for the new batter.
+                  </p>
+                )}
+                {e.interruption === "NO_BALL" && (
+                  <p className="event-interruption">
+                    No-ball—choose your free-hit plan.
+                  </p>
+                )}
               </div>
               <span className="event-score">
                 {e.score}/{e.totalWickets}
