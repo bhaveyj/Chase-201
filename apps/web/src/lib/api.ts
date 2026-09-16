@@ -4,14 +4,18 @@ import type { paths, components } from "./api.generated";
 
 export type Session = components["schemas"]["SessionView"];
 export type Draft = components["schemas"]["DraftView"];
-export type Match = components["schemas"]["MatchView"];
+export type Match =
+  components["schemas"]["MatchView"] | components["schemas"]["SavedMatchView"];
 export type Player = components["schemas"]["PlayerSummary"];
-export type Strategy = components["schemas"]["StrategyId"];
+export type V2Strategy =
+  components["schemas"]["V2StrategyDecision"]["strategy"];
+export type Strategy = components["schemas"]["StrategyDecision"]["strategy"];
 export type LegacyStrategy = Pick<
   components["schemas"]["LegacyStrategyDecision"],
   "intent" | "riskFocus"
 >;
-export const strategySchema = z.enum([
+export const strategySchema = z.enum(["DEFENSIVE", "BALANCED", "AGGRESSIVE"]);
+export const v2StrategySchema = z.enum([
   "PRESERVE",
   "ROTATE",
   "BALANCED",
@@ -139,7 +143,7 @@ export const api = {
   decide: async (
     s: Session,
     m: Match,
-    strategy: Strategy | LegacyStrategy,
+    strategy: Strategy | V2Strategy | LegacyStrategy,
     key: string,
   ) =>
     unwrap(
@@ -148,7 +152,13 @@ export const api = {
         body: {
           expectedRevision: m.revision,
           ...(typeof strategy === "string"
-            ? { strategy: strategySchema.parse(strategy) }
+            ? {
+                strategy: (m.rulesetVersion === "v3.0" ||
+                m.rulesetVersion === "v3.1"
+                  ? strategySchema
+                  : v2StrategySchema
+                ).parse(strategy),
+              }
             : strategy),
         },
       }),

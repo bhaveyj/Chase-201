@@ -15,7 +15,7 @@ from chase_engine import legacy
 @pytest.mark.parametrize("version", ["v2.0", "v2.1"])
 async def test_v2_event_interruptions_persist_and_replay(client, database, desired, version):
     from chase201.services import engine_team
-    from chase_engine.engine import RULESETS, GameState, StrategyId, simulate_step
+    from chase_engine.v2.engine import RULESETS, GameState, StrategyId, simulate_step
 
     m = await match(client)
     async with database() as db, db.begin():

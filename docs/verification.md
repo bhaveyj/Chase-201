@@ -1,5 +1,33 @@
 # Verification record — gameplay redesign
 
+## Simple batting and difficulty — 16 September 2026
+
+New drafts use `fictional-v4` / `simple-v1`, creating `v3.1` matches. Saved `tradeoffs-v1` drafts still start `v3.0`; all previous engines remain frozen. See [gameplay semantics](three-modes.md) and the [final 500-seed report](calibration-v31-final.json).
+
+- **163 tests passed in the full PostgreSQL suite**, including concurrency and v1/v2/v3 golden replay coverage. **Two additional PostgreSQL compatibility tests passed** for starting an old draft after switching catalogs and replaying an old receipt without a probability field. Focused v3.1/migration rechecks also passed after final changes. Nine v3.0 golden full-match traces were captured before implementation.
+- **14 frontend unit tests** and **4 desktop/mobile browser journeys passed**. Tests cover the single Batting bar, original historical cards, three-mode routing for both versions, exact decimal formatting, all-mode free-hit zero risk, selection limits, reloads, history claiming, keyboard ordering and WCAG A/AA checks. Desktop/mobile draft and match screenshots were visually reviewed. The external Google token exchange is mocked in the browser suite.
+- **500 randomized legal XIs and opponents**, using common delivery seeds for every policy, passed all acceptance gates across 8,000 chases/continuations and 500 repeat full-chase traces. Sensible switching wins **67.6%**, Balanced **62.4%**, Aggressive **41.8%**. Fixed-mode wicket rates are **1.30% Defensive, 4.84% Balanced, 9.45% Aggressive**. All 395,044 non-free-hit states have strictly increasing mode risk; all 3,299 sampled free hits have zero risk. Scorecards reconcile, deterministic traces match, every mode has a useful scenario, and burst limits pass.
+- The unadjusted model's sensible win rate was 76.8%, above the requested ceiling. Shared four/six phase priors were scaled by **0.92**; requested batting baselines, variation, batting/mode vectors and the 0.8 setness scale were retained. The report's coefficient hash matches the final engine.
+- Ruff, MyPy, import boundaries, ESLint, TypeScript, generated-contract consistency and the production build passed. OpenAPI and TypeScript were regenerated; a second generation produced an identical contract. The final production frontend was built into standard `.next` and is served on port 3000, with the API on port 8000.
+- The local database was backed up to private ignored `work/chase201-before-v31-20260916.sql`. Transactional hash comparisons verified every pre-existing row unchanged: **28 matches, 32 drafts, 225 profiles**, all catalogs, offers, decisions, events, scorecards and receipts. Activation added only fictional-v4 and its 75 players/profiles. Local `CATALOG_VERSION` is now `fictional-v4`.
+- A full local API smoke chase verified new offers, v3.1 routing, mode probabilities and scorecard reconciliation, finishing **203/3, won**. A browser check against the served production build confirmed fictional-v4, five Batting bars, no archetype headings, v3.1, three controls, Balanced after reload, exact percentages and no page errors or mobile overflow.
+
+Windows permissions blocked the default pytest temp folder, so PostgreSQL tests used a fresh permitted temp directory. OneDrive locked the old `.next` build; it was preserved as `.next-before-v31-20260916` before rebuilding the standard output. Browser journeys used isolated ports 3001/8001 and a fresh test database. Upstream Authlib deprecation warnings remain. No external deployment was performed.
+
+## V1 three-mode scope — 14 September 2026
+
+New drafts use `fictional-v3` / `tradeoffs-v1`; new matches use `v3.0`. The 38-0 dark design is retained. See [current semantics](three-modes.md) and the [final 500-seed report](calibration-v3-final.json).
+
+- **123 backend tests passed on PostgreSQL**, including concurrency, frozen v1/v2.0/v2.1 replays, active/saved contracts, populated legacy migrations, downgrade guards, attribute effects and 500 complete offer allocations. An additional allocation-corruption rollback test passed on SQLite, confirming no partial draft or session revision survives rejection.
+- **10 frontend tests** and **4 full desktop/mobile browser journeys** passed, including WCAG A/AA checks, keyboard ordering, draft bars, exact mode counts, reloads, interruption controls, full-chase accounting and history claiming. Google exchange remains mocked in the isolated browser suite. Final screenshots were visually reviewed. OneDrive stalled the first browser run's artifact cleanup; all four journeys completed when artifacts were written to the permitted local visualization directory.
+- **42,000 simulated chases/continuations** across 500 common seeds per comparison passed all active balance gates. Defensive, Balanced and Aggressive each have a useful context; specialist drafting beats highest OVR in suitable contexts. Worst Aggressive stress rates: 0% eight-over wins, 0.4474% 50-run two-over blocks, 0.6538% 30-run overs.
+- Ruff, MyPy, import boundaries, generated OpenAPI/TypeScript contracts, ESLint and the production Next.js build passed. PostgreSQL upgrade → schema drift → downgrade to base → upgrade → schema drift passed on `chase201_migration_test`.
+- The local game database was backed up to private, ignored `work/chase201-before-v3-20260914.sql`, then upgraded to `a42c83e5d016`. Hash comparisons verified all **20 pre-existing matches**, **150 existing profiles**, saved events/decisions, drafts and offers unchanged. The new immutable catalog was then activated.
+- The local API was restarted on port 8000. A real-database smoke run verified every offer's styles, nondomination and rating limits, then completed a v3 chase at **202/6** with reconciled accounting. The production frontend was rebuilt into the standard `.next` directory and restarted on port 3000. Locked/incomplete build directories were archived within the workspace before the successful build.
+- A final production browser check confirmed `fictional-v3`, `v3.0`, fifteen attribute bars across five options, exactly three controls, Balanced initially selected, an Aggressive decision, reload behavior, the dark theme and no horizontal overflow on desktop and mobile.
+
+Upstream Authlib deprecation notices and a Windows pytest cache warning do not affect the passing checks. No external deployment was performed.
+
 ## Rating limits and All Out update — 13 September 2026
 
 New drafts use `balanced-v1` and `fictional-v2`: one 90–92-rated batter, one 90–92-rated all-rounder and nine 78–85-rated core players. New matches use `v2.1`. The existing 38-0-inspired dark design is retained. See [balance evidence](rating-balance.md).

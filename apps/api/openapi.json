@@ -611,7 +611,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MatchView"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MatchView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SavedMatchView"
+                    }
+                  ],
+                  "title": "Response Create Match Api V1 Matches Post"
                 }
               }
             }
@@ -650,7 +658,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MatchView"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MatchView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SavedMatchView"
+                    }
+                  ],
+                  "title": "Response Read Match Api V1 Matches  Match Id  Get"
                 }
               }
             }
@@ -718,6 +734,9 @@
                     "$ref": "#/components/schemas/StrategyDecision"
                   },
                   {
+                    "$ref": "#/components/schemas/V2StrategyDecision"
+                  },
+                  {
                     "$ref": "#/components/schemas/LegacyStrategyDecision"
                   }
                 ],
@@ -732,7 +751,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MatchView"
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/MatchView"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SavedMatchView"
+                    }
+                  ],
+                  "title": "Response Decide Api V1 Matches  Match Id  Decisions Post"
                 }
               }
             }
@@ -784,7 +811,14 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/EventView"
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/EventView"
+                      },
+                      {
+                        "$ref": "#/components/schemas/V2EventView"
+                      }
+                    ]
                   },
                   "title": "Response Events Api V1 Matches  Match Id  Events Get"
                 }
@@ -862,9 +896,6 @@
     "schemas": {
       "AssessmentView": {
         "properties": {
-          "strategy": {
-            "$ref": "#/components/schemas/StrategyId"
-          },
           "scoring": {
             "type": "string",
             "enum": [
@@ -905,15 +936,31 @@
               "Very high"
             ],
             "title": "Boundary"
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/chase_engine__types__StrategyId"
+          },
+          "wicketProbability": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wicketprobability"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "strategy",
           "scoring",
           "wicketRisk",
-          "boundary"
+          "boundary",
+          "strategy"
         ],
         "title": "AssessmentView"
       },
@@ -1217,16 +1264,6 @@
             ],
             "title": "Bowlerid"
           },
-          "strategy": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/StrategyId"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "interruption": {
             "anyOf": [
               {
@@ -1266,6 +1303,16 @@
             "anyOf": [
               {
                 "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/chase_engine__types__StrategyId"
               },
               {
                 "type": "null"
@@ -1436,10 +1483,6 @@
             "type": "integer",
             "title": "Revision"
           },
-          "rulesetVersion": {
-            "type": "string",
-            "title": "Rulesetversion"
-          },
           "target": {
             "type": "integer",
             "title": "Target"
@@ -1465,13 +1508,6 @@
             "type": "array",
             "title": "Opponent"
           },
-          "events": {
-            "items": {
-              "$ref": "#/components/schemas/EventView"
-            },
-            "type": "array",
-            "title": "Events"
-          },
           "createdAt": {
             "type": "string",
             "title": "Createdat"
@@ -1486,19 +1522,34 @@
               }
             ]
           },
-          "strategyAssessments": {
-            "items": {
-              "$ref": "#/components/schemas/AssessmentView"
-            },
-            "type": "array",
-            "title": "Strategyassessments"
-          },
           "upcomingBowlers": {
             "items": {
               "$ref": "#/components/schemas/UpcomingBowler"
             },
             "type": "array",
             "title": "Upcomingbowlers"
+          },
+          "rulesetVersion": {
+            "type": "string",
+            "enum": [
+              "v3.0",
+              "v3.1"
+            ],
+            "title": "Rulesetversion"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/EventView"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "strategyAssessments": {
+            "items": {
+              "$ref": "#/components/schemas/AssessmentView"
+            },
+            "type": "array",
+            "title": "Strategyassessments"
           }
         },
         "additionalProperties": false,
@@ -1506,14 +1557,14 @@
         "required": [
           "id",
           "revision",
-          "rulesetVersion",
           "target",
           "decisionWindow",
           "state",
           "team",
           "opponent",
-          "events",
-          "createdAt"
+          "createdAt",
+          "rulesetVersion",
+          "events"
         ],
         "title": "MatchView"
       },
@@ -1580,6 +1631,74 @@
           "overallRating": {
             "type": "integer",
             "title": "Overallrating"
+          },
+          "battingRating": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingrating"
+          },
+          "battingPlaystyle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Anchor",
+                  "Rotator",
+                  "Hitter"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingplaystyle"
+          },
+          "battingControl": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingcontrol"
+          },
+          "battingRotation": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingrotation"
+          },
+          "battingPower": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingpower"
           }
         },
         "additionalProperties": false,
@@ -1606,6 +1725,102 @@
           "expectedRevision"
         ],
         "title": "Revision"
+      },
+      "SavedMatchView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "target": {
+            "type": "integer",
+            "title": "Target"
+          },
+          "decisionWindow": {
+            "type": "integer",
+            "title": "Decisionwindow"
+          },
+          "state": {
+            "$ref": "#/components/schemas/StateView"
+          },
+          "team": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerSummary"
+            },
+            "type": "array",
+            "title": "Team"
+          },
+          "opponent": {
+            "items": {
+              "$ref": "#/components/schemas/PlayerSummary"
+            },
+            "type": "array",
+            "title": "Opponent"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat"
+          },
+          "context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "upcomingBowlers": {
+            "items": {
+              "$ref": "#/components/schemas/UpcomingBowler"
+            },
+            "type": "array",
+            "title": "Upcomingbowlers"
+          },
+          "rulesetVersion": {
+            "type": "string",
+            "enum": [
+              "v1.0",
+              "v2.0",
+              "v2.1"
+            ],
+            "title": "Rulesetversion"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/V2EventView"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "strategyAssessments": {
+            "items": {
+              "$ref": "#/components/schemas/V2AssessmentView"
+            },
+            "type": "array",
+            "title": "Strategyassessments"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "revision",
+          "target",
+          "decisionWindow",
+          "state",
+          "team",
+          "opponent",
+          "createdAt",
+          "rulesetVersion",
+          "events"
+        ],
+        "title": "SavedMatchView"
       },
       "SelectionIn": {
         "properties": {
@@ -1885,7 +2100,7 @@
             "title": "Expectedrevision"
           },
           "strategy": {
-            "$ref": "#/components/schemas/StrategyId"
+            "$ref": "#/components/schemas/chase_engine__types__StrategyId"
           }
         },
         "additionalProperties": false,
@@ -1895,17 +2110,6 @@
           "strategy"
         ],
         "title": "StrategyDecision"
-      },
-      "StrategyId": {
-        "type": "string",
-        "enum": [
-          "PRESERVE",
-          "ROTATE",
-          "BALANCED",
-          "ATTACK",
-          "ALL_OUT"
-        ],
-        "title": "StrategyId"
       },
       "UpcomingBowler": {
         "properties": {
@@ -1931,6 +2135,74 @@
             "type": "integer",
             "title": "Overallrating"
           },
+          "battingRating": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingrating"
+          },
+          "battingPlaystyle": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Anchor",
+                  "Rotator",
+                  "Hitter"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingplaystyle"
+          },
+          "battingControl": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingcontrol"
+          },
+          "battingRotation": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingrotation"
+          },
+          "battingPower": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battingpower"
+          },
           "style": {
             "type": "string",
             "enum": [
@@ -1955,6 +2227,223 @@
           "over"
         ],
         "title": "UpcomingBowler"
+      },
+      "V2AssessmentView": {
+        "properties": {
+          "scoring": {
+            "type": "string",
+            "enum": [
+              "Very low",
+              "Low",
+              "Moderate",
+              "High",
+              "Very high"
+            ],
+            "title": "Scoring"
+          },
+          "wicketRisk": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Very low",
+                  "Low",
+                  "Moderate",
+                  "High",
+                  "Very high"
+                ]
+              },
+              {
+                "type": "string",
+                "const": "None (free hit)"
+              }
+            ],
+            "title": "Wicketrisk"
+          },
+          "boundary": {
+            "type": "string",
+            "enum": [
+              "Very low",
+              "Low",
+              "Moderate",
+              "High",
+              "Very high"
+            ],
+            "title": "Boundary"
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/chase_engine__v2__types__StrategyId"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "scoring",
+          "wicketRisk",
+          "boundary",
+          "strategy"
+        ],
+        "title": "V2AssessmentView"
+      },
+      "V2EventView": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "title": "Revision"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "fromBall": {
+            "type": "integer",
+            "title": "Fromball"
+          },
+          "toBall": {
+            "type": "integer",
+            "title": "Toball"
+          },
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "wickets": {
+            "type": "integer",
+            "title": "Wickets"
+          },
+          "score": {
+            "type": "integer",
+            "title": "Score"
+          },
+          "totalWickets": {
+            "type": "integer",
+            "title": "Totalwickets"
+          },
+          "freeHit": {
+            "type": "boolean",
+            "title": "Freehit"
+          },
+          "batterId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batterid"
+          },
+          "bowlerId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bowlerid"
+          },
+          "interruption": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "WINDOW_END",
+                  "WICKET",
+                  "NO_BALL",
+                  "FREE_HIT",
+                  "INNINGS_COMPLETE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Interruption"
+          },
+          "deliveries": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryView"
+            },
+            "type": "array",
+            "title": "Deliveries"
+          },
+          "contextBefore": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "contextAfter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContextSummary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "strategy": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/chase_engine__v2__types__StrategyId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "revision",
+          "sequence",
+          "kind",
+          "label",
+          "fromBall",
+          "toBall",
+          "runs",
+          "wickets",
+          "score",
+          "totalWickets",
+          "freeHit"
+        ],
+        "title": "V2EventView"
+      },
+      "V2StrategyDecision": {
+        "properties": {
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expectedrevision"
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/chase_engine__v2__types__StrategyId"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expectedRevision",
+          "strategy"
+        ],
+        "title": "V2StrategyDecision"
       },
       "ValidationError": {
         "properties": {
@@ -1995,6 +2484,26 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "chase_engine__types__StrategyId": {
+        "type": "string",
+        "enum": [
+          "DEFENSIVE",
+          "BALANCED",
+          "AGGRESSIVE"
+        ],
+        "title": "StrategyId"
+      },
+      "chase_engine__v2__types__StrategyId": {
+        "type": "string",
+        "enum": [
+          "PRESERVE",
+          "ROTATE",
+          "BALANCED",
+          "ATTACK",
+          "ALL_OUT"
+        ],
+        "title": "StrategyId"
       }
     }
   }

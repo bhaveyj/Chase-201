@@ -67,6 +67,8 @@ class CatalogVersion(Base):
     source: Mapped[str] = mapped_column(String(1000))
     license: Mapped[str] = mapped_column(String(1000))
     approved: Mapped[bool] = mapped_column(default=False)
+    selection_ruleset: Mapped[str] = mapped_column(String(40), default="open-v1")
+    offer_allocation: Mapped[list[list[str]]] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
@@ -107,7 +109,7 @@ class Draft(Base):
     session_id: Mapped[str | None] = mapped_column(ForeignKey("sessions.id"), index=True)
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     catalog_id: Mapped[str] = mapped_column(ForeignKey("catalog_versions.id"))
-    selection_ruleset: Mapped[str] = mapped_column(String(40), default="balanced-v1")
+    selection_ruleset: Mapped[str] = mapped_column(String(40), default="tradeoffs-v1")
     revision: Mapped[int] = mapped_column(default=0)
     status: Mapped[str] = mapped_column(String(20), default="DRAFTING")
     batting_order: Mapped[list[str]] = mapped_column(JSON, default=list)
@@ -165,7 +167,7 @@ class Match(Base):
     user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), index=True)
     opponent: Mapped[list[str]] = mapped_column(JSON)
     seed: Mapped[str] = mapped_column(String(100))
-    ruleset: Mapped[str] = mapped_column(String(40), default="v2.1")
+    ruleset: Mapped[str] = mapped_column(String(40), default="v3.0")
     revision: Mapped[int] = mapped_column(default=0)
     state: Mapped[dict[str, Any]] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
@@ -185,7 +187,7 @@ class Decision(Base):
     __table_args__ = (
         CheckConstraint(
             "(strategy IS NULL AND intent IS NOT NULL AND risk_focus IS NOT NULL) OR "
-            "(strategy IS NOT NULL AND strategy IN ('PRESERVE', 'ROTATE', 'BALANCED', 'ATTACK', 'ALL_OUT') "
+            "(strategy IS NOT NULL AND strategy IN ('DEFENSIVE', 'AGGRESSIVE', 'PRESERVE', 'ROTATE', 'BALANCED', 'ATTACK', 'ALL_OUT') "
             "AND intent IS NULL AND risk_focus IS NULL)",
             name="decision_strategy_shape",
         ),

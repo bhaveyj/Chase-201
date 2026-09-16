@@ -89,7 +89,9 @@ async def test_bootstrap_csrf_origin_and_ownership(client):
     assert all(len(s["options"]) == 5 for s in d["slots"])
     assert Counter(s["role"] for s in d["slots"]) == COMPOSITION
     assert all(
-        set(p) == {"id", "name", "role", "overallRating"} for s in d["slots"] for p in s["options"]
+        set(p) == {"id", "name", "role", "overallRating", "battingRating"}
+        for s in d["slots"]
+        for p in s["options"]
     )
     assert len({p["id"] for s in d["slots"] for p in s["options"]}) == 55
     payload = {"expectedRevision": 0, "playerId": d["slots"][0]["options"][0]["id"]}
@@ -150,8 +152,8 @@ async def test_offer_role_order_and_revision_validation(client):
 async def test_complete_guest_chase_idempotency_and_scorecards(client, database):
     m = await match(client)
     match_id = m["id"]
-    assert m["rulesetVersion"] == "v2.1" and m["decisionWindow"] == 12
-    assert len(m["strategyAssessments"]) == 5 and len(m["upcomingBowlers"]) == 2
+    assert m["rulesetVersion"] == "v3.1" and m["decisionWindow"] == 12
+    assert len(m["strategyAssessments"]) == 3 and len(m["upcomingBowlers"]) == 2
     assert m["context"]["strikerSetness"] == "New"
     assert "seed" not in m and "batting" not in m["team"][0]
     path = f"/api/v1/matches/{match_id}/decisions"
@@ -272,7 +274,7 @@ async def test_google_state_claiming_and_authenticated_ownership(client, databas
             client,
             "POST",
             f"/api/v1/matches/{m['id']}/decisions",
-            {"expectedRevision": 0, "strategy": "PRESERVE"},
+            {"expectedRevision": 0, "strategy": "DEFENSIVE"},
         )
     ).status_code == 200
     async with AsyncClient(

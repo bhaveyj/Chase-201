@@ -13,7 +13,7 @@ from chase201.catalog import balanced_fictional_players, fictional_players
 from chase201.draft_rules import ROLES, draft_offers, opponent_players, rating_band
 from chase201.models import Player
 from chase201.profile_defaults import expanded_profile
-from chase_engine.engine import DEFAULT_RULES, RULESETS, PlayerProfile
+from chase_engine.v2.engine import DEFAULT_RULES, RULESETS, PlayerProfile
 
 
 def catalog(version):

@@ -2,6 +2,8 @@ import { defineConfig, devices } from "@playwright/test";
 import path from "node:path";
 
 const root = path.resolve(__dirname, "../..");
+const frontendPort = Number(process.env.PLAYWRIGHT_PORT || 3000);
+const frontendUrl = `http://localhost:${frontendPort}`;
 const python =
   process.env.API_PYTHON ||
   path.join(
@@ -17,7 +19,7 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 15_000 },
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: frontendUrl,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -35,11 +37,15 @@ export default defineConfig({
       url: "http://localhost:8001/health",
       reuseExistingServer: false,
       timeout: 60_000,
+      env: {
+        FRONTEND_URL: frontendUrl,
+        CORS_ORIGINS: JSON.stringify([frontendUrl]),
+      },
     },
     {
-      command: "npm run dev",
+      command: `npm run dev -- --port ${frontendPort}`,
       cwd: path.join(root, "apps/web"),
-      url: "http://localhost:3000",
+      url: frontendUrl,
       reuseExistingServer: false,
       timeout: 120_000,
       env: {

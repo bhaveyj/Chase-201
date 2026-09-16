@@ -1,40 +1,37 @@
 "use client";
 
-import { Check, CircleDot, Shield, TrendingUp, Zap } from "lucide-react";
+import { Check, CircleDot, Shield, Zap } from "lucide-react";
 import type { LegacyStrategy, Match, Strategy } from "@/lib/api";
 
 const plans = [
   {
-    value: "PRESERVE",
-    title: "Preserve",
-    description: "Settle in. Protect your wicket.",
+    value: "DEFENSIVE",
+    title: "Defensive",
+    description: "Protect wickets. Take controlled singles; fewer boundaries.",
     icon: Shield,
-  },
-  {
-    value: "ROTATE",
-    title: "Rotate",
-    description: "Find singles, twos and threes.",
-    icon: TrendingUp,
   },
   {
     value: "BALANCED",
     title: "Balanced",
-    description: "Play the ball on its merits.",
+    description: "Rotate the strike. Choose your boundary chances.",
     icon: CircleDot,
   },
   {
-    value: "ATTACK",
-    title: "Attack",
-    description: "Seek boundaries. Accept the risk.",
-    icon: Zap,
-  },
-  {
-    value: "ALL_OUT",
-    title: "All-out Attack",
-    description: "Swing big. Risk a collapse.",
+    value: "AGGRESSIVE",
+    title: "Aggressive",
+    description: "Seek boundaries. Risk more missed shots and wickets.",
     icon: Zap,
   },
 ] as const;
+
+export function wicketRiskText(
+  probability: number | null | undefined,
+  band: string,
+) {
+  if (probability === 0) return "0% · None";
+  if (probability == null) return band;
+  return `${(probability * 100).toFixed(1)}% · ${band}`;
+}
 
 export function BattingPlans({
   strategy,
@@ -91,8 +88,15 @@ export function BattingPlans({
                     <dd>{assessment.boundary}</dd>
                   </div>
                   <div>
-                    <dt>Wicket risk</dt>
-                    <dd>{assessment.wicketRisk}</dd>
+                    <dt>Wicket risk: </dt>
+                    <dd>
+                      {wicketRiskText(
+                        "wicketProbability" in assessment
+                          ? assessment.wicketProbability
+                          : undefined,
+                        assessment.wicketRisk,
+                      )}
+                    </dd>
                   </div>
                 </dl>
               )}
@@ -101,8 +105,8 @@ export function BattingPlans({
         })}
       </div>
       <p className="plan-context-note">
-        These bands describe the next delivery against the current bowler. They
-        update as the chase changes.
+        These estimates describe the next delivery against the current bowler.
+        They update as the chase changes.
       </p>
     </fieldset>
   );

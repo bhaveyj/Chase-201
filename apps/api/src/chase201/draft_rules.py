@@ -7,6 +7,7 @@ from typing import Protocol
 
 LEGACY_SELECTION = "open-v1"
 BALANCED_SELECTION = "balanced-v1"
+SIMPLE_SELECTION = "simple-v1"
 STAR_POSITIONS = (0, 6)  # One batter and one all-rounder; batting order stays editable.
 ROLES = ["BATTER"] * 5 + ["WICKETKEEPER"] + ["ALL_ROUNDER"] * 2 + ["BOWLER"] * 3
 
@@ -21,7 +22,11 @@ class RatingBand:
 def rating_band(position: int, ruleset: str = BALANCED_SELECTION) -> RatingBand:
     if ruleset == LEGACY_SELECTION:
         return RatingBand("Open selection", 1, 100)
-    if ruleset != BALANCED_SELECTION or not 0 <= position < len(ROLES):
+    if ruleset not in {
+        BALANCED_SELECTION,
+        "tradeoffs-v1",
+        SIMPLE_SELECTION,
+    } or not 0 <= position < len(ROLES):
         raise ValueError("Unknown draft selection rules")
     return (
         RatingBand("Star player", 90, 92)

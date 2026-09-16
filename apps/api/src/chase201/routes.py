@@ -15,8 +15,11 @@ from chase201.schemas import (
     MatchView,
     OrderIn,
     Revision,
+    SavedMatchView,
     SelectionIn,
     StrategyDecision,
+    V2EventView,
+    V2StrategyDecision,
 )
 
 router = APIRouter(prefix="/api/v1")
@@ -104,7 +107,7 @@ async def confirm(
     return await edit_draft(draft_id, "confirm", body, idempotency_key, db, session)
 
 
-@router.post("/matches", response_model=MatchView)
+@router.post("/matches", response_model=MatchView | SavedMatchView)
 async def create_match(
     body: MatchIn, db: DB, session: MutationPrincipal, idempotency_key: str = Header()
 ) -> dict:
@@ -119,15 +122,15 @@ async def create_match(
     )
 
 
-@router.get("/matches/{match_id}", response_model=MatchView)
+@router.get("/matches/{match_id}", response_model=MatchView | SavedMatchView)
 async def read_match(match_id: str, db: DB, session: Principal) -> dict:
     return await svc.match_view(db, await svc.get_match(db, match_id, session, lock=True))
 
 
-@router.post("/matches/{match_id}/decisions", response_model=MatchView)
+@router.post("/matches/{match_id}/decisions", response_model=MatchView | SavedMatchView)
 async def decide(
     match_id: str,
-    body: StrategyDecision | LegacyStrategyDecision,
+    body: StrategyDecision | V2StrategyDecision | LegacyStrategyDecision,
     db: DB,
     session: MutationPrincipal,
     idempotency_key: str = Header(),
@@ -143,7 +146,7 @@ async def decide(
     )
 
 
-@router.get("/matches/{match_id}/events", response_model=list[EventView])
+@router.get("/matches/{match_id}/events", response_model=list[EventView | V2EventView])
 async def events(
     match_id: str, db: DB, session: Principal, after_revision: int = Query(0, ge=0)
 ) -> list[dict]:

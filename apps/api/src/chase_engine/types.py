@@ -6,11 +6,9 @@ from typing import Protocol
 
 
 class StrategyId(StrEnum):
-    PRESERVE = "PRESERVE"
-    ROTATE = "ROTATE"
+    DEFENSIVE = "DEFENSIVE"
     BALANCED = "BALANCED"
-    ATTACK = "ATTACK"
-    ALL_OUT = "ALL_OUT"
+    AGGRESSIVE = "AGGRESSIVE"
 
 
 class Outcome(StrEnum):

@@ -3,6 +3,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from chase_engine.types import Outcome, StrategyId
+from chase_engine.v2.types import StrategyId as V2StrategyId
 
 
 class APIModel(BaseModel):
@@ -29,6 +30,10 @@ class StrategyDecision(Revision):
     strategy: StrategyId
 
 
+class V2StrategyDecision(Revision):
+    strategy: V2StrategyId
+
+
 class LegacyStrategyDecision(Revision):
     intent: Literal["DEFEND", "ROTATE", "ATTACK"]
     riskFocus: Literal["PROTECT_WICKETS", "BALANCED", "MAXIMIZE_RUNS"]
@@ -39,6 +44,15 @@ class PlayerSummary(APIModel):
     name: str
     role: Literal["BATTER", "WICKETKEEPER", "ALL_ROUNDER", "BOWLER"]
     overallRating: int
+    battingRating: float | None = Field(default=None, ge=1, le=100)
+    battingPlaystyle: Literal["Anchor", "Rotator", "Hitter"] | None = Field(
+        default=None, exclude_if=lambda v: v is None
+    )
+    battingControl: float | None = Field(default=None, ge=1, le=100, exclude_if=lambda v: v is None)
+    battingRotation: float | None = Field(
+        default=None, ge=1, le=100, exclude_if=lambda v: v is None
+    )
+    battingPower: float | None = Field(default=None, ge=1, le=100, exclude_if=lambda v: v is None)
 
 
 class SessionView(APIModel):
@@ -121,11 +135,20 @@ class ContextSummary(APIModel):
 Band = Literal["Very low", "Low", "Moderate", "High", "Very high"]
 
 
-class AssessmentView(APIModel):
-    strategy: StrategyId
+class AssessmentBands(APIModel):
     scoring: Band
     wicketRisk: Band | Literal["None (free hit)"]
     boundary: Band
+
+
+class AssessmentView(AssessmentBands):
+    strategy: StrategyId
+    # Absent only in historical idempotency receipts created before this field existed.
+    wicketProbability: float | None = Field(default=None, ge=0, le=1)
+
+
+class V2AssessmentView(AssessmentBands):
+    strategy: V2StrategyId
 
 
 class UpcomingBowler(PlayerSummary):
@@ -144,7 +167,7 @@ class DeliveryView(APIModel):
     freeHit: bool
 
 
-class EventView(APIModel):
+class EventData(APIModel):
     revision: int
     sequence: int
     kind: str
@@ -158,7 +181,6 @@ class EventView(APIModel):
     freeHit: bool
     batterId: str | None = None
     bowlerId: str | None = None
-    strategy: StrategyId | None = None
     interruption: (
         Literal["WINDOW_END", "WICKET", "NO_BALL", "FREE_HIT", "INNINGS_COMPLETE"] | None
     ) = None
@@ -167,20 +189,37 @@ class EventView(APIModel):
     contextAfter: ContextSummary | None = None
 
 
-class MatchView(APIModel):
+class EventView(EventData):
+    strategy: StrategyId | None = None
+
+
+class V2EventView(EventData):
+    strategy: V2StrategyId | None = None
+
+
+class MatchData(APIModel):
     id: str
     revision: int
-    rulesetVersion: str
     target: int
     decisionWindow: int
     state: StateView
     team: list[PlayerSummary]
     opponent: list[PlayerSummary]
-    events: list[EventView]
     createdAt: str
     context: ContextSummary | None = None
-    strategyAssessments: list[AssessmentView] = Field(default_factory=list)
     upcomingBowlers: list[UpcomingBowler] = Field(default_factory=list)
+
+
+class MatchView(MatchData):
+    rulesetVersion: Literal["v3.0", "v3.1"]
+    events: list[EventView]
+    strategyAssessments: list[AssessmentView] = Field(default_factory=list)
+
+
+class SavedMatchView(MatchData):
+    rulesetVersion: Literal["v1.0", "v2.0", "v2.1"]
+    events: list[V2EventView]
+    strategyAssessments: list[V2AssessmentView] = Field(default_factory=list)
 
 
 class HistoryEntry(APIModel):

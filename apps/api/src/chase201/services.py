@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from chase201.catalog import COMPOSITION, ROLES
 from chase201.config import get_settings
-from chase201.draft_rules import BALANCED_SELECTION, draft_offers, opponent_players, rating_band
+from chase201.draft_rules import SIMPLE_SELECTION, draft_offers, opponent_players, rating_band
 from chase201.models import (
     BattingPerformance,
     BowlingPerformance,
@@ -34,23 +34,32 @@ from chase201.models import (
     TeamMember,
     now,
 )
-from chase201.schemas import LegacyStrategyDecision, StrategyDecision
+from chase201.schemas import LegacyStrategyDecision, StrategyDecision, V2StrategyDecision
+from chase201.tradeoffs import (
+    TRADEOFF_SELECTION,
+    DraftProfile,
+    playstyle,
+    shuffled_allocation,
+    validate_allocation,
+)
+from chase_engine import engine as v3_engine
 from chase_engine import legacy
-from chase_engine.context import context_summary, derive_context
 from chase_engine.engine import (
-    DEFAULT_RULES,
-    RULESETS,
     GameState,
     PlayerProfile,
-    StrategyId,
-    assess,
-    distribution,
-    initial_state,
-    simulate_step,
-    window_for,
 )
-from chase_engine.transitions import current_bowler
 from chase_engine.types import BowlingStyle, Transition
+from chase_engine.v2 import engine as v2_engine
+from chase_engine.v31 import engine as v31_engine
+from chase_engine.v31.types import BowlingStyle as SimpleBowlingStyle
+
+THREE_MODE_RULESETS = {"v3.0", "v3.1"}
+
+
+def engine_for(ruleset: str) -> Any:
+    if ruleset == "v3.1":
+        return v31_engine
+    return v3_engine if ruleset == "v3.0" else v2_engine
 
 
 def owned(item: Draft | Match, principal: Session) -> None:
@@ -128,12 +137,27 @@ def remember(
     return result
 
 
-def summary(player: Player) -> dict[str, Any]:
+def summary(
+    player: Player, profile: SimulationProfile | None = None, simple: bool = False
+) -> dict[str, Any]:
     return {
         "id": player.id,
         "name": player.name,
         "role": player.role,
         "overallRating": player.overall_rating,
+        **({"battingRating": profile.batting} if profile is not None else {}),
+        **(
+            {
+                "battingPlaystyle": playstyle(
+                    (profile.batting_control, profile.batting_rotation, profile.batting_power)
+                ),
+                "battingControl": profile.batting_control,
+                "battingRotation": profile.batting_rotation,
+                "battingPower": profile.batting_power,
+            }
+            if profile is not None and not simple
+            else {}
+        ),
     }
 
 
@@ -145,8 +169,9 @@ async def draft_view(db: AsyncSession, draft: Draft) -> dict:
     ).all()
     offers = (
         await db.execute(
-            select(DraftOffer.slot_id, Player)
+            select(DraftOffer.slot_id, Player, SimulationProfile)
             .join(Player, Player.id == DraftOffer.player_id)
+            .join(SimulationProfile, SimulationProfile.player_id == Player.id)
             .join(DraftSlot, DraftSlot.id == DraftOffer.slot_id)
             .where(DraftSlot.draft_id == draft.id)
             .order_by(Player.id)
@@ -176,7 +201,11 @@ async def draft_view(db: AsyncSession, draft: Draft) -> dict:
                 "id": slot.id,
                 "role": slot.role,
                 "position": slot.position,
-                "options": [summary(p) for slot_id, p in offers if slot_id == slot.id],
+                "options": [
+                    summary(p, profile, draft.selection_ruleset == SIMPLE_SELECTION)
+                    for slot_id, p, profile in offers
+                    if slot_id == slot.id
+                ],
                 "selectedPlayerId": choices.get(slot.id),
                 "ratingLabel": rating_band(slot.position, draft.selection_ruleset).label,
                 "minimumRating": rating_band(slot.position, draft.selection_ruleset).minimum,
@@ -192,17 +221,39 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
     version = await db.get(CatalogVersion, get_settings().catalog_version)
     if not version or (get_settings().environment == "production" and not version.approved):
         raise HTTPException(503, "The player catalog is not ready")
+    if version.selection_ruleset not in {TRADEOFF_SELECTION, SIMPLE_SELECTION}:
+        raise HTTPException(503, "New drafts require a validated simple or tradeoff catalog")
     draft = Draft(
         session_id=None if principal.user_id else principal.id,
         user_id=principal.user_id,
         catalog_id=version.id,
-        selection_ruleset=BALANCED_SELECTION,
+        selection_ruleset=version.selection_ruleset,
     )
     db.add(draft)
     await db.flush()
     catalog = list((await db.scalars(select(Player).where(Player.catalog_id == version.id))).all())
     try:
-        offers = draft_offers(catalog, secrets.SystemRandom())
+        if version.selection_ruleset == SIMPLE_SELECTION:
+            offers = draft_offers(catalog, secrets.SystemRandom())
+        else:
+            profiles = await engine_team(db, [p.id for p in catalog])
+            validate_allocation(
+                [
+                    DraftProfile(
+                        p.id,
+                        p.role,
+                        p.overall,
+                        (p.batting_control, p.batting_rotation, p.batting_power),
+                    )
+                    for p in profiles
+                ],
+                version.offer_allocation,
+            )
+            by_id = {p.id: p for p in catalog}
+            offers = [
+                [by_id[i] for i in group]
+                for group in shuffled_allocation(version.offer_allocation, secrets.SystemRandom())
+            ]
     except ValueError as error:
         raise HTTPException(503, str(error)) from error
     for position, role in enumerate(ROLES):
@@ -283,7 +334,7 @@ async def confirm_team(db: AsyncSession, draft: Draft) -> None:
     draft.status = "CONFIRMED"
 
 
-async def engine_team(db: AsyncSession, ids: list[str]) -> list[PlayerProfile]:
+async def engine_team(db: AsyncSession, ids: list[str], ruleset: str = "v3.0") -> list[Any]:
     rows = (
         await db.execute(
             select(Player, SimulationProfile)
@@ -292,7 +343,17 @@ async def engine_team(db: AsyncSession, ids: list[str]) -> list[PlayerProfile]:
         )
     ).all()
     profiles = {
-        p.id: PlayerProfile(
+        p.id: v31_engine.PlayerProfile(
+            id=p.id,
+            role=p.role,
+            overall=p.overall_rating,
+            batting=profile.batting,
+            bowling_control=profile.bowling_control,
+            bowling_threat=profile.bowling_threat,
+            bowling_style=SimpleBowlingStyle(profile.bowling_style),
+        )
+        if ruleset == "v3.1"
+        else PlayerProfile(
             p.id,
             p.role,
             p.overall_rating,
@@ -348,7 +409,10 @@ async def create_match(db: AsyncSession, draft: Draft, principal: Session) -> Ma
     )
     opponent = [p.id for p in opponent_players(catalog, secrets.SystemRandom())]
     ids = await team_ids(db, team.id)
-    state = initial_state(await engine_team(db, ids), await engine_team(db, opponent))
+    ruleset = "v3.1" if draft.selection_ruleset == SIMPLE_SELECTION else "v3.0"
+    state = engine_for(ruleset).initial_state(
+        await engine_team(db, ids, ruleset), await engine_team(db, opponent, ruleset)
+    )
     match = Match(
         team_id=team.id,
         session_id=None if principal.user_id else principal.id,
@@ -356,7 +420,7 @@ async def create_match(db: AsyncSession, draft: Draft, principal: Session) -> Ma
         opponent=opponent,
         seed=secrets.token_hex(32),
         state=asdict(state),
-        ruleset=DEFAULT_RULES.version,
+        ruleset=ruleset,
     )
     db.add(match)
     draft.revision += 1
@@ -387,7 +451,7 @@ async def persist_scorecard(
 async def advance_match(
     db: AsyncSession,
     match: Match,
-    decision: StrategyDecision | LegacyStrategyDecision,
+    decision: StrategyDecision | V2StrategyDecision | LegacyStrategyDecision,
 ) -> None:
     if match.state["status"] != "LIVE":
         raise HTTPException(409, "This match has finished")
@@ -417,16 +481,25 @@ async def advance_match(
             risk_focus=decision.riskFocus,
         )
     else:
-        if not isinstance(decision, StrategyDecision):
-            raise HTTPException(422, "Choose one of the five batting plans for this match")
-        state = GameState.from_dict(match.state)
-        rules = RULESETS[match.ruleset]
-        transition = simulate_step(
+        engine = engine_for(match.ruleset)
+        if (
+            isinstance(decision, LegacyStrategyDecision)
+            or decision.strategy.value not in engine.StrategyId.__members__
+        ):
+            raise HTTPException(
+                422,
+                "Choose Defensive, Balanced or Aggressive"
+                if match.ruleset in THREE_MODE_RULESETS
+                else "This saved match uses its original five plans",
+            )
+        state = engine.GameState.from_dict(match.state)
+        rules = engine.RULESETS[match.ruleset]
+        transition = engine.simulate_step(
             state,
-            await engine_team(db, ids),
-            await engine_team(db, match.opponent),
-            decision.strategy,
-            window_for(state, rules).max_legal_balls,
+            await engine_team(db, ids, match.ruleset),
+            await engine_team(db, match.opponent, match.ruleset),
+            engine.StrategyId(decision.strategy.value),
+            engine.window_for(state, rules).max_legal_balls,
             rules,
             random.Random(seed),
         )
@@ -468,6 +541,14 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
             await db.scalars(select(Player).where(Player.id.in_([*ids, *match.opponent])))
         ).all()
     }
+    display_profiles = {
+        p.player_id: p
+        for p in (
+            await db.scalars(
+                select(SimulationProfile).where(SimulationProfile.player_id.in_(players))
+            )
+        ).all()
+    }
     contextual: dict[str, Any] = {"context": None, "strategyAssessments": [], "upcomingBowlers": []}
     if match.ruleset == "v1.0":
         target = legacy.RULESETS[match.ruleset].target
@@ -475,36 +556,43 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
             legacy.decision_window(match.state["balls"]) if match.state["status"] == "LIVE" else 0
         )
     else:
-        rules = RULESETS[match.ruleset]
+        engine = engine_for(match.ruleset)
+        rules = engine.RULESETS[match.ruleset]
         target = rules.target
-        state = GameState.from_dict(match.state)
-        window_size = window_for(state, rules).max_legal_balls
+        state = engine.GameState.from_dict(match.state)
+        window_size = engine.window_for(state, rules).max_legal_balls
         if state.status == "LIVE":
-            batters = {p.id: p for p in await engine_team(db, ids)}
-            bowlers = {p.id: p for p in await engine_team(db, match.opponent)}
+            batters = {p.id: p for p in await engine_team(db, ids, match.ruleset)}
+            bowlers = {p.id: p for p in await engine_team(db, match.opponent, match.ruleset)}
             batter = batters[state.batting[state.striker].player_id]
             partner = batters[state.batting[state.non_striker].player_id]
-            bowler = bowlers[current_bowler(state).player_id]
-            contextual["context"] = context_summary(
-                state, derive_context(state, batter, partner, bowler, rules), rules
+            bowler = bowlers[engine.current_bowler(state).player_id]
+            contextual["context"] = engine.context_summary(
+                state, engine.derive_context(state, batter, partner, bowler, rules), rules
             )
-            for strategy in StrategyId:
-                assessment = assess(
-                    strategy, distribution(state, batter, partner, bowler, strategy, rules), rules
-                )
+            for strategy in engine.StrategyId:
+                outcomes = engine.distribution(state, batter, partner, bowler, strategy, rules)
+                assessment = engine.assess(strategy, outcomes, rules)
                 contextual["strategyAssessments"].append(
                     {
                         "strategy": strategy.value,
                         "scoring": assessment.scoring_band,
                         "wicketRisk": assessment.wicket_risk_band,
                         "boundary": assessment.boundary_band,
+                        **(
+                            {"wicketProbability": outcomes.wicket_probability}
+                            if match.ruleset in THREE_MODE_RULESETS
+                            else {}
+                        ),
                     }
                 )
             for over in range(state.balls // 6, (state.balls + window_size - 1) // 6 + 1):
                 player_id = state.bowling[over % len(state.bowling)].player_id
                 contextual["upcomingBowlers"].append(
                     {
-                        **summary(players[player_id]),
+                        **summary(
+                            players[player_id], display_profiles[player_id], match.ruleset == "v3.1"
+                        ),
                         "style": bowlers[player_id].bowling_style.value,
                         "over": over + 1,
                     }
@@ -517,8 +605,11 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
         "decisionWindow": window_size,
         **contextual,
         "state": match.state,
-        "team": [summary(players[i]) for i in ids],
-        "opponent": [summary(players[i]) for i in match.opponent],
+        "team": [summary(players[i], display_profiles[i], match.ruleset == "v3.1") for i in ids],
+        "opponent": [
+            summary(players[i], display_profiles[i], match.ruleset == "v3.1")
+            for i in match.opponent
+        ],
         "events": await events_view(db, match.id),
         "createdAt": match.created_at.replace(tzinfo=UTC).isoformat(),
     }

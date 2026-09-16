@@ -2,6 +2,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { api, APIError, API_URL, overs, strategySchema } from "@/lib/api";
+import type { Match } from "@/lib/api";
 
 const server = setupServer();
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
@@ -9,6 +10,36 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe("server state client", () => {
+  it.each(["v3.0", "v3.1"] as const)(
+    "routes %s through the three-mode contract",
+    async (rulesetVersion) => {
+      server.use(
+        http.post(
+          `${API_URL}/api/v1/matches/m/decisions`,
+          async ({ request }) => {
+            expect(await request.json()).toEqual({
+              expectedRevision: 7,
+              strategy: "AGGRESSIVE",
+            });
+            return HttpResponse.json({ id: "m", revision: 8, rulesetVersion });
+          },
+        ),
+      );
+      const session = {
+        kind: "guest" as const,
+        csrfToken: "csrf",
+        revision: 0,
+        googleEnabled: false,
+      };
+      const match = { id: "m", revision: 7, rulesetVersion } as Match;
+      expect(
+        (await api.decide(session, match, "AGGRESSIVE", "test-key")).revision,
+      ).toBe(8);
+      await expect(
+        api.decide(session, match, "ATTACK", "test-key"),
+      ).rejects.toThrow();
+    },
+  );
   it("retrieves sessions without browser storage", async () => {
     server.use(
       http.get(`${API_URL}/api/v1/session`, () =>
@@ -61,7 +92,9 @@ describe("server state client", () => {
   it("formats legal balls and validates strategy values", () => {
     expect(overs(119)).toBe("19.5");
     expect(overs(120)).toBe("20.0");
-    expect(strategySchema.safeParse("ATTACK").success).toBe(true);
+    expect(strategySchema.safeParse("AGGRESSIVE").success).toBe(true);
     expect(strategySchema.safeParse("CHEAT").success).toBe(false);
+    for (const old of ["PRESERVE", "ROTATE", "ATTACK", "ALL_OUT"])
+      expect(strategySchema.safeParse(old).success).toBe(false);
   });
 });

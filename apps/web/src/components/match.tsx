@@ -8,6 +8,7 @@ import { api, Match, overs, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, GoogleLink, Loading, useSession } from "./common";
 
+import { V2Plans } from "./v2-plans";
 import { BattingPlans, LegacyPlans } from "./batting-plans";
 
 export function Scorecard({ match }: { match: Match }) {
@@ -149,6 +150,12 @@ export function MatchScreen({
   });
   const strategy = useUI((s) => s.strategy);
   const setStrategy = useUI((s) => s.setStrategy);
+  const v2Strategy = useUI((s) => s.v2Strategy);
+  const setV2Strategy = useUI((s) => s.setV2Strategy);
+  useEffect(() => {
+    setStrategy("BALANCED");
+    setV2Strategy("BALANCED");
+  }, [id, setStrategy, setV2Strategy]);
   const legacyStrategy = useUI((s) => s.legacyStrategy);
   const setLegacyStrategy = useUI((s) => s.setLegacyStrategy);
   const m = query.data;
@@ -157,7 +164,11 @@ export function MatchScreen({
       api.decide(
         session.data!,
         m!,
-        m?.rulesetVersion === "v1.0" ? legacyStrategy : strategy,
+        m?.rulesetVersion === "v1.0"
+          ? legacyStrategy
+          : m?.rulesetVersion === "v3.0" || m?.rulesetVersion === "v3.1"
+            ? strategy
+            : v2Strategy,
         crypto.randomUUID(),
       ),
     onSuccess: (next) => client.setQueryData(["match", id], next),
@@ -436,6 +447,13 @@ export function MatchScreen({
                 <LegacyPlans
                   strategy={legacyStrategy}
                   onChange={setLegacyStrategy}
+                  disabled={action.isPending}
+                />
+              ) : m.rulesetVersion !== "v3.0" && m.rulesetVersion !== "v3.1" ? (
+                <V2Plans
+                  strategy={v2Strategy}
+                  assessments={m.strategyAssessments}
+                  onChange={setV2Strategy}
                   disabled={action.isPending}
                 />
               ) : (

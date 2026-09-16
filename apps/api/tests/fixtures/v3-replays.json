@@ -1,0 +1,1783 @@
+{
+  "ruleset": "v3.0",
+  "team": [
+    {
+      "id": "0",
+      "role": "BATTER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "1",
+      "role": "BATTER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "2",
+      "role": "BATTER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "3",
+      "role": "BATTER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "4",
+      "role": "BATTER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "5",
+      "role": "WICKETKEEPER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "6",
+      "role": "ALL_ROUNDER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "7",
+      "role": "ALL_ROUNDER",
+      "overall": 82,
+      "batting_control": 82,
+      "batting_rotation": 82,
+      "batting_power": 82,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "8",
+      "role": "BOWLER",
+      "overall": 82,
+      "batting_control": 46,
+      "batting_rotation": 46,
+      "batting_power": 46,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "9",
+      "role": "BOWLER",
+      "overall": 82,
+      "batting_control": 46,
+      "batting_rotation": 46,
+      "batting_power": 46,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "10",
+      "role": "BOWLER",
+      "overall": 82,
+      "batting_control": 46,
+      "batting_rotation": 46,
+      "batting_power": 46,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    }
+  ],
+  "opponent": [
+    {
+      "id": "ai0",
+      "role": "BATTER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    },
+    {
+      "id": "ai1",
+      "role": "BATTER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "ai2",
+      "role": "BATTER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    },
+    {
+      "id": "ai3",
+      "role": "BATTER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "ai4",
+      "role": "BATTER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    },
+    {
+      "id": "ai5",
+      "role": "WICKETKEEPER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "ai6",
+      "role": "ALL_ROUNDER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    },
+    {
+      "id": "ai7",
+      "role": "ALL_ROUNDER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "ai8",
+      "role": "BOWLER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    },
+    {
+      "id": "ai9",
+      "role": "BOWLER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "PACE"
+    },
+    {
+      "id": "ai10",
+      "role": "BOWLER",
+      "overall": 80,
+      "batting_control": 80,
+      "batting_rotation": 80,
+      "batting_power": 80,
+      "bowling_control": 80,
+      "bowling_threat": 80,
+      "bowling_style": "SPIN"
+    }
+  ],
+  "replays": [
+    {
+      "seed": 7,
+      "strategy": "DEFENSIVE",
+      "state": {
+        "runs": 180,
+        "wickets": 2,
+        "balls": 120,
+        "wides": 2,
+        "no_balls": 1,
+        "striker": 3,
+        "non_striker": 2,
+        "next_batter": 4,
+        "free_hit": false,
+        "status": "LOST",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 68,
+            "balls": 47,
+            "fours": 4,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 46,
+            "balls": 36,
+            "fours": 2,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 41,
+            "balls": 24,
+            "fours": 2,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "3",
+            "runs": 22,
+            "balls": 13,
+            "fours": 1,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "4",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 20,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai6",
+            "runs": 38,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 37,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai8",
+            "runs": 43,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai9",
+            "runs": 42,
+            "balls": 24,
+            "wickets": 0
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9"
+        ],
+        "recent_outcomes": [
+          "ONE",
+          "FOUR",
+          "ONE",
+          "ONE",
+          "ONE",
+          "DOT"
+        ],
+        "partnership_runs": 49,
+        "partnership_balls": 27,
+        "last_wicket_ball": 93
+      },
+      "traceSha256": "f7bf64e509351dc672efd4ec98708d023fa4e79b53dec4199f18383aa863d381"
+    },
+    {
+      "seed": 201,
+      "strategy": "DEFENSIVE",
+      "state": {
+        "runs": 167,
+        "wickets": 1,
+        "balls": 120,
+        "wides": 1,
+        "no_balls": 0,
+        "striker": 2,
+        "non_striker": 0,
+        "next_batter": 3,
+        "free_hit": false,
+        "status": "LOST",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 92,
+            "balls": 59,
+            "fours": 7,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "1",
+            "runs": 40,
+            "balls": 27,
+            "fours": 3,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 34,
+            "balls": 34,
+            "fours": 2,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "3",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "4",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 37,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 35,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai7",
+            "runs": 30,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai8",
+            "runs": 36,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai9",
+            "runs": 29,
+            "balls": 24,
+            "wickets": 0
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9"
+        ],
+        "recent_outcomes": [
+          "FOUR",
+          "DOT",
+          "FOUR",
+          "ONE",
+          "ONE",
+          "ONE"
+        ],
+        "partnership_runs": 89,
+        "partnership_balls": 70,
+        "last_wicket_ball": 50
+      },
+      "traceSha256": "ac04936670af48abc9ad5bc18807e9d94b57b1e955fda9fe25b07ee4a1ccad9e"
+    },
+    {
+      "seed": 812,
+      "strategy": "DEFENSIVE",
+      "state": {
+        "runs": 193,
+        "wickets": 1,
+        "balls": 120,
+        "wides": 3,
+        "no_balls": 2,
+        "striker": 1,
+        "non_striker": 2,
+        "next_batter": 3,
+        "free_hit": false,
+        "status": "LOST",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 101,
+            "balls": 65,
+            "fours": 7,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 75,
+            "balls": 50,
+            "fours": 3,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "2",
+            "runs": 12,
+            "balls": 5,
+            "fours": 1,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "3",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "4",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 36,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 39,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai7",
+            "runs": 39,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai8",
+            "runs": 40,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai9",
+            "runs": 39,
+            "balls": 24,
+            "wickets": 0
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9"
+        ],
+        "recent_outcomes": [
+          "TWO",
+          "ONE",
+          "WIDE",
+          "ONE",
+          "ONE",
+          "ONE"
+        ],
+        "partnership_runs": 17,
+        "partnership_balls": 9,
+        "last_wicket_ball": 111
+      },
+      "traceSha256": "fe6613993e349a4002ede11c081de0c38306829cfdca9dad13c3889b3459b195"
+    },
+    {
+      "seed": 7,
+      "strategy": "BALANCED",
+      "state": {
+        "runs": 190,
+        "wickets": 8,
+        "balls": 120,
+        "wides": 2,
+        "no_balls": 1,
+        "striker": 9,
+        "non_striker": 1,
+        "next_batter": 10,
+        "free_hit": false,
+        "status": "LOST",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 21,
+            "balls": 16,
+            "fours": 3,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 114,
+            "balls": 62,
+            "fours": 18,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "2",
+            "runs": 29,
+            "balls": 16,
+            "fours": 5,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "3",
+            "runs": 2,
+            "balls": 4,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "4",
+            "runs": 3,
+            "balls": 3,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "5",
+            "runs": 9,
+            "balls": 4,
+            "fours": 2,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "6",
+            "runs": 8,
+            "balls": 4,
+            "fours": 0,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 4,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "8",
+            "runs": 1,
+            "balls": 3,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 4,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 23,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai6",
+            "runs": 53,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 43,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai8",
+            "runs": 39,
+            "balls": 24,
+            "wickets": 2
+          },
+          {
+            "player_id": "ai9",
+            "runs": 32,
+            "balls": 24,
+            "wickets": 3
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9"
+        ],
+        "recent_outcomes": [
+          "DOT",
+          "WICKET",
+          "DOT",
+          "DOT",
+          "DOT",
+          "DOT"
+        ],
+        "partnership_runs": 0,
+        "partnership_balls": 4,
+        "last_wicket_ball": 116
+      },
+      "traceSha256": "338d868c34da68c8cc0e471ab1df7b13ecca74eb85ed23cf9bf1a5dbf34df400"
+    },
+    {
+      "seed": 201,
+      "strategy": "BALANCED",
+      "state": {
+        "runs": 201,
+        "wickets": 3,
+        "balls": 115,
+        "wides": 1,
+        "no_balls": 0,
+        "striker": 4,
+        "non_striker": 2,
+        "next_batter": 5,
+        "free_hit": false,
+        "status": "WON",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 44,
+            "balls": 23,
+            "fours": 5,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 32,
+            "balls": 19,
+            "fours": 2,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 49,
+            "balls": 28,
+            "fours": 4,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "3",
+            "runs": 5,
+            "balls": 3,
+            "fours": 1,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "4",
+            "runs": 70,
+            "balls": 42,
+            "fours": 5,
+            "sixes": 4,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 51,
+            "balls": 24,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 36,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 36,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai8",
+            "runs": 47,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai9",
+            "runs": 31,
+            "balls": 19,
+            "wickets": 0
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9"
+        ],
+        "recent_outcomes": [
+          "ONE",
+          "TWO",
+          "FOUR",
+          "DOT",
+          "ONE",
+          "SIX"
+        ],
+        "partnership_runs": 113,
+        "partnership_balls": 65,
+        "last_wicket_ball": 50
+      },
+      "traceSha256": "5b11a3697c4a95989c333201f0307cbe9398fbaf4bd22cb75cb9582fef708fd8"
+    },
+    {
+      "seed": 812,
+      "strategy": "BALANCED",
+      "state": {
+        "runs": 206,
+        "wickets": 3,
+        "balls": 107,
+        "wides": 2,
+        "no_balls": 2,
+        "striker": 3,
+        "non_striker": 4,
+        "next_batter": 5,
+        "free_hit": false,
+        "status": "WON",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 66,
+            "balls": 41,
+            "fours": 9,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 25,
+            "balls": 14,
+            "fours": 3,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 52,
+            "balls": 25,
+            "fours": 6,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "3",
+            "runs": 43,
+            "balls": 17,
+            "fours": 2,
+            "sixes": 3,
+            "out": false
+          },
+          {
+            "player_id": "4",
+            "runs": 16,
+            "balls": 10,
+            "fours": 1,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 39,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai6",
+            "runs": 44,
+            "balls": 24,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 53,
+            "balls": 23,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai8",
+            "runs": 31,
+            "balls": 18,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai9",
+            "runs": 39,
+            "balls": 18,
+            "wickets": 1
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7"
+        ],
+        "recent_outcomes": [
+          "FOUR",
+          "DOT",
+          "TWO",
+          "NO_BALL",
+          "ONE",
+          "SIX"
+        ],
+        "partnership_runs": 36,
+        "partnership_balls": 16,
+        "last_wicket_ball": 91
+      },
+      "traceSha256": "4847d13be7bb893d93057bb752c5322ddaea57d1d3b3d3ed8cd63e10f517a560"
+    },
+    {
+      "seed": 7,
+      "strategy": "AGGRESSIVE",
+      "state": {
+        "runs": 201,
+        "wickets": 6,
+        "balls": 91,
+        "wides": 1,
+        "no_balls": 1,
+        "striker": 6,
+        "non_striker": 7,
+        "next_batter": 8,
+        "free_hit": false,
+        "status": "WON",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 7,
+            "balls": 6,
+            "fours": 0,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 64,
+            "balls": 25,
+            "fours": 4,
+            "sixes": 7,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 13,
+            "balls": 8,
+            "fours": 3,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "3",
+            "runs": 80,
+            "balls": 33,
+            "fours": 7,
+            "sixes": 7,
+            "out": true
+          },
+          {
+            "player_id": "4",
+            "runs": 1,
+            "balls": 5,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "5",
+            "runs": 0,
+            "balls": 3,
+            "fours": 0,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "6",
+            "runs": 20,
+            "balls": 6,
+            "fours": 2,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 14,
+            "balls": 5,
+            "fours": 0,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 38,
+            "balls": 19,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 35,
+            "balls": 18,
+            "wickets": 2
+          },
+          {
+            "player_id": "ai7",
+            "runs": 39,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai8",
+            "runs": 41,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai9",
+            "runs": 48,
+            "balls": 18,
+            "wickets": 2
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10"
+        ],
+        "recent_outcomes": [
+          "SIX",
+          "SIX",
+          "TWO",
+          "DOT",
+          "DOT",
+          "FOUR"
+        ],
+        "partnership_runs": 18,
+        "partnership_balls": 6,
+        "last_wicket_ball": 85
+      },
+      "traceSha256": "c22a72627998cafc72e441f07f51e4e0a809fdd0af48b3a84995984b0e421f64"
+    },
+    {
+      "seed": 201,
+      "strategy": "AGGRESSIVE",
+      "state": {
+        "runs": 204,
+        "wickets": 5,
+        "balls": 95,
+        "wides": 1,
+        "no_balls": 0,
+        "striker": 5,
+        "non_striker": 6,
+        "next_batter": 7,
+        "free_hit": false,
+        "status": "WON",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 19,
+            "balls": 11,
+            "fours": 3,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 38,
+            "balls": 12,
+            "fours": 5,
+            "sixes": 3,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 14,
+            "balls": 9,
+            "fours": 3,
+            "sixes": 0,
+            "out": true
+          },
+          {
+            "player_id": "3",
+            "runs": 24,
+            "balls": 11,
+            "fours": 1,
+            "sixes": 3,
+            "out": true
+          },
+          {
+            "player_id": "4",
+            "runs": 6,
+            "balls": 4,
+            "fours": 0,
+            "sixes": 1,
+            "out": true
+          },
+          {
+            "player_id": "5",
+            "runs": 62,
+            "balls": 26,
+            "fours": 9,
+            "sixes": 4,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 40,
+            "balls": 22,
+            "fours": 5,
+            "sixes": 2,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 63,
+            "balls": 23,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 28,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 36,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai8",
+            "runs": 33,
+            "balls": 18,
+            "wickets": 3
+          },
+          {
+            "player_id": "ai9",
+            "runs": 44,
+            "balls": 18,
+            "wickets": 0
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10"
+        ],
+        "recent_outcomes": [
+          "DOT",
+          "SIX",
+          "SIX",
+          "FOUR",
+          "DOT",
+          "FOUR"
+        ],
+        "partnership_runs": 102,
+        "partnership_balls": 45,
+        "last_wicket_ball": 50
+      },
+      "traceSha256": "3bb7667b418f6819049716df39d6cd9534eed5991b0dd09409875e3ce487d8ad"
+    },
+    {
+      "seed": 812,
+      "strategy": "AGGRESSIVE",
+      "state": {
+        "runs": 203,
+        "wickets": 4,
+        "balls": 83,
+        "wides": 2,
+        "no_balls": 1,
+        "striker": 5,
+        "non_striker": 4,
+        "next_batter": 6,
+        "free_hit": false,
+        "status": "WON",
+        "batting": [
+          {
+            "player_id": "0",
+            "runs": 26,
+            "balls": 12,
+            "fours": 3,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "1",
+            "runs": 99,
+            "balls": 38,
+            "fours": 11,
+            "sixes": 8,
+            "out": true
+          },
+          {
+            "player_id": "2",
+            "runs": 46,
+            "balls": 14,
+            "fours": 2,
+            "sixes": 6,
+            "out": true
+          },
+          {
+            "player_id": "3",
+            "runs": 18,
+            "balls": 9,
+            "fours": 1,
+            "sixes": 2,
+            "out": true
+          },
+          {
+            "player_id": "4",
+            "runs": 0,
+            "balls": 2,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "5",
+            "runs": 11,
+            "balls": 8,
+            "fours": 1,
+            "sixes": 1,
+            "out": false
+          },
+          {
+            "player_id": "6",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "7",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "8",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "9",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          },
+          {
+            "player_id": "10",
+            "runs": 0,
+            "balls": 0,
+            "fours": 0,
+            "sixes": 0,
+            "out": false
+          }
+        ],
+        "bowling": [
+          {
+            "player_id": "ai10",
+            "runs": 46,
+            "balls": 18,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai6",
+            "runs": 43,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai7",
+            "runs": 40,
+            "balls": 18,
+            "wickets": 1
+          },
+          {
+            "player_id": "ai8",
+            "runs": 42,
+            "balls": 17,
+            "wickets": 0
+          },
+          {
+            "player_id": "ai9",
+            "runs": 32,
+            "balls": 12,
+            "wickets": 2
+          }
+        ],
+        "over_bowlers": [
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8",
+          "ai9",
+          "ai10",
+          "ai6",
+          "ai7",
+          "ai8"
+        ],
+        "recent_outcomes": [
+          "ONE",
+          "DOT",
+          "DOT",
+          "DOT",
+          "DOT",
+          "SIX"
+        ],
+        "partnership_runs": 11,
+        "partnership_balls": 8,
+        "last_wicket_ball": 75
+      },
+      "traceSha256": "5aeacfbbf06790d2c00068643e1fa67ef56fc244ece5a46d46ec1561c39a16b8"
+    }
+  ]
+}

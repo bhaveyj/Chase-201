@@ -9,8 +9,8 @@ from dataclasses import asdict
 from pathlib import Path
 from statistics import mean, pvariance
 
-from chase_engine.context import derive_context
-from chase_engine.engine import (
+from chase_engine.v2.context import derive_context
+from chase_engine.v2.engine import (
     DEFAULT_RULES,
     PlayerProfile,
     StrategyId,
@@ -18,9 +18,9 @@ from chase_engine.engine import (
     simulate_step,
     window_for,
 )
-from chase_engine.rules import phase_index
-from chase_engine.transitions import apply_delivery, current_bowler
-from chase_engine.types import BowlingStyle, Outcome
+from chase_engine.v2.rules import phase_index
+from chase_engine.v2.transitions import apply_delivery, current_bowler
+from chase_engine.v2.types import BowlingStyle, Outcome
 
 ROLES = ["BATTER"] * 5 + ["WICKETKEEPER"] + ["ALL_ROUNDER"] * 2 + ["BOWLER"] * 3
 TEAM = [
@@ -241,7 +241,7 @@ def catalog_sensitivity(seeds):
     rows = []
     for player in catalog:
         # Each catalog player faces the same fresh batter/bowler scenario under every plan.
-        from chase_engine.probabilities import distribution
+        from chase_engine.v2.probabilities import distribution
 
         state = initial_state(TEAM, OPPONENT)
         rows.append(

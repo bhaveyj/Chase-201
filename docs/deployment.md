@@ -22,7 +22,7 @@ The fragment illustrates the schema, not a valid full catalog. Include at least 
 
 After migrating, run `python -m chase201.catalog --file /path/to/approved.json` against the intended database, and set `CATALOG_VERSION` to its version. `approved: true` records an actual human approval; the importer cannot determine legal rights. Recalibrate the engine against the imported catalog.
 
-Rating-limited drafts require at least 5 batters and 5 all-rounders rated 90–92, plus 20 batters, 5 keepers, 5 all-rounders and 15 bowlers rated 78–85. These pools supply five disjoint offers per slot. Additional players outside these bands may remain in the catalog but cannot be offered in a new draft. Verify the active catalog before rollout; draft creation returns 503 if any eligible pool is too small. For local development, seed both immutable fixture versions with `python -m chase201.catalog` and select `fictional-v2`; do not edit existing `fictional-v1` profiles.
+Rating-limited drafts require at least 5 batters and 5 all-rounders rated 90–92, plus 20 batters, 5 keepers, 5 all-rounders and 15 bowlers rated 78–85. New simple catalogs must declare `selectionRuleset: simple-v1`, supply a `batting` rating (1–100), and support eleven disjoint five-player offers. They require no playstyles, legacy batting attributes or non-dominance constraints. Imports fail before activation when these conditions cannot be met. For local development, apply `alembic upgrade head`, seed immutable fixtures with `python -m chase201.catalog`, and select `fictional-v4`; preserve all existing catalog profiles. See [v3 rollout and verification](three-modes.md).
 
 ## Railway
 

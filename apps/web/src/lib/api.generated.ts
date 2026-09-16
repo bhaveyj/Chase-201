@@ -282,7 +282,6 @@ export interface components {
     schemas: {
         /** AssessmentView */
         AssessmentView: {
-            strategy: components["schemas"]["StrategyId"];
             /**
              * Scoring
              * @enum {string}
@@ -295,6 +294,9 @@ export interface components {
              * @enum {string}
              */
             boundary: "Very low" | "Low" | "Moderate" | "High" | "Very high";
+            strategy: components["schemas"]["chase_engine__types__StrategyId"];
+            /** Wicketprobability */
+            wicketProbability?: number | null;
         };
         /** BatterView */
         BatterView: {
@@ -415,13 +417,13 @@ export interface components {
             batterId?: string | null;
             /** Bowlerid */
             bowlerId?: string | null;
-            strategy?: components["schemas"]["StrategyId"] | null;
             /** Interruption */
             interruption?: ("WINDOW_END" | "WICKET" | "NO_BALL" | "FREE_HIT" | "INNINGS_COMPLETE") | null;
             /** Deliveries */
             deliveries?: components["schemas"]["DeliveryView"][];
             contextBefore?: components["schemas"]["ContextSummary"] | null;
             contextAfter?: components["schemas"]["ContextSummary"] | null;
+            strategy?: components["schemas"]["chase_engine__types__StrategyId"] | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -478,8 +480,6 @@ export interface components {
             id: string;
             /** Revision */
             revision: number;
-            /** Rulesetversion */
-            rulesetVersion: string;
             /** Target */
             target: number;
             /** Decisionwindow */
@@ -489,15 +489,20 @@ export interface components {
             team: components["schemas"]["PlayerSummary"][];
             /** Opponent */
             opponent: components["schemas"]["PlayerSummary"][];
-            /** Events */
-            events: components["schemas"]["EventView"][];
             /** Createdat */
             createdAt: string;
             context?: components["schemas"]["ContextSummary"] | null;
-            /** Strategyassessments */
-            strategyAssessments?: components["schemas"]["AssessmentView"][];
             /** Upcomingbowlers */
             upcomingBowlers?: components["schemas"]["UpcomingBowler"][];
+            /**
+             * Rulesetversion
+             * @enum {string}
+             */
+            rulesetVersion: "v3.0" | "v3.1";
+            /** Events */
+            events: components["schemas"]["EventView"][];
+            /** Strategyassessments */
+            strategyAssessments?: components["schemas"]["AssessmentView"][];
         };
         /** OrderIn */
         OrderIn: {
@@ -524,11 +529,51 @@ export interface components {
             role: "BATTER" | "WICKETKEEPER" | "ALL_ROUNDER" | "BOWLER";
             /** Overallrating */
             overallRating: number;
+            /** Battingrating */
+            battingRating?: number | null;
+            /** Battingplaystyle */
+            battingPlaystyle?: ("Anchor" | "Rotator" | "Hitter") | null;
+            /** Battingcontrol */
+            battingControl?: number | null;
+            /** Battingrotation */
+            battingRotation?: number | null;
+            /** Battingpower */
+            battingPower?: number | null;
         };
         /** Revision */
         Revision: {
             /** Expectedrevision */
             expectedRevision: number;
+        };
+        /** SavedMatchView */
+        SavedMatchView: {
+            /** Id */
+            id: string;
+            /** Revision */
+            revision: number;
+            /** Target */
+            target: number;
+            /** Decisionwindow */
+            decisionWindow: number;
+            state: components["schemas"]["StateView"];
+            /** Team */
+            team: components["schemas"]["PlayerSummary"][];
+            /** Opponent */
+            opponent: components["schemas"]["PlayerSummary"][];
+            /** Createdat */
+            createdAt: string;
+            context?: components["schemas"]["ContextSummary"] | null;
+            /** Upcomingbowlers */
+            upcomingBowlers?: components["schemas"]["UpcomingBowler"][];
+            /**
+             * Rulesetversion
+             * @enum {string}
+             */
+            rulesetVersion: "v1.0" | "v2.0" | "v2.1";
+            /** Events */
+            events: components["schemas"]["V2EventView"][];
+            /** Strategyassessments */
+            strategyAssessments?: components["schemas"]["V2AssessmentView"][];
         };
         /** SelectionIn */
         SelectionIn: {
@@ -634,13 +679,8 @@ export interface components {
         StrategyDecision: {
             /** Expectedrevision */
             expectedRevision: number;
-            strategy: components["schemas"]["StrategyId"];
+            strategy: components["schemas"]["chase_engine__types__StrategyId"];
         };
-        /**
-         * StrategyId
-         * @enum {string}
-         */
-        StrategyId: "PRESERVE" | "ROTATE" | "BALANCED" | "ATTACK" | "ALL_OUT";
         /** UpcomingBowler */
         UpcomingBowler: {
             /** Id */
@@ -654,6 +694,16 @@ export interface components {
             role: "BATTER" | "WICKETKEEPER" | "ALL_ROUNDER" | "BOWLER";
             /** Overallrating */
             overallRating: number;
+            /** Battingrating */
+            battingRating?: number | null;
+            /** Battingplaystyle */
+            battingPlaystyle?: ("Anchor" | "Rotator" | "Hitter") | null;
+            /** Battingcontrol */
+            battingControl?: number | null;
+            /** Battingrotation */
+            battingRotation?: number | null;
+            /** Battingpower */
+            battingPower?: number | null;
             /**
              * Style
              * @enum {string}
@@ -661,6 +711,64 @@ export interface components {
             style: "PACE" | "SPIN";
             /** Over */
             over: number;
+        };
+        /** V2AssessmentView */
+        V2AssessmentView: {
+            /**
+             * Scoring
+             * @enum {string}
+             */
+            scoring: "Very low" | "Low" | "Moderate" | "High" | "Very high";
+            /** Wicketrisk */
+            wicketRisk: ("Very low" | "Low" | "Moderate" | "High" | "Very high") | "None (free hit)";
+            /**
+             * Boundary
+             * @enum {string}
+             */
+            boundary: "Very low" | "Low" | "Moderate" | "High" | "Very high";
+            strategy: components["schemas"]["chase_engine__v2__types__StrategyId"];
+        };
+        /** V2EventView */
+        V2EventView: {
+            /** Revision */
+            revision: number;
+            /** Sequence */
+            sequence: number;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Fromball */
+            fromBall: number;
+            /** Toball */
+            toBall: number;
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
+            /** Score */
+            score: number;
+            /** Totalwickets */
+            totalWickets: number;
+            /** Freehit */
+            freeHit: boolean;
+            /** Batterid */
+            batterId?: string | null;
+            /** Bowlerid */
+            bowlerId?: string | null;
+            /** Interruption */
+            interruption?: ("WINDOW_END" | "WICKET" | "NO_BALL" | "FREE_HIT" | "INNINGS_COMPLETE") | null;
+            /** Deliveries */
+            deliveries?: components["schemas"]["DeliveryView"][];
+            contextBefore?: components["schemas"]["ContextSummary"] | null;
+            contextAfter?: components["schemas"]["ContextSummary"] | null;
+            strategy?: components["schemas"]["chase_engine__v2__types__StrategyId"] | null;
+        };
+        /** V2StrategyDecision */
+        V2StrategyDecision: {
+            /** Expectedrevision */
+            expectedRevision: number;
+            strategy: components["schemas"]["chase_engine__v2__types__StrategyId"];
         };
         /** ValidationError */
         ValidationError: {
@@ -675,6 +783,16 @@ export interface components {
             /** Context */
             ctx?: Record<string, never>;
         };
+        /**
+         * StrategyId
+         * @enum {string}
+         */
+        chase_engine__types__StrategyId: "DEFENSIVE" | "BALANCED" | "AGGRESSIVE";
+        /**
+         * StrategyId
+         * @enum {string}
+         */
+        chase_engine__v2__types__StrategyId: "PRESERVE" | "ROTATE" | "BALANCED" | "ATTACK" | "ALL_OUT";
     };
     responses: never;
     parameters: never;
@@ -1054,7 +1172,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatchView"];
+                    "application/json": components["schemas"]["MatchView"] | components["schemas"]["SavedMatchView"];
                 };
             };
             /** @description Validation Error */
@@ -1085,7 +1203,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatchView"];
+                    "application/json": components["schemas"]["MatchView"] | components["schemas"]["SavedMatchView"];
                 };
             };
             /** @description Validation Error */
@@ -1113,7 +1231,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["StrategyDecision"] | components["schemas"]["LegacyStrategyDecision"];
+                "application/json": components["schemas"]["StrategyDecision"] | components["schemas"]["V2StrategyDecision"] | components["schemas"]["LegacyStrategyDecision"];
             };
         };
         responses: {
@@ -1123,7 +1241,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["MatchView"];
+                    "application/json": components["schemas"]["MatchView"] | components["schemas"]["SavedMatchView"];
                 };
             };
             /** @description Validation Error */
@@ -1156,7 +1274,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventView"][];
+                    "application/json": (components["schemas"]["EventView"] | components["schemas"]["V2EventView"])[];
                 };
             };
             /** @description Validation Error */

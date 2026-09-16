@@ -12,7 +12,7 @@ from pathlib import Path
 if os.environ.get("ENVIRONMENT") == "production":
     raise RuntimeError("The E2E test server must never run in production")
 os.environ["ENVIRONMENT"] = "test"
-os.environ["CATALOG_VERSION"] = "fictional-v2"
+os.environ["CATALOG_VERSION"] = "fictional-v4"
 scratch = tempfile.TemporaryDirectory(prefix="chase201-e2e-")
 os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{(Path(scratch.name) / 'e2e.db').as_posix()}"
 os.environ["API_URL"] = "http://localhost:8001"

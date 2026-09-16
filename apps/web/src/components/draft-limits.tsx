@@ -1,7 +1,12 @@
 import type { Draft } from "@/lib/api";
 
 export function DraftLimits({ draft }: { draft: Draft }) {
-  if (draft.selectionRuleset !== "balanced-v1") return null;
+  if (
+    !["balanced-v1", "tradeoffs-v1", "simple-v1"].includes(
+      draft.selectionRuleset ?? "open-v1",
+    )
+  )
+    return null;
   const stars = draft.slots.filter((s) => (s.minimumRating ?? 1) >= 90);
   const core = draft.slots.filter((s) => (s.maximumRating ?? 100) <= 85);
   return (

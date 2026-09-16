@@ -26,12 +26,19 @@ def main() -> None:
         session = write("POST", "/api/v1/guest-sessions", {"expectedRevision": 0})
         client.headers["X-CSRF-Token"] = session["csrfToken"]
         draft = write("POST", "/api/v1/drafts", {"expectedRevision": session["revision"]})
-        assert draft["selectionRuleset"] == "balanced-v1"
+        assert draft["selectionRuleset"] == "simple-v1"
         assert len(draft["slots"]) == 11
+        assert len({p["id"] for s in draft["slots"] for p in s["options"]}) == 55
         for position, slot in enumerate(draft["slots"]):
             minimum, maximum = (90, 92) if position in (0, 6) else (78, 85)
             assert len(slot["options"]) == 5
             assert all(minimum <= p["overallRating"] <= maximum for p in slot["options"])
+            for player in slot["options"]:
+                assert 1 <= player["battingRating"] <= 100
+                assert (
+                    not {"battingPlaystyle", "battingControl", "battingRotation", "battingPower"}
+                    & player.keys()
+                )
         for slot in draft["slots"]:
             draft = write(
                 "PUT",
@@ -54,10 +61,20 @@ def main() -> None:
             "/api/v1/matches",
             {"draftId": draft["id"], "expectedRevision": draft["revision"]},
         )
-        assert match["rulesetVersion"] == "v2.1"
+        assert match["rulesetVersion"] == "v3.1"
         for _ in range(100):
             if match["state"]["status"] != "LIVE":
                 break
+            assert [a["strategy"] for a in match["strategyAssessments"]] == [
+                "DEFENSIVE",
+                "BALANCED",
+                "AGGRESSIVE",
+            ]
+            risks = [a["wicketProbability"] for a in match["strategyAssessments"]]
+            if match["state"]["free_hit"]:
+                assert risks == [0, 0, 0]
+            else:
+                assert 0 < risks[0] < risks[1] < risks[2] < 1
             match = write(
                 "POST",
                 f"/api/v1/matches/{match['id']}/decisions",

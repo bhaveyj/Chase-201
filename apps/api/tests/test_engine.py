@@ -1,9 +1,6 @@
 import copy
-import hashlib
-import json
 import random
 from dataclasses import FrozenInstanceError, asdict, replace
-from pathlib import Path
 
 import pytest
 from hypothesis import given, settings
@@ -253,26 +250,18 @@ def test_tie_target_tenth_wicket_and_completion():
 
 def test_strategy_outcome_shapes_and_extras_independence():
     p = {strategy: probabilities(strategy=strategy) for strategy in StrategyId}
-    preserve, rotate, balanced, attack, all_out = (p[s] for s in StrategyId)
+    defensive, balanced, aggressive = (p[s] for s in StrategyId)
     assert (
-        preserve.wicket_probability
-        < rotate.wicket_probability
-        < balanced.wicket_probability
-        < attack.wicket_probability
-        < all_out.wicket_probability
+        defensive.wicket_probability < balanced.wicket_probability < aggressive.wicket_probability
     )
     assert (
-        preserve.boundary_probability
-        < rotate.boundary_probability
+        defensive.boundary_probability
         < balanced.boundary_probability
-        < attack.boundary_probability
-        < all_out.boundary_probability
+        < aggressive.boundary_probability
     )
-    assert sum(rotate.legal[1:4]) == max(sum(d.legal[1:4]) for d in p.values())
-    assert all_out.legal[5] > attack.legal[5] > balanced.legal[5]
-    assert all_out.legal[0] > attack.legal[0] > balanced.legal[0] > rotate.legal[0]
+    assert sum(defensive.legal[1:4]) > sum(balanced.legal[1:4]) > sum(aggressive.legal[1:4])
+    assert aggressive.legal[0] > balanced.legal[0]
     assert len({d.legality for d in p.values()}) == 1
-    assert all(d.legal[3] > 0 for d in p.values())
 
 
 def test_attributes_and_matchups():
@@ -288,10 +277,12 @@ def test_attributes_and_matchups():
     power = replace(base, batting_power=95)
     assert (
         probabilities(
-            batter=power, bowler=weak_bowler, strategy=StrategyId.ATTACK
+            batter=power, bowler=weak_bowler, strategy=StrategyId.AGGRESSIVE
         ).boundary_probability
         > probabilities(
-            batter=replace(power, batting_power=45), bowler=weak_bowler, strategy=StrategyId.ATTACK
+            batter=replace(power, batting_power=45),
+            bowler=weak_bowler,
+            strategy=StrategyId.AGGRESSIVE,
         ).boundary_probability
     )
     assert (
@@ -306,26 +297,26 @@ def test_attributes_and_matchups():
         bowler=replace(strong_bowler, bowling_style=BowlingStyle.PACE)
     ) != probabilities(bowler=replace(strong_bowler, bowling_style=BowlingStyle.SPIN))
     specialist = replace(base, batting_rotation=95)
-    rotate_gain = probabilities(batter=specialist, strategy=StrategyId.ROTATE).probability(
+    rotate_gain = probabilities(batter=specialist, strategy=StrategyId.BALANCED).probability(
         Outcome.TWO
-    ) - probabilities(batter=base, strategy=StrategyId.ROTATE).probability(Outcome.TWO)
-    attack_gain = probabilities(batter=specialist, strategy=StrategyId.ATTACK).probability(
+    ) - probabilities(batter=base, strategy=StrategyId.BALANCED).probability(Outcome.TWO)
+    attack_gain = probabilities(batter=specialist, strategy=StrategyId.AGGRESSIVE).probability(
         Outcome.TWO
-    ) - probabilities(batter=base, strategy=StrategyId.ATTACK).probability(Outcome.TWO)
+    ) - probabilities(batter=base, strategy=StrategyId.AGGRESSIVE).probability(Outcome.TWO)
     assert rotate_gain > attack_gain
 
 
 def test_context_changes_repeated_plan_without_repetition_penalty():
     state = initial_state(TEAM, OPPONENT)
-    original = probabilities(state, StrategyId.ATTACK)
+    original = probabilities(state, StrategyId.AGGRESSIVE)
     productive = copy.deepcopy(state)
     for _ in range(6):
         apply_delivery(state, Outcome.DOT)
         apply_delivery(productive, Outcome.TWO)
-    assert probabilities(state, StrategyId.ATTACK) != original
+    assert probabilities(state, StrategyId.AGGRESSIVE) != original
     assert (
-        probabilities(state, StrategyId.ATTACK).wicket_probability
-        > probabilities(productive, StrategyId.ATTACK).wicket_probability
+        probabilities(state, StrategyId.AGGRESSIVE).wicket_probability
+        > probabilities(productive, StrategyId.AGGRESSIVE).wicket_probability
     )
     low, high = replace(RULES, target=100), replace(RULES, target=280)
     assert (
@@ -339,19 +330,19 @@ def test_context_changes_repeated_plan_without_repetition_penalty():
     settled = copy.deepcopy(state)
     settled.batting[settled.striker].balls = 15
     assert (
-        probabilities(settled, StrategyId.ATTACK).wicket_probability
-        < probabilities(unset, StrategyId.ATTACK).wicket_probability
+        probabilities(settled, StrategyId.AGGRESSIVE).wicket_probability
+        < probabilities(unset, StrategyId.AGGRESSIVE).wicket_probability
     )
     tail = copy.deepcopy(state)
     for _ in range(8):
         apply_delivery(tail, Outcome.WICKET)
     assert (
-        probabilities(tail, StrategyId.ATTACK).expected_runs
-        < probabilities(state, StrategyId.ATTACK).expected_runs
+        probabilities(tail, StrategyId.AGGRESSIVE).expected_runs
+        < probabilities(state, StrategyId.AGGRESSIVE).expected_runs
     )
     assert (
-        probabilities(tail, StrategyId.PRESERVE).wicket_probability
-        < probabilities(tail, StrategyId.ALL_OUT).wicket_probability
+        probabilities(tail, StrategyId.DEFENSIVE).wicket_probability
+        < probabilities(tail, StrategyId.AGGRESSIVE).wicket_probability
     )
 
 
@@ -399,7 +390,7 @@ def test_each_delivery_recalculates_matchup_and_changes_bowler(monkeypatch):
     monkeypatch.setattr(simulation, "distribution", observe)
     monkeypatch.setattr(simulation, "sample", lambda *_: Outcome.ONE)
     state = initial_state(TEAM, OPPONENT)
-    result = simulate_step(state, TEAM, OPPONENT, StrategyId.ROTATE, 12, RULES, random.Random(1))
+    result = simulate_step(state, TEAM, OPPONENT, StrategyId.BALANCED, 12, RULES, random.Random(1))
     assert [c[0] for c in calls] == list(range(12))
     assert len({c[1] for c in calls}) == 2
     assert calls[0][2] != calls[6][2]
@@ -407,53 +398,3 @@ def test_each_delivery_recalculates_matchup_and_changes_bowler(monkeypatch):
     assert result.events[0]["interruption"] == "WINDOW_END"
     assert result.state.balls == 12 and result.state.runs == 12
     assert_invariants(result.state)
-
-
-def test_v1_seed_fixtures_preserved():
-    import importlib.util
-
-    script = Path(__file__).parents[1] / "scripts/baseline.py"
-    spec = importlib.util.spec_from_file_location("baseline", script)
-    baseline = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(baseline)
-    reference = json.loads((Path(__file__).parents[3] / "docs/legacy-baseline.json").read_text())
-    actual = baseline.characterize(3)
-    assert [p["replaySHA256"] for p in actual["policies"]] == [
-        p["replaySHA256"] for p in reference["policies"]
-    ]
-
-
-@pytest.mark.parametrize("version,filename", [("v2.0", "v2-replay.json"), ("v2.1", "v21-replay.json")])
-def test_v2_frozen_replay_fixtures(version, filename):
-    fixture = Path(__file__).parent / "fixtures" / filename
-    actual = {
-        strategy.value: hashlib.sha256(
-            json.dumps(play(201, strategy, RULESETS[version])[1], sort_keys=True).encode()
-        ).hexdigest()
-        for strategy in StrategyId
-    }
-    assert actual == json.loads(fixture.read_text())
-
-
-def test_all_out_still_has_value_when_only_a_six_will_win():
-    state = initial_state(TEAM, OPPONENT)
-    state.balls = 119
-    state.runs = 195
-    plans = {s: probabilities(state, s) for s in StrategyId}
-    assert plans[StrategyId.ALL_OUT].probability(Outcome.SIX) == max(
-        p.probability(Outcome.SIX) for p in plans.values()
-    )
-    state.free_hit = True
-    for plan in StrategyId:
-        assert probabilities(state, plan).wicket_probability == 0
-
-
-def test_strong_set_batters_cannot_restore_the_old_all_out_six_boost():
-    state = initial_state(TEAM, OPPONENT)
-    for _ in range(30):
-        apply_delivery(state, Outcome.ONE)
-    star = replace(TEAM[0], batting_control=100, batting_power=100)
-    old = probabilities(state, StrategyId.ALL_OUT, batter=star, rules=RULESETS["v2.0"])
-    new = probabilities(state, StrategyId.ALL_OUT, batter=star)
-    assert new.legal[5] < old.legal[5] * 0.8
-    assert new.wicket_probability > old.wicket_probability

@@ -4,15 +4,16 @@ import json
 import random
 from collections import Counter
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chase201.draft_rules import ROLES
+from chase201.draft_rules import ROLES, SIMPLE_SELECTION, draft_offers
 from chase201.models import CatalogVersion, Player, SimulationProfile
 from chase201.profile_defaults import expanded_profile
+from chase201.tradeoffs import TRADEOFF_SELECTION, DraftProfile, allocate
 
 COMPOSITION = Counter(ROLES)
 
@@ -38,6 +39,7 @@ class CatalogImport(BaseModel):
     license: str = Field(min_length=1, max_length=1000)
     approved: bool = False
     players: list[ImportPlayer]
+    selectionRuleset: Literal["open-v1", "tradeoffs-v1", "simple-v1"] = "tradeoffs-v1"
 
 
 async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
@@ -52,9 +54,47 @@ async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
         raise ValueError(
             "Catalog needs at least 25 batters, 5 keepers, 10 all-rounders, 15 bowlers"
         )
+    allocation: list[list[str]] = []
+    if data.selectionRuleset == SIMPLE_SELECTION:
+        # Validate role/tier capacity before writing any catalog rows.
+        draft_offers(
+            [Player(id=p.id, role=p.role, overall_rating=p.overallRating) for p in data.players],
+            random.Random(0),
+        )
+    if data.selectionRuleset == TRADEOFF_SELECTION:
+        if any(
+            any(
+                getattr(p, key) is None
+                for key in ("batting_control", "batting_rotation", "batting_power")
+            )
+            for p in data.players
+        ):
+            raise ValueError(
+                "Tradeoff catalogs require explicit Control, Rotation and Power profiles"
+            )
+        allocation = allocate(
+            [
+                DraftProfile(
+                    f"{data.version}:{p.id}",
+                    p.role,
+                    p.overallRating,
+                    (
+                        cast(float, p.batting_control),
+                        cast(float, p.batting_rotation),
+                        cast(float, p.batting_power),
+                    ),
+                )
+                for p in data.players
+            ]
+        )
     db.add(
         CatalogVersion(
-            id=data.version, source=data.source, license=data.license, approved=data.approved
+            id=data.version,
+            source=data.source,
+            license=data.license,
+            approved=data.approved,
+            selection_ruleset=data.selectionRuleset,
+            offer_allocation=allocation,
         )
     )
     await db.flush()
@@ -88,12 +128,21 @@ async def seed_fictional(db: AsyncSession) -> None:
     for version, players in (
         ("fictional-v1", fictional_players()),
         ("fictional-v2", balanced_fictional_players()),
+        ("fictional-v3", tradeoff_fictional_players()),
+        ("fictional-v4", simple_fictional_players()),
     ):
         if not await db.get(CatalogVersion, version):
             await import_catalog(
                 db,
                 CatalogImport(
                     version=version,
+                    selectionRuleset=(
+                        "simple-v1"
+                        if version == "fictional-v4"
+                        else "tradeoffs-v1"
+                        if version == "fictional-v3"
+                        else "open-v1"
+                    ),
                     source="Original fictional development identities",
                     license="Project-owned fictional fixture. Not real players.",
                     players=players,
@@ -160,6 +209,65 @@ def balanced_fictional_players() -> list[ImportPlayer]:
             )
         )
     return players
+
+
+def tradeoff_fictional_players() -> list[ImportPlayer]:
+    """Role/tier owns the total; specialization redistributes that fixed budget.
+
+    OVR includes role skills and is deliberately not a batting-attribute multiplier.
+    Cohort tilts preserve the total and give every profile a visible weakness.
+    """
+    counts: Counter[str] = Counter()
+    offsets = ((18, -2, -16), (14, 3, -17), (-12, 22, -10), (-16, -4, 20), (-10, -8, 18))
+    result = []
+    for p in balanced_fictional_players():
+        index = counts[p.role]
+        counts[p.role] += 1
+        star = p.overallRating >= 90
+        base = {"BATTER": 72, "WICKETKEEPER": 70, "ALL_ROUNDER": 69, "BOWLER": 44}[p.role] + (
+            6 if star else 0
+        )
+        tilt = max(0, index // 5 - (1 if p.role in {"BATTER", "ALL_ROUNDER"} else 0))
+        c, r, power = offsets[index % 5]
+        attributes = (base + c + tilt, base + r - tilt, base + power)
+        result.append(
+            p.model_copy(
+                update={
+                    "batting": float(base),
+                    "batting_control": float(attributes[0]),
+                    "batting_rotation": float(attributes[1]),
+                    "batting_power": float(attributes[2]),
+                    "bowling_control": p.bowling,
+                    "bowling_threat": p.bowling,
+                    "bowling_style": "PACE" if index % 2 else "SPIN",
+                }
+            )
+        )
+    return result
+
+
+def simple_fictional_players() -> list[ImportPlayer]:
+    """New immutable batting ratings; OVR and all bowling inputs stay unchanged."""
+    counts: Counter[tuple[str, bool]] = Counter()
+    result = []
+    for player in tradeoff_fictional_players():
+        star = player.overallRating >= 90
+        cohort = (player.role, star)
+        base = {"BATTER": 80, "WICKETKEEPER": 78, "ALL_ROUNDER": 77, "BOWLER": 44}[player.role]
+        batting = base + (6 if star else 0) + (-3, -1, 0, 1, 3)[counts[cohort] % 5]
+        counts[cohort] += 1
+        result.append(
+            player.model_copy(
+                update={
+                    "batting": float(batting),
+                    # Legacy storage columns have no archetypes and are never read by v3.1.
+                    "batting_control": float(batting),
+                    "batting_rotation": float(batting),
+                    "batting_power": float(batting),
+                }
+            )
+        )
+    return result
 
 
 async def main() -> None:

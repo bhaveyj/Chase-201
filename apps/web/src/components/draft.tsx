@@ -14,6 +14,7 @@ import { api, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, Loading, Steps, useSession } from "./common";
 import { SquadPitch } from "./squad-pitch";
+import { PlayerAttributes, attributeDescription } from "./player-attributes";
 import { DraftLimits } from "./draft-limits";
 
 export function DraftScreen({ id }: { id: string }) {
@@ -163,9 +164,27 @@ export function DraftScreen({ id }: { id: string }) {
                   : "Round out your XI."}
           </h2>
           <p className="subtle">
-            {draft.selectionRuleset === "balanced-v1"
+            {["balanced-v1", "tradeoffs-v1", "simple-v1"].includes(
+              draft.selectionRuleset ?? "open-v1",
+            )
               ? `${slot.ratingLabel} · ${slot.minimumRating}–${slot.maximumRating} OVR. Select one player.`
               : "Select one player to fill this spot."}
+          </p>
+          <p className="attribute-guide" id="attribute-guide">
+            {draft.selectionRuleset === "simple-v1" ? (
+              <>
+                Batting affects scoring and survival; your batting mode controls
+                how much risk the player takes.
+              </>
+            ) : (
+              <>
+                <strong>Control</strong> helps survival and difficult
+                deliveries. <strong>Rotation</strong> turns dots into singles
+                and twos. <strong>Power</strong> creates boundaries, especially
+                with Aggressive. All bars use the same 0–100 scale. Anchors lead
+                with Control, Rotators with Rotation, Hitters with Power.
+              </>
+            )}
           </p>
           <div className="player-grid">
             {slot.options.map((player) => {
@@ -180,7 +199,8 @@ export function DraftScreen({ id }: { id: string }) {
                 <button
                   key={player.id}
                   aria-pressed={selected}
-                  aria-label={`Select ${player.name}, ${roleLabel[player.role]}, rating ${player.overallRating}`}
+                  aria-label={`Select ${player.name}, ${roleLabel[player.role]}, rating ${player.overallRating}${attributeDescription(player)}`}
+                  aria-describedby="attribute-guide"
                   className={`player-card ${selected ? "selected" : ""}`}
                   data-role={player.role}
                   disabled={select.isPending || !session.data}
@@ -205,6 +225,7 @@ export function DraftScreen({ id }: { id: string }) {
                     <span>{roleLabel[player.role]}</span>
                     <h3>{player.name}</h3>
                   </div>
+                  <PlayerAttributes player={player} />
                   <div className="card-select">
                     {selected ? (
                       <>
@@ -253,7 +274,9 @@ export function DraftScreen({ id }: { id: string }) {
             )}
           </div>
           <p className="draft-note">
-            {draft.selectionRuleset === "balanced-v1"
+            {["balanced-v1", "tradeoffs-v1", "simple-v1"].includes(
+              draft.selectionRuleset ?? "open-v1",
+            )
               ? "Your two star picks can bat anywhere in the XI. Set the order next."
               : "No budgets. No credits. Just cricket judgment."}
           </p>

@@ -33,7 +33,7 @@ def test_rating_bands_always_offer_a_complete_unique_xi():
 
 async def test_draft_exposes_rating_limits_without_private_attributes(client):
     d = await draft(client)
-    assert d["selectionRuleset"] == "balanced-v1"
+    assert d["selectionRuleset"] == "simple-v1"
     for position, slot in enumerate(d["slots"]):
         band = rating_band(position)
         assert (slot["minimumRating"], slot["maximumRating"], slot["ratingLabel"]) == (
@@ -53,7 +53,7 @@ async def test_insufficient_rated_catalog_fails_without_partial_draft(
     monkeypatch.setattr(get_settings(), "catalog_version", "fictional-v1")
     response = await mutate(client, "POST", "/api/v1/drafts", {"expectedRevision": s["revision"]})
     assert (
-        response.status_code == 503 and "Catalog needs five disjoint" in response.json()["detail"]
+        response.status_code == 503 and "validated simple or tradeoff catalog" in response.json()["detail"]
     )
     async with database() as db:
         assert await db.scalar(select(Draft)) is None

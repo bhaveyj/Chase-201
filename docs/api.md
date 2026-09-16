@@ -38,7 +38,7 @@ Ownership failures return 404 without revealing another player’s resource. Exp
 
 ## Ownership and retention
 
-New drafts persist `selectionRuleset: balanced-v1`. Slots expose `ratingLabel`, `minimumRating` and `maximumRating`. Draft positions 0 (batter) and 6 (all-rounder) offer five players rated 90–92; the other nine positions offer five players rated 78–85. All 55 offers are disjoint. Selection, batting-order validation, confirmation and match creation recheck rating eligibility. Reordering does not change a player's original draft slot. An incompatible catalog returns 503 and rolls back the whole draft. Existing drafts are migrated to `open-v1` and retain their original options and ratings.
+New drafts persist `selectionRuleset: simple-v1` when the active catalog is fictional-v4. Slots expose `ratingLabel`, `minimumRating` and `maximumRating`. Draft positions 0 (batter) and 6 (all-rounder) offer five players rated 90–92; the other nine positions offer five players rated 78–85. All 55 offers are disjoint. Simple drafts impose no playstyle or non-dominance requirements. Selection, batting-order validation, confirmation and match creation recheck rating eligibility. Reordering does not change a player's original draft slot. An incompatible catalog returns 503 and rolls back the whole draft. Existing drafts retain their original selection rules, options and ratings.
 
 `sessions.kind` distinguishes guest and authenticated sessions in a shared hashed-token namespace. Authentication uses Google’s stable subject, never email matching. Successful login issues a fresh seven-day authenticated session and transfers eligible guest drafts/matches to the user. Access from a revoked guest cookie stops immediately. Different authenticated sessions for one user share access to that user’s games.
 
@@ -46,9 +46,19 @@ Guest access renews for 30 days on a successful game mutation. Each guest draft/
 
 Catalog versions, players and simulation profiles are append-only through the application. Imported IDs are namespaced by version; drafts bind to a catalog version and matches to a ruleset version, so future imports/tuning cannot change an existing chase.
 
-## Tactical decisions and v2 rollout
+## Three-mode decisions and v3 rollout
 
-New matches bind to `v2.1`; saved `v2.0` matches use their frozen coefficients. Send one plan:
+New `simple-v1` drafts bind matches to `v3.1`; existing `tradeoffs-v1` drafts still create `v3.0` matches. Both versions use the same three-mode contract. `StrategyDecision` accepts only `DEFENSIVE`, `BALANCED`, and `AGGRESSIVE`. `MatchView`, `AssessmentView`, and `EventView` use this active enum exclusively. `SavedMatchView`, `V2StrategyDecision`, `V2AssessmentView`, and `V2EventView` represent historical contracts separately. The common owned-match endpoints return the appropriate schema; submitting a historical mode to a v3 match returns 422.
+
+Player summaries add `battingRating` (1–100). Simple drafts and v3.1 match summaries omit the legacy `battingPlaystyle`, `battingControl`, `battingRotation`, and `battingPower` fields. Historical summaries retain their original attributes. Old idempotency snapshots may omit newly added fields.
+
+Active v3.0 and v3.1 assessments include `wicketProbability` as an unrounded 0–1 number for the next delivery, including legality. The frontend formats one decimal percentage plus its band, e.g. `Wicket risk: 5.2% · Low`; zero on a free hit is `Wicket risk: 0% · None`. Finished matches have no assessments. Bowling coefficients, other numeric outcome probabilities and randomness remain private.
+
+Apply existing migration head `a42c83e5d016`, import a catalog with `selectionRuleset: simple-v1`, and activate it via `CATALOG_VERSION` (`fictional-v4` locally). New simple imports require sufficient role/rating capacity for disjoint offers; legacy explicit batting attributes and archetypes are optional and do not enter v3.1. Existing profiles, drafts, results and receipts are untouched. Downgrade protection covers both three-mode versions. See [current semantics and acceptance](three-modes.md).
+
+## Historical v2 contract
+
+Saved `v2.0` and `v2.1` matches use their frozen coefficients. Send one historical plan:
 
 ```json
 {"expectedRevision": 0, "strategy": "ATTACK"}

@@ -72,6 +72,10 @@ jobs:
           npm run typecheck
           npm test
           npm run build
+      - name: Three-mode and specialist drafting acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v3.py --seeds 500 --check --output balance-v3-report.json
+      - name: Simple batting randomized-draft acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v31.py --seeds 500 --check --output balance-v31-report.json
       - name: Browser journeys and accessibility
         run: |
           npx playwright install --with-deps chromium

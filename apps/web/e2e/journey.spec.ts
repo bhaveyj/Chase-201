@@ -31,10 +31,18 @@ async function setupXI(page: Page) {
     page.getByRole("button", { name: /^Select .+, .+, rating/ }).first(),
   ).toBeVisible();
   await accessible(page);
+  await expect(page.locator(".player-card .simple-batting")).toHaveCount(5);
+  await expect(page.locator(".player-card .playstyle")).toHaveCount(0);
+  await expect(page.locator(".attribute-guide")).toHaveText(
+    "Batting affects scoring and survival; your batting mode controls how much risk the player takes.",
+  );
   await expect(page.getByLabel("XI rating limits")).toContainText(
     "One batter and one all-rounder rated 90–92",
   );
-  await page.screenshot({ path: test.info().outputPath("draft.png"), fullPage: true });
+  await page.screenshot({
+    path: test.info().outputPath("draft.png"),
+    fullPage: true,
+  });
   for (let slot = 0; slot < 11; slot++) {
     const ratings = await page
       .locator(".player-card .rating")
@@ -83,7 +91,7 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
   await setupXI(page);
   await expect(page.getByText("How do you play this?")).toBeVisible();
   const matchUrl = page.url();
-  await expect(page.getByRole("radio")).toHaveCount(5);
+  await expect(page.getByRole("radio")).toHaveCount(3);
   await expect(page.locator(".bowler-current")).toBeVisible();
   await expect(page.locator(".bowler-current")).toContainText(
     /OVR · (Pace|Spin)/,
@@ -92,10 +100,14 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
   await expect(
     page.getByText("Two-over game plan", { exact: false }),
   ).toBeVisible();
-  await page.getByRole("radio", { name: "Attack", exact: true }).check();
+  await page.getByRole("radio", { name: "Aggressive", exact: true }).check();
   await page.getByRole("radio", { name: "Balanced", exact: true }).check();
   await page.reload();
   await expect(page.getByText("How do you play this?")).toBeVisible();
+  await expect(page.getByRole("radio")).toHaveCount(3);
+  await expect(
+    page.getByRole("radio", { name: "Balanced", exact: true }),
+  ).toBeChecked();
   await page.screenshot({
     path: testInfo.outputPath("match.png"),
     fullPage: true,
@@ -121,6 +133,28 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       expect(event.strategy).toBeTruthy();
       expect(event.deliveries.length).toBeGreaterThan(0);
       if (state.status === "LIVE") {
+        expect(responseBody.rulesetVersion).toBe("v3.1");
+        for (const [
+          index,
+          assessment,
+        ] of responseBody.strategyAssessments.entries()) {
+          const probability = assessment.wicketProbability;
+          expect(probability).toBeGreaterThanOrEqual(0);
+          expect(probability).toBeLessThanOrEqual(1);
+          const risk = state.free_hit
+            ? "0% · None"
+            : `${(probability * 100).toFixed(1)}% · ${assessment.wicketRisk}`;
+          if (state.free_hit) expect(probability).toBe(0);
+          await expect(page.locator(".plan-card").nth(index)).toContainText(
+            `Wicket risk: ${risk}`,
+          );
+        }
+        await expect(page.getByRole("radio")).toHaveCount(3);
+        expect(
+          responseBody.strategyAssessments.map(
+            (a: { strategy: string }) => a.strategy,
+          ),
+        ).toEqual(["DEFENSIVE", "BALANCED", "AGGRESSIVE"]);
         await expect(
           page
             .getByLabel("Last six deliveries, oldest first")
@@ -182,7 +216,9 @@ test("mocked Google sign-in claims guest match history", async ({ page }) => {
   });
   await page.getByRole("link", { name: "Match history", exact: true }).click();
   await page.getByRole("link", { name: /Continue with Google/ }).click();
-  await expect(page).toHaveURL("http://localhost:3000/history");
+  await expect(page).toHaveURL(
+    new URL("/history", test.info().project.use.baseURL).href,
+  );
   await expect(page.getByRole("link", { name: /IN PROGRESS/ })).toHaveAttribute(
     "href",
     `/match/${matchId}`,

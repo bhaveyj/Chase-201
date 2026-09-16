@@ -1,7 +1,7 @@
 import os
 
 # Keep catalog tests independent of a developer's local catalog setting.
-os.environ["CATALOG_VERSION"] = "fictional-v2"
+os.environ["CATALOG_VERSION"] = "fictional-v4"
 
 import pytest
 from httpx import ASGITransport, AsyncClient
