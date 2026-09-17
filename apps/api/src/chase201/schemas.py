@@ -44,7 +44,7 @@ class PlayerSummary(APIModel):
     name: str
     role: Literal["BATTER", "WICKETKEEPER", "ALL_ROUNDER", "BOWLER"]
     overallRating: int
-    battingRating: float | None = Field(default=None, ge=1, le=100)
+    battingRating: float | None = Field(default=None, ge=1, le=100, exclude_if=lambda v: v is None)
     battingPlaystyle: Literal["Anchor", "Rotator", "Hitter"] | None = Field(
         default=None, exclude_if=lambda v: v is None
     )
@@ -122,6 +122,10 @@ class StateView(APIModel):
     partnership_runs: int = 0
     partnership_balls: int = 0
     last_wicket_ball: int | None = None
+
+
+class ThreeModeStateView(StateView):
+    approaches_used: list[StrategyId] = Field(default_factory=list)
 
 
 class ContextSummary(APIModel):
@@ -211,7 +215,8 @@ class MatchData(APIModel):
 
 
 class MatchView(MatchData):
-    rulesetVersion: Literal["v3.0", "v3.1"]
+    rulesetVersion: Literal["v3.0", "v3.1", "v3.2", "v3.3", "v3.4"]
+    state: ThreeModeStateView
     events: list[EventView]
     strategyAssessments: list[AssessmentView] = Field(default_factory=list)
 

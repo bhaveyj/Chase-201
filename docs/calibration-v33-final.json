@@ -1,0 +1,477 @@
+{
+  "ruleset": "v3.3",
+  "catalog": "fictional-v4",
+  "selectionRuleset": "simple-v1",
+  "rulesetSha256": "26c7005bfc0aca6c50948c45ba7196d7e07a63ddd98b3cebf9e009d2ab2df8f9",
+  "boundaryPriorScaleVsV30": 0.93,
+  "seeds": 500,
+  "uniqueDrafts": 500,
+  "scenarioPrefixes": {
+    "full_chase": [
+      0,
+      0,
+      0
+    ],
+    "low_pressure": [
+      84,
+      161,
+      7
+    ],
+    "medium_pressure": [
+      60,
+      101,
+      3
+    ],
+    "high_pressure": [
+      108,
+      165,
+      4
+    ]
+  },
+  "prefixApproaches": "Continuation prefixes use Balanced for wickets and alternate Defensive/Balanced every six scoring balls; the full chase starts with no approaches used.",
+  "variationRule": "Fixed-approach scoring capacity grows throughout the innings to 150 Defensive / 180 Balanced / 185 Aggressive. Recent repetition reduces scoring and increases risk; extras do not count as switching.",
+  "drafting": "Random choice from each legal five-player offer; batting order by descending Batting. Opponents use production median-strength selection with seed + 10000.",
+  "policy": "Aggressive on free hits; Defensive below required rate 7; otherwise Balanced after 12 Aggressive balls in the last 24 before the final two overs, Aggressive above required rate 11.5 or after 18 Balanced balls in the last 24, Balanced otherwise. Decisions use production windows.",
+  "wicketRateDenominator": "All simulated deliveries in fixed-mode full chases, including extras and free hits; pooled counts, not mean match rates.",
+  "scenarios": {
+    "full_chase": {
+      "DEFENSIVE": {
+        "winRate": 0,
+        "meanScore": 146.716,
+        "maxScore": 150,
+        "scoreP95": 150,
+        "meanWickets": 2.178,
+        "meanLastTenRuns": 9.738,
+        "wicketRate": 0.017726340462935832,
+        "outcomeCounts": {
+          "TWO": 9623,
+          "ONE": 32883,
+          "SIX": 767,
+          "FOUR": 3415,
+          "DOT": 11712,
+          "THREE": 511,
+          "NO_BALL": 458,
+          "WIDE": 976,
+          "WICKET": 1089
+        },
+        "strategyUsage": {
+          "DEFENSIVE": 14712
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "BALANCED": {
+        "winRate": 0,
+        "meanScore": 169.578,
+        "maxScore": 180,
+        "scoreP95": 180,
+        "meanWickets": 6.364,
+        "meanLastTenRuns": 8.69,
+        "wicketRate": 0.05386373254337706,
+        "outcomeCounts": {
+          "FOUR": 7648,
+          "ONE": 21038,
+          "TWO": 6991,
+          "DOT": 15442,
+          "WICKET": 3182,
+          "SIX": 2523,
+          "THREE": 894,
+          "NO_BALL": 434,
+          "WIDE": 923
+        },
+        "strategyUsage": {
+          "BALANCED": 14820
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0,
+        "meanScore": 139.05,
+        "maxScore": 185,
+        "scoreP95": 183,
+        "meanWickets": 9.61,
+        "meanLastTenRuns": 1.488,
+        "wicketRate": 0.10669953145471099,
+        "outcomeCounts": {
+          "SIX": 4365,
+          "DOT": 18228,
+          "ONE": 5792,
+          "FOUR": 7024,
+          "THREE": 824,
+          "WICKET": 4805,
+          "TWO": 2980,
+          "NO_BALL": 306,
+          "WIDE": 709
+        },
+        "strategyUsage": {
+          "AGGRESSIVE": 10166
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0013324450366422385,
+        "fiftyRunTwoOverRate": 0.0012929919834497026
+      },
+      "SENSIBLE": {
+        "winRate": 0.64,
+        "meanScore": 183.438,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 6.062,
+        "meanLastTenRuns": 3.698,
+        "wicketRate": 0.05585655314757482,
+        "outcomeCounts": {
+          "FOUR": 9018,
+          "ONE": 16035,
+          "TWO": 5886,
+          "DOT": 14303,
+          "WICKET": 3031,
+          "SIX": 4223,
+          "THREE": 367,
+          "NO_BALL": 454,
+          "WIDE": 947
+        },
+        "strategyUsage": {
+          "BALANCED": 5203,
+          "AGGRESSIVE": 3370,
+          "DEFENSIVE": 2828
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0005559261730042251,
+        "fiftyRunTwoOverRate": 0.0008684324793747286
+      }
+    },
+    "low_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0.55,
+        "meanScore": 197.016,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 8.202,
+        "meanLastTenRuns": 6.514,
+        "wicketRate": 0.037366326784381995,
+        "outcomeCounts": {
+          "TWO": 2457,
+          "ONE": 7255,
+          "WICKET": 601,
+          "FOUR": 942,
+          "DOT": 4089,
+          "NO_BALL": 128,
+          "THREE": 103,
+          "WIDE": 284,
+          "SIX": 225
+        },
+        "strategyUsage": {
+          "DEFENSIVE": 7373
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "BALANCED": {
+        "winRate": 0.452,
+        "meanScore": 191.532,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 9.1,
+        "meanLastTenRuns": 1.794,
+        "wicketRate": 0.09124880507517164,
+        "outcomeCounts": {
+          "THREE": 79,
+          "ONE": 3032,
+          "FOUR": 1527,
+          "DOT": 3806,
+          "WICKET": 1050,
+          "TWO": 1181,
+          "SIX": 539,
+          "NO_BALL": 93,
+          "WIDE": 200
+        },
+        "strategyUsage": {
+          "BALANCED": 4274
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.274,
+        "meanScore": 185.644,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 9.468,
+        "meanLastTenRuns": 0.268,
+        "wicketRate": 0.1448356807511737,
+        "outcomeCounts": {
+          "FOUR": 1339,
+          "DOT": 3847,
+          "TWO": 321,
+          "ONE": 636,
+          "WICKET": 1234,
+          "SIX": 901,
+          "NO_BALL": 72,
+          "WIDE": 150,
+          "THREE": 20
+        },
+        "strategyUsage": {
+          "AGGRESSIVE": 2920
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0012674271229404308,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "SENSIBLE": {
+        "winRate": 0.676,
+        "meanScore": 196.752,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 8.366,
+        "meanLastTenRuns": 5.214,
+        "wicketRate": 0.04608326023885028,
+        "outcomeCounts": {
+          "TWO": 2109,
+          "ONE": 6136,
+          "WICKET": 683,
+          "FOUR": 1189,
+          "DOT": 3881,
+          "NO_BALL": 115,
+          "SIX": 351,
+          "THREE": 94,
+          "WIDE": 263
+        },
+        "strategyUsage": {
+          "DEFENSIVE": 4819,
+          "BALANCED": 1169,
+          "AGGRESSIVE": 328
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      }
+    },
+    "medium_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0.014,
+        "meanScore": 177.658,
+        "maxScore": 204,
+        "scoreP95": 193,
+        "meanWickets": 4.304,
+        "meanLastTenRuns": 12.884,
+        "wicketRate": 0.021175018674287942,
+        "outcomeCounts": {
+          "TWO": 5247,
+          "ONE": 15781,
+          "SIX": 476,
+          "FOUR": 1910,
+          "DOT": 5667,
+          "NO_BALL": 244,
+          "WICKET": 652,
+          "WIDE": 564,
+          "THREE": 250
+        },
+        "strategyUsage": {
+          "DEFENSIVE": 11380
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "BALANCED": {
+        "winRate": 0.422,
+        "meanScore": 190.05,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 6.396,
+        "meanLastTenRuns": 10.95,
+        "wicketRate": 0.059231869396867476,
+        "outcomeCounts": {
+          "FOUR": 4424,
+          "ONE": 8941,
+          "WICKET": 1698,
+          "SIX": 1634,
+          "TWO": 3365,
+          "DOT": 7649,
+          "NO_BALL": 229,
+          "THREE": 199,
+          "WIDE": 528
+        },
+        "strategyUsage": {
+          "BALANCED": 10201
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.428,
+        "meanScore": 180.792,
+        "maxScore": 206,
+        "scoreP95": 205,
+        "meanWickets": 8.17,
+        "meanLastTenRuns": 2.79,
+        "wicketRate": 0.11226439676886997,
+        "outcomeCounts": {
+          "FOUR": 4197,
+          "DOT": 9377,
+          "ONE": 2093,
+          "TWO": 1083,
+          "WICKET": 2585,
+          "SIX": 3002,
+          "NO_BALL": 188,
+          "WIDE": 427,
+          "THREE": 74
+        },
+        "strategyUsage": {
+          "AGGRESSIVE": 7140
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0015247776365946632,
+        "fiftyRunTwoOverRate": 0.0004807692307692308
+      },
+      "SENSIBLE": {
+        "winRate": 0.632,
+        "meanScore": 191.088,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 6.688,
+        "meanLastTenRuns": 7.958,
+        "wicketRate": 0.06749139887270332,
+        "outcomeCounts": {
+          "FOUR": 4372,
+          "ONE": 7356,
+          "WICKET": 1844,
+          "TWO": 2895,
+          "DOT": 7766,
+          "SIX": 2199,
+          "THREE": 163,
+          "NO_BALL": 218,
+          "WIDE": 509
+        },
+        "strategyUsage": {
+          "BALANCED": 3745,
+          "AGGRESSIVE": 3322,
+          "DEFENSIVE": 2146
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0004351610095735422,
+        "fiftyRunTwoOverRate": 0.0
+      }
+    },
+    "high_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0.002,
+        "meanScore": 183.558,
+        "maxScore": 202,
+        "scoreP95": 192,
+        "meanWickets": 4.258,
+        "meanLastTenRuns": 15.27,
+        "wicketRate": 0.020982433311646065,
+        "outcomeCounts": {
+          "TWO": 1214,
+          "ONE": 2797,
+          "WICKET": 129,
+          "FOUR": 627,
+          "DOT": 972,
+          "SIX": 205,
+          "NO_BALL": 53,
+          "WIDE": 95,
+          "THREE": 56
+        },
+        "strategyUsage": {
+          "DEFENSIVE": 6148
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "BALANCED": {
+        "winRate": 0.038,
+        "meanScore": 188.772,
+        "maxScore": 206,
+        "scoreP95": 200,
+        "meanWickets": 4.734,
+        "meanLastTenRuns": 19.516,
+        "wicketRate": 0.05980120580087991,
+        "outcomeCounts": {
+          "FOUR": 1357,
+          "ONE": 1615,
+          "TWO": 717,
+          "WICKET": 367,
+          "SIX": 524,
+          "DOT": 1370,
+          "NO_BALL": 53,
+          "THREE": 39,
+          "WIDE": 95
+        },
+        "strategyUsage": {
+          "BALANCED": 6137
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.0,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.246,
+        "meanScore": 193.69,
+        "maxScore": 206,
+        "scoreP95": 204,
+        "meanWickets": 5.204,
+        "meanLastTenRuns": 23.386,
+        "wicketRate": 0.10088821853527735,
+        "outcomeCounts": {
+          "SIX": 1223,
+          "DOT": 1852,
+          "TWO": 261,
+          "ONE": 394,
+          "FOUR": 1474,
+          "WICKET": 602,
+          "NO_BALL": 52,
+          "WIDE": 92,
+          "THREE": 17
+        },
+        "strategyUsage": {
+          "AGGRESSIVE": 5967
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.011,
+        "fiftyRunTwoOverRate": 0.0
+      },
+      "SENSIBLE": {
+        "winRate": 0.246,
+        "meanScore": 193.478,
+        "maxScore": 206,
+        "scoreP95": 203,
+        "meanWickets": 5.2,
+        "meanLastTenRuns": 23.174,
+        "wicketRate": 0.0994859890565412,
+        "outcomeCounts": {
+          "SIX": 1182,
+          "DOT": 1828,
+          "TWO": 300,
+          "ONE": 494,
+          "FOUR": 1464,
+          "WICKET": 600,
+          "NO_BALL": 51,
+          "WIDE": 95,
+          "THREE": 17
+        },
+        "strategyUsage": {
+          "AGGRESSIVE": 5695,
+          "BALANCED": 210,
+          "DEFENSIVE": 126
+        },
+        "winsByEightOvers": 0,
+        "thirtyRunOverRate": 0.005,
+        "fiftyRunTwoOverRate": 0.0
+      }
+    }
+  },
+  "nonFreeHitStatesChecked": 401631,
+  "freeHitStatesChecked": 3196,
+  "scorecardReconciliation": "Every decision and reconstructed delivery",
+  "deterministicReplays": 500,
+  "balanceFailures": [
+    "BALANCED lacks a useful winning scenario"
+  ]
+}

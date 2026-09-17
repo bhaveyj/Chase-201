@@ -154,7 +154,10 @@ export const api = {
           ...(typeof strategy === "string"
             ? {
                 strategy: (m.rulesetVersion === "v3.0" ||
-                m.rulesetVersion === "v3.1"
+                m.rulesetVersion === "v3.1" ||
+                m.rulesetVersion === "v3.2" ||
+                m.rulesetVersion === "v3.3" ||
+                m.rulesetVersion === "v3.4"
                   ? strategySchema
                   : v2StrategySchema
                 ).parse(strategy),

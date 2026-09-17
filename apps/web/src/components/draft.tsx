@@ -173,8 +173,8 @@ export function DraftScreen({ id }: { id: string }) {
           <p className="attribute-guide" id="attribute-guide">
             {draft.selectionRuleset === "simple-v1" ? (
               <>
-                Batting affects scoring and survival; your batting mode controls
-                how much risk the player takes.
+                Your approach controls scoring and risk. Adapt your plans to the
+                chase.
               </>
             ) : (
               <>
@@ -201,7 +201,7 @@ export function DraftScreen({ id }: { id: string }) {
                   aria-pressed={selected}
                   aria-label={`Select ${player.name}, ${roleLabel[player.role]}, rating ${player.overallRating}${attributeDescription(player)}`}
                   aria-describedby="attribute-guide"
-                  className={`player-card ${selected ? "selected" : ""}`}
+                  className={`player-card ${draft.selectionRuleset === "simple-v1" ? "simple-card" : ""} ${selected ? "selected" : ""}`}
                   data-role={player.role}
                   disabled={select.isPending || !session.data}
                   onClick={() =>

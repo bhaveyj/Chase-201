@@ -126,7 +126,7 @@ it("formats exact next-delivery percentages and free-hit risk for all three mode
   expect(screen.getAllByText("0% · None")).toHaveLength(3);
 });
 
-it("shows one Batting bar for simple cards and preserves historical attributes", () => {
+it("omits the Batting rating for simple cards and preserves historical attributes", () => {
   const player = {
     id: "p",
     name: "Ari Vale",
@@ -135,12 +135,12 @@ it("shows one Batting bar for simple cards and preserves historical attributes",
     battingRating: 86,
   };
   const { container, rerender } = render(<PlayerAttributes player={player} />);
-  expect(screen.getByText("Batting")).toBeVisible();
-  expect(container.querySelectorAll(".attribute-track")).toHaveLength(1);
-  expect(container.querySelector("i")).toHaveStyle({ width: "86%" });
+  expect(screen.queryByText("Batting")).toBeNull();
+  expect(container.querySelectorAll(".attribute-track")).toHaveLength(0);
+  expect(screen.queryByText("86")).toBeNull();
   expect(screen.queryByText("Anchor")).toBeNull();
   expect(screen.queryByText("Control")).toBeNull();
-  expect(attributeDescription(player)).toBe(", Batting 86 out of 100");
+  expect(attributeDescription(player)).toBe("");
   const historical = {
     ...player,
     battingPlaystyle: "Anchor" as const,

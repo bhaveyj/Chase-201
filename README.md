@@ -49,7 +49,7 @@ If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` fil
 - Immutable catalog versions and private simulation profiles; exact 5/1/2/3 role composition; five disjoint offers per slot; unique selections and complete batting-order validation.
 - One match per confirmed XI and a balanced AI XI from the same catalog. New drafts have one star batter and one star all-rounder rated 90–92, with nine core players rated 78–85. Stars may bat anywhere; the server validates the limits at every team boundary.
 - Exactly three modes for new matches: Defensive, Balanced and Aggressive; per-delivery matchup/context simulation; wicket and free-hit interruptions; recent deliveries, partnerships, setness and exact next-delivery wicket risk.
-- One visible Batting rating beside OVR. Modes control risk and reward; unique five-player offers retain role and rating limits. Historical cards keep their original attributes.
+- One plain numeric Batting rating beside OVR, without a slider or bar. Modes control risk and reward; unique five-player offers retain role and rating limits. Historical cards keep their original attributes.
 - Server-owned deterministic seeds, versioned rules, transactionally stored decisions/events/state/scorecards, ownership checks, CSRF, expected revisions, and idempotent retries.
 - Desktop/mobile UI, keyboard-operable team ordering and strategy controls, accessible status/error messages, reduced-motion support, and automated WCAG AA checks.
 - Alembic migration, Docker image, Railway/Vercel configuration, CI, cleanup command, generated API types, calibration report command, and deployment smoke test.
@@ -117,7 +117,7 @@ npm run api:types
 
 CI checks migration upgrade/downgrade and schema drift, architecture boundaries, Python/TypeScript typing, both unit suites, common-seed gameplay balance and catalog sensitivity, PostgreSQL concurrency, generated-contract drift, the production build, and browser journeys.
 
-New `simple-v1` drafts use `fictional-v4` and create `v3.1` matches. Saved `v1.0`, `v2.0`, `v2.1`, and `v3.0` matches retain their original engines; `tradeoffs-v1` drafts still create `v3.0` matches. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=fictional-v4` for local development. Start a new draft to use one Batting rating. See [three-mode semantics and the passing 500-seed calibration](docs/three-modes.md).
+New `simple-v1` drafts use `fictional-v4` and create `v3.4` matches. Saved matches through `v3.3` retain their original engines; `tradeoffs-v1` drafts still create `v3.0` matches. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=fictional-v4` for local development. Start a new chase for rating-independent batting and varied repeated-approach scoring: player cards omit Batting, its rating no longer affects the engine, and repetition changes sampled probabilities throughout the innings without forcing late singles. A single approach still cannot win. See [current semantics and calibration](docs/three-modes.md).
 
 See the [verification record](docs/verification.md) for completed local checks and their limits.
 

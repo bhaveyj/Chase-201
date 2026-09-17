@@ -34,9 +34,14 @@ def main() -> None:
             assert len(slot["options"]) == 5
             assert all(minimum <= p["overallRating"] <= maximum for p in slot["options"])
             for player in slot["options"]:
-                assert 1 <= player["battingRating"] <= 100
                 assert (
-                    not {"battingPlaystyle", "battingControl", "battingRotation", "battingPower"}
+                    not {
+                        "battingRating",
+                        "battingPlaystyle",
+                        "battingControl",
+                        "battingRotation",
+                        "battingPower",
+                    }
                     & player.keys()
                 )
         for slot in draft["slots"]:
@@ -61,7 +66,7 @@ def main() -> None:
             "/api/v1/matches",
             {"draftId": draft["id"], "expectedRevision": draft["revision"]},
         )
-        assert match["rulesetVersion"] == "v3.1"
+        assert match["rulesetVersion"] == "v3.4"
         for _ in range(100):
             if match["state"]["status"] != "LIVE":
                 break
@@ -84,7 +89,10 @@ def main() -> None:
                 },
             )
         state = match["state"]
-        assert state["status"] != "LIVE"
+        assert state["status"] in {"LOST", "TIED"}
+        assert state["runs"] <= 200
+        assert state["approaches_used"] == ["BALANCED"]
+        assert state["runs"] < match["target"]
         assert (
             sum(b["runs"] for b in state["batting"]) + state["wides"] + state["no_balls"]
             == state["runs"]

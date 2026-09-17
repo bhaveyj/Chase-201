@@ -53,7 +53,7 @@ def test_populated_v1_upgrade_backfill_and_reversible_empty_v2_schema(tmp_path):
         )
     alembic("upgrade", "head")
     alembic("check")
-    for version in ("v3.0", "v3.1"):
+    for version in ("v3.0", "v3.1", "v3.2", "v3.3", "v3.4"):
         with sqlite3.connect(path) as db:
             db.execute("UPDATE matches SET ruleset = ?", (version,))
         failure = alembic("downgrade", "f31b72d4c905", success=False)

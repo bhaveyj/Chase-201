@@ -1,5 +1,26 @@
 # Verification record â€” gameplay redesign
 
+## Batting stat removal and varied repeated play â€” 17 September 2026
+
+New simple-v1 chases use v3.4. Simple player cards omit the Batting label, number and accessible description. Batting ratings no longer affect delivery probabilities, sustainable scoring, pressure or matchup feedback. The 60-run headroom and per-ball fixed-approach scoring budgets are replaced by probabilistic repetition adaptation throughout the innings. A single approach still cannot win.
+
+- The [final 500-seed calibration](calibration-v34-final.json) passed every gate: **63.2% adaptive-play wins**, **0% for each fixed approach**, with mixed scoring in the opening and final three overs. It covers 8,000 chases/continuations and 500 deterministic replays, 414,217 non-free-hit risk comparisons and 3,415 zero-risk free-hit checks. The report hash matches the final rules. Defensive and Balanced tie at 83.4% in the qualified low-pressure scenario.
+- The full SQLite backend suite passed **410 tests**, with two PostgreSQL-only concurrency tests skipped. After final probability tuning, all **39 v3.4 regression/API tests** passed again. Tests cover rating-independent contexts and full traces, random opening/final-over scoring, late boundaries, every target-guard outcome, free hits, reloads, and idempotency. Historical replay and migration guards passed.
+- **17 frontend unit tests** and **4 desktop/mobile browser journeys** passed, including accessibility, no overflow, correct three-mode routing, selection, complete chases, reloads and scorecards. Desktop/mobile draft screenshots were visually checked. Artifacts: `outputs/browser-v34/`.
+- Ruff, MyPy, import boundaries, ESLint, TypeScript and the production build passed. The OpenAPI export matches the running application, and TypeScript types include v3.4. Temporary verification-directory entries were removed from tsconfig.
+- Earlier `.next` and browser artifact directories were locked by Windows. Verification used fresh `.next-verify-v34`, `.next-e2e-v34` and `outputs/browser-v34` directories. The tested frontend is served on port 3000; the final API is served on port 8000. Both are healthy and the live API exposes v3.4.
+- A live Balanced-only smoke chase completed **161/10, lost**, with reconciled scorecards. It created a separate guest draft/match; existing matches, catalogs and receipts were not rewritten. New games are required to use the updated engine.
+
+## Approach variation and 60–65% difficulty — 16 September 2026
+
+New simple-v1 chases now use v3.2. The player-card Batting bar is removed, leaving a plain numeric rating. At least two approaches must be played on legal deliveries before scoring the winning runs; every fixed approach is prevented from winning by the server. Saved matches retain their earlier engines.
+
+- The [500-seed calibration](calibration-v32-final.json) passed all gates: **64.2% sensible-switching wins**, **0% Defensive-only**, **0% Balanced-only**, **0% Aggressive-only**. It covers 8,000 chases/continuations plus 500 deterministic replays, 403,855 non-free-hit risk comparisons and 3,325 free-hit checks. The coefficient hash matches the final rules.
+- **346 backend tests passed; 2 PostgreSQL-only concurrency tests skipped** in this SQLite run. New tests cover every near-target outcome for all three modes, forced unbroken sixes with maximum batting strength, randomized chases, qualification on legal deliveries, exact assessments, reloads and idempotency. Existing golden replays and migration/downgrade guards passed.
+- **15 frontend unit tests and all 4 desktop/mobile browser journeys passed**, including accessibility, no horizontal overflow, bar removal, the visible approach requirement, reloads, full chases, scorecards and mocked sign-in/history. Draft screenshots were visually inspected on desktop and mobile. Browser artifacts: `outputs/browser-v32-final/`.
+- Ruff, MyPy, import boundaries, ESLint, TypeScript and the production build passed. OpenAPI and TypeScript were regenerated, with the new state field confined to the three-mode response schema. The historical v1/v2 response schema remains unchanged.
+- The locked standard `.next` folder was preserved as `.next-before-v32-20260916` and replaced by a fresh production build. The local frontend and API were restarted on ports 3000 and 8000. No migration, catalog rewrite or historical match update was needed. A local smoke chase confirmed v3.2 and Balanced-only play finished **200/4, tied**, with reconciled figures and no win.
+
 ## Simple batting and difficulty â€” 16 September 2026
 
 New drafts use `fictional-v4` / `simple-v1`, creating `v3.1` matches. Saved `tradeoffs-v1` drafts still start `v3.0`; all previous engines remain frozen. See [gameplay semantics](three-modes.md) and the [final 500-seed report](calibration-v31-final.json).

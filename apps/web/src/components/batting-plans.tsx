@@ -38,15 +38,33 @@ export function BattingPlans({
   assessments,
   disabled,
   onChange,
+  requiresVariation = false,
+  adaptsToRepetition = false,
+  approachesUsed = [],
 }: {
   strategy: Strategy;
   assessments: Match["strategyAssessments"];
   disabled: boolean;
   onChange: (value: Strategy) => void;
+  requiresVariation?: boolean;
+  adaptsToRepetition?: boolean;
+  approachesUsed?: Strategy[];
 }) {
   return (
     <fieldset disabled={disabled}>
       <legend>Batting plan</legend>
+      {adaptsToRepetition && (
+        <p className="plan-context-note">
+          Bowlers adapt to repeated approaches. Mix your plans to keep scoring.
+        </p>
+      )}
+      {requiresVariation && (
+        <p className="plan-context-note" aria-live="polite">
+          {approachesUsed.length >= 2
+            ? "Approach variation complete. Keep adapting to the chase."
+            : "Use at least two approaches on legal deliveries to win. A single approach cannot score past 200."}
+        </p>
+      )}
       <div className="plan-grid">
         {plans.map(({ value, title, description, icon: Icon }) => {
           const assessment = assessments?.find(

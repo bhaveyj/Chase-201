@@ -76,6 +76,12 @@ jobs:
         run: .venv/bin/python apps/api/scripts/balance_v3.py --seeds 500 --check --output balance-v3-report.json
       - name: Simple batting randomized-draft acceptance
         run: .venv/bin/python apps/api/scripts/balance_v31.py --seeds 500 --check --output balance-v31-report.json
+      - name: Approach variation and 60–65 percent acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v32.py --seeds 500 --check --output balance-v32-report.json
+      - name: Repeated-approach scoring and adaptive play acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v33.py --seeds 500 --check --output balance-v33-report.json
+      - name: Rating-independent batting and varied repeated play acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v34.py --seeds 500 --check --output balance-v34-report.json
       - name: Browser journeys and accessibility
         run: |
           npx playwright install --with-deps chromium

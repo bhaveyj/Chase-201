@@ -10,7 +10,7 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 describe("server state client", () => {
-  it.each(["v3.0", "v3.1"] as const)(
+  it.each(["v3.0", "v3.1", "v3.2", "v3.3", "v3.4"] as const)(
     "routes %s through the three-mode contract",
     async (rulesetVersion) => {
       server.use(

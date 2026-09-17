@@ -21,6 +21,7 @@ async def test_v2_event_interruptions_persist_and_replay(client, database, desir
     async with database() as db, db.begin():
         saved = await db.get(Match, m["id"])
         saved.ruleset = version
+        saved.state = {k: v for k, v in saved.state.items() if k not in {"approaches_used", "recent_approaches"}}
         team = await engine_team(db, await team_ids(db, saved.team_id))
         opponent = await engine_team(db, saved.opponent)
         state = GameState.from_dict(saved.state)

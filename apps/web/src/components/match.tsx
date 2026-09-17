@@ -166,7 +166,11 @@ export function MatchScreen({
         m!,
         m?.rulesetVersion === "v1.0"
           ? legacyStrategy
-          : m?.rulesetVersion === "v3.0" || m?.rulesetVersion === "v3.1"
+          : m?.rulesetVersion === "v3.0" ||
+              m?.rulesetVersion === "v3.1" ||
+              m?.rulesetVersion === "v3.2" ||
+              m?.rulesetVersion === "v3.3" ||
+              m?.rulesetVersion === "v3.4"
             ? strategy
             : v2Strategy,
         crypto.randomUUID(),
@@ -449,7 +453,11 @@ export function MatchScreen({
                   onChange={setLegacyStrategy}
                   disabled={action.isPending}
                 />
-              ) : m.rulesetVersion !== "v3.0" && m.rulesetVersion !== "v3.1" ? (
+              ) : m.rulesetVersion !== "v3.0" &&
+                m.rulesetVersion !== "v3.1" &&
+                m.rulesetVersion !== "v3.2" &&
+                m.rulesetVersion !== "v3.3" &&
+                m.rulesetVersion !== "v3.4" ? (
                 <V2Plans
                   strategy={v2Strategy}
                   assessments={m.strategyAssessments}
@@ -460,6 +468,13 @@ export function MatchScreen({
                 <BattingPlans
                   strategy={strategy}
                   assessments={m.strategyAssessments}
+                  requiresVariation={
+                    m.rulesetVersion === "v3.2" || m.rulesetVersion === "v3.4"
+                  }
+                  adaptsToRepetition={
+                    m.rulesetVersion === "v3.3" || m.rulesetVersion === "v3.4"
+                  }
+                  approachesUsed={m.state.approaches_used}
                   onChange={setStrategy}
                   disabled={action.isPending}
                 />

@@ -52,11 +52,21 @@ from chase_engine.types import BowlingStyle, Transition
 from chase_engine.v2 import engine as v2_engine
 from chase_engine.v31 import engine as v31_engine
 from chase_engine.v31.types import BowlingStyle as SimpleBowlingStyle
+from chase_engine.v32 import engine as v32_engine
+from chase_engine.v33 import engine as v33_engine
+from chase_engine.v34 import engine as v34_engine
 
-THREE_MODE_RULESETS = {"v3.0", "v3.1"}
+THREE_MODE_RULESETS = {"v3.0", "v3.1", "v3.2", "v3.3", "v3.4"}
+SIMPLE_RULESETS = {"v3.1", "v3.2", "v3.3", "v3.4"}
 
 
 def engine_for(ruleset: str) -> Any:
+    if ruleset == "v3.4":
+        return v34_engine
+    if ruleset == "v3.3":
+        return v33_engine
+    if ruleset == "v3.2":
+        return v32_engine
     if ruleset == "v3.1":
         return v31_engine
     return v3_engine if ruleset == "v3.0" else v2_engine
@@ -145,7 +155,7 @@ def summary(
         "name": player.name,
         "role": player.role,
         "overallRating": player.overall_rating,
-        **({"battingRating": profile.batting} if profile is not None else {}),
+        **({"battingRating": profile.batting} if profile is not None and not simple else {}),
         **(
             {
                 "battingPlaystyle": playstyle(
@@ -347,12 +357,12 @@ async def engine_team(db: AsyncSession, ids: list[str], ruleset: str = "v3.0") -
             id=p.id,
             role=p.role,
             overall=p.overall_rating,
-            batting=profile.batting,
+            batting=75 if ruleset == "v3.4" else profile.batting,
             bowling_control=profile.bowling_control,
             bowling_threat=profile.bowling_threat,
             bowling_style=SimpleBowlingStyle(profile.bowling_style),
         )
-        if ruleset == "v3.1"
+        if ruleset in SIMPLE_RULESETS
         else PlayerProfile(
             p.id,
             p.role,
@@ -409,7 +419,7 @@ async def create_match(db: AsyncSession, draft: Draft, principal: Session) -> Ma
     )
     opponent = [p.id for p in opponent_players(catalog, secrets.SystemRandom())]
     ids = await team_ids(db, team.id)
-    ruleset = "v3.1" if draft.selection_ruleset == SIMPLE_SELECTION else "v3.0"
+    ruleset = "v3.4" if draft.selection_ruleset == SIMPLE_SELECTION else "v3.0"
     state = engine_for(ruleset).initial_state(
         await engine_team(db, ids, ruleset), await engine_team(db, opponent, ruleset)
     )
@@ -591,7 +601,9 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
                 contextual["upcomingBowlers"].append(
                     {
                         **summary(
-                            players[player_id], display_profiles[player_id], match.ruleset == "v3.1"
+                            players[player_id],
+                            display_profiles[player_id],
+                            match.ruleset in SIMPLE_RULESETS
                         ),
                         "style": bowlers[player_id].bowling_style.value,
                         "over": over + 1,
@@ -604,10 +616,12 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
         "target": target,
         "decisionWindow": window_size,
         **contextual,
-        "state": match.state,
-        "team": [summary(players[i], display_profiles[i], match.ruleset == "v3.1") for i in ids],
+        "state": {key: value for key, value in match.state.items() if key != "recent_approaches"},
+        "team": [
+            summary(players[i], display_profiles[i], match.ruleset in SIMPLE_RULESETS) for i in ids
+        ],
         "opponent": [
-            summary(players[i], display_profiles[i], match.ruleset == "v3.1")
+            summary(players[i], display_profiles[i], match.ruleset in SIMPLE_RULESETS)
             for i in match.opponent
         ],
         "events": await events_view(db, match.id),

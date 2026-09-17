@@ -39,7 +39,7 @@ def upgrade() -> None:
 def downgrade() -> None:
     connection = op.get_bind()
     for table, condition in (
-        ("matches", "ruleset IN ('v3.0', 'v3.1')"),
+        ("matches", "ruleset IN ('v3.0', 'v3.1', 'v3.2', 'v3.3', 'v3.4')"),
         ("drafts", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1')"),
         ("catalog_versions", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1')"),
         ("decisions", "strategy IN ('DEFENSIVE', 'AGGRESSIVE')"),

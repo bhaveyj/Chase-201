@@ -484,7 +484,7 @@ export interface components {
             target: number;
             /** Decisionwindow */
             decisionWindow: number;
-            state: components["schemas"]["StateView"];
+            state: components["schemas"]["ThreeModeStateView"];
             /** Team */
             team: components["schemas"]["PlayerSummary"][];
             /** Opponent */
@@ -498,7 +498,7 @@ export interface components {
              * Rulesetversion
              * @enum {string}
              */
-            rulesetVersion: "v3.0" | "v3.1";
+            rulesetVersion: "v3.0" | "v3.1" | "v3.2" | "v3.3" | "v3.4";
             /** Events */
             events: components["schemas"]["EventView"][];
             /** Strategyassessments */
@@ -680,6 +680,51 @@ export interface components {
             /** Expectedrevision */
             expectedRevision: number;
             strategy: components["schemas"]["chase_engine__types__StrategyId"];
+        };
+        /** ThreeModeStateView */
+        ThreeModeStateView: {
+            /** Runs */
+            runs: number;
+            /** Wickets */
+            wickets: number;
+            /** Balls */
+            balls: number;
+            /** Wides */
+            wides: number;
+            /** No Balls */
+            no_balls: number;
+            /** Striker */
+            striker: number;
+            /** Non Striker */
+            non_striker: number;
+            /** Next Batter */
+            next_batter: number;
+            /** Free Hit */
+            free_hit: boolean;
+            /** Status */
+            status: string;
+            /** Batting */
+            batting: components["schemas"]["BatterView"][];
+            /** Bowling */
+            bowling: components["schemas"]["BowlerView"][];
+            /** Over Bowlers */
+            over_bowlers: string[];
+            /** Recent Outcomes */
+            recent_outcomes?: components["schemas"]["Outcome"][];
+            /**
+             * Partnership Runs
+             * @default 0
+             */
+            partnership_runs: number;
+            /**
+             * Partnership Balls
+             * @default 0
+             */
+            partnership_balls: number;
+            /** Last Wicket Ball */
+            last_wicket_ball?: number | null;
+            /** Approaches Used */
+            approaches_used?: components["schemas"]["chase_engine__types__StrategyId"][];
         };
         /** UpcomingBowler */
         UpcomingBowler: {

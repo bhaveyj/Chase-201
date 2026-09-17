@@ -1,67 +1,45 @@
-# Simple batting and three modes — v3.1
+# Rating-independent batting and varied repeated play — v3.4
 
-New drafts use immutable catalog `fictional-v4` and selection rules `simple-v1`. They create `v3.1` matches. Existing `tradeoffs-v1` drafts still create `v3.0` matches; saved matches retain their recorded engine. Target 201, 20 overs, role composition and decision windows are unchanged.
+New `simple-v1` drafts use `fictional-v4` and create `v3.4` matches. Target 201, 20 overs, XI rating limits and decision windows remain unchanged. Saved matches keep their recorded engine, including v3.3; existing `tradeoffs-v1` drafts still create v3.0 matches.
 
-## Batting and OVR
+## Player cards and ability inputs
 
-Draft cards show one Batting bar beside OVR. Batting affects scoring and survival; your batting mode controls how much risk the player takes. OVR sets draft eligibility and does not enter the batting kernel. There are no archetypes, hidden playstyle bonuses or player-by-mode interactions in v3.1. Historical draft cards retain their original attributes.
+Simple cards show the player name, role and OVR. The Batting label, number and accessible description are removed, including when an older response still contains `battingRating`. Simple summaries omit Batting and the legacy control/rotation/power/playstyle fields. Historical profile cards retain their original attributes.
 
-| Role | Core Batting | Star Batting |
-| --- | ---: | ---: |
-| Batter | 80 | 86 |
-| Wicketkeeper | 78 | — |
-| All-rounder | 77 | 83 |
-| Bowler | 44 | — |
+V3.4 does not read a player's Batting rating for outcomes, sustainable scoring, chase pressure or matchup feedback. The batting vector and sustainable attribute multiplier are zero; shared context calculations receive a neutral batter profile. OVR is not substituted for the removed ability input. Bowler control/threat/style, the selected approach, phase, setness, recent dots, wickets, partnership and required rate still affect play.
 
-Within each role/tier cohort, ratings repeat the variations −3, −1, 0, +1, +3, preserving the stated average. OVR and all bowling attributes match fictional-v3 exactly. Older catalogs are never rewritten.
+## Random scoring throughout the innings
 
-`simple-v1` retains five batters, one keeper, two all-rounders and three bowlers: one 90–92 OVR batter, one 90–92 OVR all-rounder and nine 78–85 OVR core players. Each draft has eleven disjoint offers of five unique players. Catalog imports validate role/tier capacity before writing any rows. No playstyle or non-dominance requirements apply. Selection, ordering, confirmation and match creation revalidate ratings, roles, offer membership and uniqueness. Stars may bat anywhere.
+V3.3 allowed 60 runs of initial headroom, then released its fixed-approach score ceiling at an almost constant rate per legal ball. This could produce easy opening runs followed by repeated forced singles in the final overs.
 
-## Probability model
+V3.4 removes those 150/180/185 scoring budgets and the per-ball ceiling. Repetition instead adjusts the probabilities of dots, singles, twos, threes, boundaries and wickets before each delivery is sampled. Adaptation begins with repeated legal deliveries in the opening overs, rather than after a 12-ball grace period, and uses the persisted recent 24-ball approach history. A token switch does not erase that history. Dots and boundaries remain possible in the final overs, provided the chase has not reached the winning-run guard.
 
-`chase_engine/v31/` owns v3.1. A batter has one ability input, `batting`. In dot/one/two/three/four/six/wicket order, its logit contribution is:
+Sampling continues to use the server's seeded random source. Reloads and idempotent retries preserve the same result; a new chase produces a new sequence. No extra client randomness or result rewriting is introduced.
 
-```text
-(-0.30, 0.22, 0.26, 0.28, 0.30, 0.42, -0.50) × (batting − 75) / 25
-```
+## A single approach cannot win
 
-Defensive and Balanced retain their v3.0 vectors. Aggressive retains its vector except the wicket logit is 0.85. Every mode applies a 0.8 setness scale. Bowler control/threat, pace/spin by phase, recent pressure, partnership and the chase equation still affect outcomes, independently of mode. Sustainable scoring derives from striker and partner Batting. Extras retain their independent bowler-controlled legality distribution.
+Defensive-only, Balanced-only and Aggressive-only full chases cannot score winning runs. At least two approaches must be used on legal deliveries. Wides and no-balls do not qualify as a switch; a legal free hit does. A second approach can qualify on the winning legal delivery itself. A fixed approach may tie at 200.
 
-Calibration reduced shared four/six prior weights to 0.92 of v3.0 in every phase, preserving relative phase effects and all requested batting/mode coefficients. The unadjusted randomized-draft benchmark was too easy: sensible 76.8%, Balanced 74.6%, Aggressive 47.4%. This shared baseline adjustment brings the final model inside every acceptance band.
+The only scoring guard redirects a scoring outcome that would reach target 201 to a dot until variation qualifies. This guard applies to boundaries, extras and free hits in both the probability assessment and transition layer. Ordinary scoring outcomes below this guard are not converted into singles. Scorecards and events use the same final delivery outcome. Mode risk remains Defensive < Balanced < Aggressive, with zero wicket probability on free hits.
 
-| Mode | Purpose |
-| --- | --- |
-| Defensive | Protect wickets and rotate strike when the required rate permits. |
-| Balanced | Combine strike rotation with selective boundaries. |
-| Aggressive | Seek more boundaries with more dots and greater dismissal risk. |
+## Calibration and verification
 
-Every delivery recalculates the distribution. Wickets and no-balls interrupt windows; free hits get a separate decision. On free hits the wicket logit is removed and all three modes have exactly zero risk. Cricket accounting, bowling quotas, extras, partnerships and strike rotation remain unchanged.
+Shared phase priors compensate for removing player-specific Batting ability; the approach vectors and contextual effects are retained. The adaptive-play acceptance target remains 60–65% full-chase wins in the documented randomized-draft benchmark. This is a benchmark range, not a guarantee for every strategy or team.
 
-## API and compatibility
-
-Player summaries add `battingRating` (1–100). Simple draft and v3.1 match summaries omit `battingControl`, `battingRotation`, `battingPower`, and `battingPlaystyle`. Historical cards continue to render their original attributes even when `battingRating` is present.
-
-Both v3.0 and v3.1 use the three-mode API and frontend controls. Active assessments add `wicketProbability`, a full-precision 0–1 probability for the next delivery, including legality. The UI displays one decimal place: `Wicket risk: 5.2% · Low`. Free hits show `Wicket risk: 0% · None` for all modes. Scoring and boundary estimates remain qualitative. Historical idempotency receipts may omit the probability and retain their existing band. Completed matches have no active assessments.
-
-The parent `chase_engine/` modules freeze v3.0. Nine complete golden replays captured before this change verify identical final states and event traces. `chase_engine/v2/` and `legacy.py` preserve v2.0/v2.1 and v1.0. HMAC seed derivation and stored decisions, events, states, results and catalogs are not rewritten. See [historical v3.0 semantics](three-modes-v30.md).
-
-No schema migration is needed beyond existing head `a42c83e5d016`; the Batting column and version strings already support this model. Downgrade protection includes v3.1/simple-v1. To activate locally, seed catalogs with `python -m chase201.catalog`, set `CATALOG_VERSION=fictional-v4`, and restart the API. Existing drafts keep their original catalog and selection rules.
-
-## Reproducible acceptance
+The final benchmark passes every gate: **63.2% adaptive-play wins**, **0% Defensive-only**, **0% Balanced-only**, and **0% Aggressive-only**. Defensive and Balanced both win **83.4%** of the qualified low-pressure continuations. Fixed-mode scoring remains varied in the opening and final three overs.
 
 ```powershell
-.venv/Scripts/python.exe apps/api/scripts/balance_v31.py --seeds 500 --check --output docs/calibration-v31-final.json
+.venv/Scripts/python.exe apps/api/scripts/balance_v34.py --seeds 500 --check --output docs/calibration-v34-final.json
 ```
 
-The checker requires at least 500 common seeds. Each seed randomly selects from legal five-player offers, orders the XI by Batting, and draws opponents using production selection. All four policies share the seed, XI and opponent. Sensible switching chooses Aggressive on free hits or required rate above 11.5, Defensive below 7, and Balanced otherwise, only at production decision windows.
+The [500-seed report](calibration-v34-final.json) measures fixed approaches and adaptive play across full chases and three continuation scenarios, checks scorecards and mode risks at every reconstructed delivery, and compares deterministic replays. It also records outcome counts separately for the opening and final three overs and requires varied Defensive/Balanced outcomes in both.
 
-Four scenarios retain target 201: full chase; 161/7 after 14 overs; 101/3 after 10 overs; 165/4 after 18 overs. There are 8,000 primary chases/continuations plus 500 deterministic full-chase replays. Wicket rates pool wickets over all deliveries in fixed-mode full chases, including extras and free hits, rather than averaging match rates.
+Draft choices are random legal selections, ordered by descending OVR. Adaptive play uses Aggressive on free hits, Defensive below required rate 7, otherwise alternates Balanced/Aggressive in response to required rate and recent approach history at production decision windows. Continuation prefixes already use multiple approaches; their outcomes measure situational usefulness rather than bypassing the full-chase qualification requirement.
 
-| Policy | Full-chase wins | Required | Wickets per delivery | Required |
-| --- | ---: | ---: | ---: | ---: |
-| Defensive | 9.2% | — | 1.30% | 1–4% |
-| Balanced | 62.4% | 55–75% | 4.84% | 3–7% |
-| Aggressive | 41.8% | 25–50% | 9.45% | 8–13% |
-| Sensible switching | 67.6% | 65–75% | 4.87% | — |
+Regression tests compare ratings 1 and 100 against identical seeds, require identical contexts/distributions/full traces, exercise all outcomes at the target guard, verify late boundaries remain boundaries, and cover reloads and API idempotency. Earlier version tests remain in place.
 
-The final [500-seed report](calibration-v31-final.json) passes every gate. Defensive leads low pressure at 78.8%; Balanced leads fixed modes in medium pressure at 56.8%; Aggressive leads urgent finishes at 24.0%. No fixed mode leads every scenario. All 395,044 sampled non-free-hit states satisfy Defensive < Balanced < Aggressive wicket probability; all 3,299 sampled free-hit states have zero risk. Scorecards reconcile and all 500 replay traces match. Worst full-chase burst rates are 0% wins by eight overs, 0.239% 30-run overs and 0.190% 50-run two-over blocks (limits 1%, 4%, 5%). These are fictional-game measurements, not professional cricket forecasts.
+## Activation
+
+Restart the API and frontend, then start a new chase. Existing `fictional-v4` installations need no catalog reimport or schema change. The generated API contract accepts v3.4 alongside earlier versions; downgrade protection includes v3.4. Saved matches and receipts are not rewritten.
+
+See [historical v3.2](three-modes-v32.md), [v3.1](three-modes-v31.md) and [v3.0](three-modes-v30.md).

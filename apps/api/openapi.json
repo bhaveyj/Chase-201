@@ -1492,7 +1492,7 @@
             "title": "Decisionwindow"
           },
           "state": {
-            "$ref": "#/components/schemas/StateView"
+            "$ref": "#/components/schemas/ThreeModeStateView"
           },
           "team": {
             "items": {
@@ -1533,7 +1533,10 @@
             "type": "string",
             "enum": [
               "v3.0",
-              "v3.1"
+              "v3.1",
+              "v3.2",
+              "v3.3",
+              "v3.4"
             ],
             "title": "Rulesetversion"
           },
@@ -2110,6 +2113,124 @@
           "strategy"
         ],
         "title": "StrategyDecision"
+      },
+      "ThreeModeStateView": {
+        "properties": {
+          "runs": {
+            "type": "integer",
+            "title": "Runs"
+          },
+          "wickets": {
+            "type": "integer",
+            "title": "Wickets"
+          },
+          "balls": {
+            "type": "integer",
+            "title": "Balls"
+          },
+          "wides": {
+            "type": "integer",
+            "title": "Wides"
+          },
+          "no_balls": {
+            "type": "integer",
+            "title": "No Balls"
+          },
+          "striker": {
+            "type": "integer",
+            "title": "Striker"
+          },
+          "non_striker": {
+            "type": "integer",
+            "title": "Non Striker"
+          },
+          "next_batter": {
+            "type": "integer",
+            "title": "Next Batter"
+          },
+          "free_hit": {
+            "type": "boolean",
+            "title": "Free Hit"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "batting": {
+            "items": {
+              "$ref": "#/components/schemas/BatterView"
+            },
+            "type": "array",
+            "title": "Batting"
+          },
+          "bowling": {
+            "items": {
+              "$ref": "#/components/schemas/BowlerView"
+            },
+            "type": "array",
+            "title": "Bowling"
+          },
+          "over_bowlers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Over Bowlers"
+          },
+          "recent_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/Outcome"
+            },
+            "type": "array",
+            "title": "Recent Outcomes"
+          },
+          "partnership_runs": {
+            "type": "integer",
+            "title": "Partnership Runs",
+            "default": 0
+          },
+          "partnership_balls": {
+            "type": "integer",
+            "title": "Partnership Balls",
+            "default": 0
+          },
+          "last_wicket_ball": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Wicket Ball"
+          },
+          "approaches_used": {
+            "items": {
+              "$ref": "#/components/schemas/chase_engine__types__StrategyId"
+            },
+            "type": "array",
+            "title": "Approaches Used"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "runs",
+          "wickets",
+          "balls",
+          "wides",
+          "no_balls",
+          "striker",
+          "non_striker",
+          "next_batter",
+          "free_hit",
+          "status",
+          "batting",
+          "bowling",
+          "over_bowlers"
+        ],
+        "title": "ThreeModeStateView"
       },
       "UpcomingBowler": {
         "properties": {

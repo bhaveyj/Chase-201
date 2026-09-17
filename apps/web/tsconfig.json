@@ -41,7 +41,9 @@
     ".next-release/types/**/*.ts",
     ".next-release/dev/types/**/*.ts",
     ".next-e2e-ratings/types/**/*.ts",
-    ".next-e2e-ratings/dev/types/**/*.ts"
+    ".next-e2e-ratings/dev/types/**/*.ts",
+    ".next-e2e-v33/types/**/*.ts",
+    ".next-e2e-v33/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

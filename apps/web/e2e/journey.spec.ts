@@ -31,10 +31,11 @@ async function setupXI(page: Page) {
     page.getByRole("button", { name: /^Select .+, .+, rating/ }).first(),
   ).toBeVisible();
   await accessible(page);
-  await expect(page.locator(".player-card .simple-batting")).toHaveCount(5);
+  await expect(page.locator(".player-card .player-attributes")).toHaveCount(0);
+  await expect(page.locator(".player-card .attribute-track")).toHaveCount(0);
   await expect(page.locator(".player-card .playstyle")).toHaveCount(0);
   await expect(page.locator(".attribute-guide")).toHaveText(
-    "Batting affects scoring and survival; your batting mode controls how much risk the player takes.",
+    "Your approach controls scoring and risk. Adapt your plans to the chase.",
   );
   await expect(page.getByLabel("XI rating limits")).toContainText(
     "One batter and one all-rounder rated 90–92",
@@ -90,6 +91,9 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
   });
   await setupXI(page);
   await expect(page.getByText("How do you play this?")).toBeVisible();
+  await expect(
+    page.getByText(/Bowlers adapt to repeated approaches/),
+  ).toBeVisible();
   const matchUrl = page.url();
   await expect(page.getByRole("radio")).toHaveCount(3);
   await expect(page.locator(".bowler-current")).toBeVisible();
@@ -104,6 +108,9 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
   await page.getByRole("radio", { name: "Balanced", exact: true }).check();
   await page.reload();
   await expect(page.getByText("How do you play this?")).toBeVisible();
+  await expect(
+    page.getByText(/Bowlers adapt to repeated approaches/),
+  ).toBeVisible();
   await expect(page.getByRole("radio")).toHaveCount(3);
   await expect(
     page.getByRole("radio", { name: "Balanced", exact: true }),
@@ -133,7 +140,7 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       expect(event.strategy).toBeTruthy();
       expect(event.deliveries.length).toBeGreaterThan(0);
       if (state.status === "LIVE") {
-        expect(responseBody.rulesetVersion).toBe("v3.1");
+        expect(responseBody.rulesetVersion).toBe("v3.4");
         for (const [
           index,
           assessment,
@@ -226,4 +233,7 @@ test("mocked Google sign-in claims guest match history", async ({ page }) => {
   await accessible(page);
   await page.getByRole("link", { name: /IN PROGRESS/ }).click();
   await expect(page.getByText("How do you play this?")).toBeVisible();
+  await expect(
+    page.getByText(/Bowlers adapt to repeated approaches/),
+  ).toBeVisible();
 });
