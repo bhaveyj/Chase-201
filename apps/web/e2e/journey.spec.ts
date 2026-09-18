@@ -142,7 +142,7 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       expect(event.strategy).toBeTruthy();
       expect(event.deliveries.length).toBeGreaterThan(0);
       if (state.status === "LIVE") {
-        expect(responseBody.rulesetVersion).toBe("v3.4");
+        expect(responseBody.rulesetVersion).toBe("v3.5");
         for (const [
           index,
           assessment,
@@ -204,6 +204,58 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+test("repeated Aggressive survives reload and completes with ordinary scoring", async ({
+  page,
+}) => {
+  await setupXI(page);
+  const matchUrl = page.url();
+  await expect(
+    page.getByText(/A single approach cannot score past 200/),
+  ).toHaveCount(0);
+  let final;
+  let runs = 0;
+  for (let step = 0; step < 90; step++) {
+    await page.getByRole("radio", { name: "Aggressive", exact: true }).check();
+    const response = page.waitForResponse(
+      (r) => r.url().endsWith("/decisions") && r.request().method() === "POST",
+    );
+    await page.getByRole("button", { name: /^Play next/ }).click();
+    final = await (await response).json();
+    expect(final.rulesetVersion).toBe("v3.5");
+    expect(final.state.approaches_used).toEqual(["AGGRESSIVE"]);
+    for (const delivery of final.events.at(-1).deliveries) {
+      const values: Record<string, number> = {
+        DOT: 0,
+        ONE: 1,
+        TWO: 2,
+        THREE: 3,
+        FOUR: 4,
+        SIX: 6,
+        WICKET: 0,
+        WIDE: 1,
+        NO_BALL: 1,
+      };
+      expect(delivery.runs).toBe(values[delivery.outcome]);
+      runs += delivery.runs;
+    }
+    expect(final.state.runs).toBe(runs);
+    if (final.state.status !== "LIVE") break;
+    await expect(
+      page.getByRole("button", { name: /^Play next/ }),
+    ).toBeEnabled();
+    if (step === 4) {
+      await page.reload();
+      await expect(
+        page.getByRole("radio", { name: "Aggressive", exact: true }),
+      ).toBeVisible();
+    }
+  }
+  expect(final.state.status).not.toBe("LIVE");
+  expect(final.state.status === "WON").toBe(final.state.runs >= final.target);
+  await expect(page).toHaveURL(`${matchUrl}/result`);
+  await accessible(page);
 });
 
 test("mocked Google sign-in claims guest match history", async ({ page }) => {

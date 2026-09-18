@@ -1,47 +1,39 @@
-# Rating-independent batting and varied repeated play — v3.4
+# Natural scoring and early Aggressive adaptation — v3.5
 
-New drafts use the 200-player `real-players-v2` catalog with `real-players-v1` selection rules and create `v3.4` matches. See [roster, sources and role-specific rating limits](player-catalog.md). Target 201, 20 overs and decision windows remain unchanged. Saved matches keep their recorded engine, including v3.3; existing `simple-v1` drafts still create v3.4 matches and `tradeoffs-v1` drafts still create v3.0 matches.
+New `simple-v1` and `real-players-v1` drafts create **v3.5** matches. The default roster remains the [200-player real-players-v2 catalog](player-catalog.md), with the supplied names and ratings unchanged. Target 201, 120 legal balls, ten wickets and the production decision windows are unchanged. Saved matches use their recorded engine; tradeoff drafts still create v3.0 matches.
 
-## Player cards and ability inputs
+## Why late Aggressive scoring stalled
 
-Simple cards show the player name, role and OVR. The Batting label, number and accessible description are removed, including when an older response still contains `battingRating`. Simple summaries omit Batting and the legacy control/rotation/power/playstyle fields. Historical profile cards retain their original attributes.
+V3.4 removed the old paced score ceiling but retained a rule that prevented any single approach from scoring winning runs. At 197, this converted every sampled four and six into a dot. At 200, every scoring outcome became a dot. This produced normal or fast opening scoring followed by an artificial stall near the target.
 
-V3.4 does not read a player's Batting rating for outcomes, sustainable scoring, chase pressure or matchup feedback. The batting vector and sustainable attribute multiplier are zero; shared context calculations receive a neutral batter profile. OVR is not substituted for the removed ability input. Bowler control/threat/style, the selected approach, phase, setness, recent dots, wickets, partnership and required rate still affect play.
+The reported Aggressive-only game was reproduced exactly from its saved decisions and revision-specific HMAC random streams: **197/7 after 20 overs**. Comparing v3.5 with the same decision entropy produces **202/7 after 19.1 overs**, including 14 real runs in the final two overs. This comparison does not rewrite the saved result or guarantee the outcome of a fresh game.
 
-## Random scoring throughout the innings
+## Scoring and approach risk
 
-V3.3 allowed 60 runs of initial headroom, then released its fixed-approach score ceiling at an almost constant rate per legal ball. This could produce easy opening runs followed by repeated forced singles in the final overs.
+V3.5 retains every sampled outcome in both the distribution and accounting layers. A four scores four; a six scores six; wides and no-balls score one without consuming a legal ball. Any approach can earn winning runs. A chase ends immediately when the target is reached, ten wickets fall, or 120 legal balls are completed. There is no score ceiling, winning-run qualification, or later score correction.
 
-V3.4 removes those 150/180/185 scoring budgets and the per-ball ceiling. Repetition instead adjusts the probabilities of dots, singles, twos, threes, boundaries and wickets before each delivery is sampled. Adaptation begins with repeated legal deliveries in the opening overs, rather than after a 12-ball grace period, and uses the persisted recent 24-ball approach history. A token switch does not erase that history. Dots and boundaries remain possible in the final overs, provided the chase has not reached the winning-run guard.
+Repeated Aggressive play is discouraged through bowling adaptation from the opening overs. The last 24 legal deliveries persist their approaches; Aggressive reaches full adaptation after 18 uses, compared with 24 in v3.4. Its repetition vector reduces boundary probability and increases dot and wicket probability more strongly. Each outcome retains positive probability throughout a live innings, except wickets on free hits. A one-delivery switch does not erase the history.
 
-Sampling continues to use the server's seeded random source. Reloads and idempotent retries preserve the same result; a new chase produces a new sequence. No extra client randomness or result rewriting is introduced.
+Defensive and Balanced retain their existing repetition coefficients. The initial approach vectors, shared phase priors and bowling inputs remain unchanged. Aggressive remains the highest wicket risk, Balanced the middle risk, and Defensive the lowest. Free-hit wicket risk remains exactly zero. The same probability distribution drives displayed estimates and seeded delivery sampling.
 
-## A single approach cannot win
+Player batting ratings remain excluded from outcomes, sustainable scoring, pressure and matchup feedback. Cards continue to show name, role and OVR. Bowler control, threat and style, setness, phase, recent dots, wickets, partnership and required rate still affect play.
 
-Defensive-only, Balanced-only and Aggressive-only full chases cannot score winning runs. At least two approaches must be used on legal deliveries. Wides and no-balls do not qualify as a switch; a legal free hit does. A second approach can qualify on the winning legal delivery itself. A fixed approach may tie at 200.
+## Verification and balance
 
-The only scoring guard redirects a scoring outcome that would reach target 201 to a dot until variation qualifies. This guard applies to boundaries, extras and free hits in both the probability assessment and transition layer. Ordinary scoring outcomes below this guard are not converted into singles. Scorecards and events use the same final delivery outcome. Mode risk remains Defensive < Balanced < Aggressive, with zero wicket probability on free hits.
+The [v3.5 real-player report](calibration-v35-real-players.json) covers 500 randomized legal drafts, four policies across full chases and three continuation scenarios, deterministic replays, scorecard reconciliation and mode-risk comparisons at reconstructed deliveries. It measures the opening and final two overs for all three fixed approaches, including Aggressive, which the previous varied-outcome gate omitted.
 
-## Calibration and verification
+Adaptive play wins **59.4%**, Balanced-only **36.2%**, Aggressive-only **25.6%**, and Defensive-only **0%** of full chases in this sample. Aggressive averages **104.826 runs in the first ten overs**, down from v3.4's **112.548** over the same seeds. Its final two-over samples include 124 fours and 90 sixes, alongside dots, singles, twos, wickets and extras. The report checks **410,098 non-free-hit states** and **3,311 free-hit states**; every acceptance check passes. These rates describe this catalog and documented policy, not every possible team or decision sequence.
 
-Shared phase priors compensate for removing player-specific Batting ability; the approach vectors and contextual effects are retained. The adaptive-play acceptance target remains 60–65% full-chase wins in the documented randomized-draft benchmark. This is a benchmark range, not a guarantee for every strategy or team.
-
-The original fictional-v4 benchmark passes every gate: **63.2% adaptive-play wins**, **0% Defensive-only**, **0% Balanced-only**, and **0% Aggressive-only**. Defensive and Balanced both win **83.4%** of the qualified low-pressure continuations. Fixed-mode scoring remains varied in the opening and final three overs.
-
-The [real-player calibration](calibration-real-players-v2.json) measures **62.8% adaptive-play wins**, with **0% wins for each fixed approach**. Defensive and Balanced win 82.6% and 84.0% of qualified low-pressure continuations. The [catalog notes](player-catalog.md) explain the calibrated bowling profiles and the paired sampling-uncertainty comparison used for useful plans. The engine coefficients and earlier catalogs remain frozen.
+The new acceptance checks require lower opening Aggressive scoring than v3.4 over common seeds, better adaptive-play results than fixed Aggressive, varied opening/closing outcomes for every fixed mode, and the historical burst limits. Accounting, replay, ordered risks and free hits are asserted during simulation. The old maximum-200 and zero-fixed-win requirements are archived with v3.4: they depended on the artificial block being removed here.
 
 ```powershell
-.venv/Scripts/python.exe apps/api/scripts/balance_v34.py --seeds 500 --check --output docs/calibration-v34-final.json
+.venv/Scripts/python.exe apps/api/scripts/balance_v35.py --seeds 500 --check --output docs/calibration-v35-real-players.json
 ```
 
-The [500-seed report](calibration-v34-final.json) measures fixed approaches and adaptive play across full chases and three continuation scenarios, checks scorecards and mode risks at every reconstructed delivery, and compares deterministic replays. It also records outcome counts separately for the opening and final three overs and requires varied Defensive/Balanced outcomes in both.
-
-Draft choices are random legal selections, ordered by descending OVR. Adaptive play uses Aggressive on free hits, Defensive below required rate 7, otherwise alternates Balanced/Aggressive in response to required rate and recent approach history at production decision windows. Continuation prefixes already use multiple approaches; their outcomes measure situational usefulness rather than bypassing the full-chase qualification requirement.
-
-Regression tests compare ratings 1 and 100 against identical seeds, require identical contexts/distributions/full traces, exercise all outcomes at the target guard, verify late boundaries remain boundaries, and cover reloads and API idempotency. Earlier version tests remain in place.
+Regression tests exercise every scoring outcome at 200 on the final legal ball, all outcomes at the reported 197-run stall with and without a free hit, early adaptation, persisted history after token switches, rating independence, reloads and API idempotent retries. Historical engine tests remain in place, including v3.4's original target guard.
 
 ## Activation
 
-Run `python -m chase201.catalog` from `apps/api`, set `CATALOG_VERSION=real-players-v2`, restart the API and frontend, then start a new chase. No schema change is required. The generated API contract accepts v3.4 alongside earlier versions; downgrade protection includes v3.4. Saved matches and receipts are not rewritten.
+Restart the API and rebuild/restart the frontend together, then start a new chase. No catalog import or schema change is needed for this engine fix. The API contract and frontend accept v3.5 alongside every earlier version. The current local preview uses `.next-v35` on port 3000 and the API on port 8000. Existing profiles, saved match snapshots, events, scorecards and receipts are preserved.
 
-See [historical v3.2](three-modes-v32.md), [v3.1](three-modes-v31.md) and [v3.0](three-modes-v30.md).
+See [historical v3.4](three-modes-v34.md), [v3.2](three-modes-v32.md), [v3.1](three-modes-v31.md) and [v3.0](three-modes-v30.md).

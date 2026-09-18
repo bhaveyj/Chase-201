@@ -1,5 +1,19 @@
 # Verification record — gameplay redesign
 
+## Aggressive opening inflation and late scoring stall — 19 September 2026
+
+New simple and real-player matches use **v3.5**. The reported Aggressive-only chase was reproduced exactly from the saved revision-specific random streams: **197/7 after 20 overs**. V3.4's single-approach winning-run guard converted fours and sixes near the target into dots. V3.5 removes that guard and applies earlier, stronger repetition adaptation through probabilities from the opening overs. All sampled cricket outcomes keep their values, including winning boundaries and extras. Any approach can earn 201; the old zero-fixed-win requirement is historical. See [current semantics](three-modes.md) and [frozen v3.4 semantics](three-modes-v34.md).
+
+- **461 backend tests passed against PostgreSQL**, covering historical replay, concurrency, the reported 197-run stall, every winning scoring outcome at 200, free hits, legal-delivery history, reloads and API idempotency. A further focused migration run passed with new v3.5 and real-player downgrade protections.
+- **20 frontend unit tests** and **6 desktop/mobile browser journeys** passed. The added Aggressive-only journey plays actual deliveries, reloads, verifies unaltered outcome/run accounting and completes the chase. Accessibility checks remain included.
+- The [500-seed real-player report](calibration-v35-real-players.json) passes all v3.5 checks across **8,000 full chases/continuations**, **500 deterministic replays**, **410,098 non-free-hit risk comparisons** and **3,311 zero-risk free-hit comparisons**. Historical burst limits still pass. Adaptive play wins **59.4%**, Balanced-only **36.2%**, Aggressive-only **25.6%**, and Defensive-only **0%**. Aggressive's mean first-ten-over score drops from **112.548 to 104.826** over common seeds; its final two-over samples contain fours, sixes, singles, twos, dots, wickets and extras.
+- Comparing the new engine with the reported game's original decision entropy finishes **202/7 at 19.1 overs**, including 14 runs in the final two overs. This is a read-only comparison; the saved result is unchanged.
+- Ruff, MyPy, import isolation, ESLint, TypeScript and the production build pass. OpenAPI and generated TypeScript include v3.5. Temporary build-directory entries were removed from tsconfig.
+- The local preview was restarted using `.next-v35` on port 3000 and the API on port 8000. The served frontend responds successfully. A complete live Aggressive-only smoke chase used v3.5 and real-players-v2, ending naturally **70/10, lost**, with reconciled scorecards.
+- Private row-hash comparisons verify every pre-existing row unchanged, including **53 drafts, 47 matches and 700 simulation profiles**, all original catalogs, offers, decisions, events, scorecards and idempotency receipts. Only the smoke journey's new guest/draft/match rows were added. No catalog or schema change was needed.
+
+Start a new chase to use v3.5; saved games continue with their recorded engine. Upstream Authlib deprecation notices remain. No external deployment was performed.
+
 ## Real-player draft pool — 19 September 2026
 
 New drafts use the `real-players-v2` catalog and `real-players-v1` selection rules, creating v3.4 matches. The [200-player roster and sources](player-catalog.md) cover 17 countries: 52 batters, 31 wicketkeepers, 55 all-rounders and 62 bowlers. All 139 unique supplied identities retain their exact roles and ratings; duplicated Devon Conway/Jos Buttler rows are collapsed, and 61 researched identities are added.

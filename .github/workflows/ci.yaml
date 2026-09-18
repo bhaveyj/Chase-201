@@ -82,6 +82,8 @@ jobs:
         run: .venv/bin/python apps/api/scripts/balance_v33.py --seeds 500 --check --output balance-v33-report.json
       - name: Rating-independent batting and varied repeated play acceptance
         run: .venv/bin/python apps/api/scripts/balance_v34.py --seeds 500 --check --output balance-v34-report.json
+      - name: Natural scoring and early Aggressive adaptation acceptance
+        run: .venv/bin/python apps/api/scripts/balance_v35.py --seeds 500 --check --output balance-v35-report.json
       - name: Browser journeys and accessibility
         run: |
           npx playwright install --with-deps chromium

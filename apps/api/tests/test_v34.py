@@ -13,7 +13,7 @@ from chase_engine.v34.transitions import apply_delivery
 
 async def test_batting_rating_is_absent_and_cannot_influence_live_game(client, database):
     view = await match(client)
-    assert view["rulesetVersion"] == "v3.4"
+    assert view["rulesetVersion"] == "v3.5"
     assert all("battingRating" not in p for p in view["team"] + view["opponent"])
     async with database() as db, db.begin():
         rows = (await db.scalars(select(SimulationProfile))).all()
@@ -33,6 +33,7 @@ async def test_last_ball_guard_assessments_reload_and_idempotency(
     view = await match(client)
     async with database() as db, db.begin():
         saved = await db.get(Match, view["id"])
+        saved.ruleset = "v3.4"
         state = engine.initial_state(
             await engine_team(db, await team_ids(db, saved.team_id), "v3.4"),
             await engine_team(db, saved.opponent, "v3.4"),

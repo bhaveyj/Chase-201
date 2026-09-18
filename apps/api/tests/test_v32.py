@@ -16,7 +16,7 @@ async def test_variation_is_persisted_and_enforced_by_api(
     client, database, monkeypatch, strategy, switch
 ):
     view = await match(client)
-    assert view["rulesetVersion"] == "v3.4"
+    assert view["rulesetVersion"] == "v3.5"
     async with database() as db, db.begin():
         saved = await db.get(Match, view["id"])
         saved.ruleset = "v3.2"

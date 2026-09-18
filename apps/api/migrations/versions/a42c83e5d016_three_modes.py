@@ -39,9 +39,9 @@ def upgrade() -> None:
 def downgrade() -> None:
     connection = op.get_bind()
     for table, condition in (
-        ("matches", "ruleset IN ('v3.0', 'v3.1', 'v3.2', 'v3.3', 'v3.4')"),
-        ("drafts", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1')"),
-        ("catalog_versions", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1')"),
+        ("matches", "ruleset IN ('v3.0', 'v3.1', 'v3.2', 'v3.3', 'v3.4', 'v3.5')"),
+        ("drafts", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1', 'real-players-v1')"),
+        ("catalog_versions", "selection_ruleset IN ('tradeoffs-v1', 'simple-v1', 'real-players-v1')"),
         ("decisions", "strategy IN ('DEFENSIVE', 'AGGRESSIVE')"),
     ):
         if connection.scalar(sa.text(f"SELECT count(*) FROM {table} WHERE {condition}")):

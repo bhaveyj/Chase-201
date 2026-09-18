@@ -155,7 +155,7 @@ async def test_real_draft_rejects_a_star_in_a_core_slot(client, database, real_c
 
 async def test_real_xi_and_opponent_start_the_current_engine(client, real_catalog):
     view = await match(client)
-    assert view["rulesetVersion"] == "v3.4"
+    assert view["rulesetVersion"] == "v3.5"
     for side in ("team", "opponent"):
         assert len(view[side]) == 11
         assert all(p["id"].startswith(f"{REAL_CATALOG_VERSION}:") for p in view[side])

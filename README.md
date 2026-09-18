@@ -117,7 +117,7 @@ npm run api:types
 
 CI checks migration upgrade/downgrade and schema drift, architecture boundaries, Python/TypeScript typing, both unit suites, common-seed gameplay balance and catalog sensitivity, PostgreSQL concurrency, generated-contract drift, the production build, and browser journeys.
 
-New drafts use the `real-players-v2` catalog with `real-players-v1` selection rules and create `v3.4` matches. Saved drafts retain their original catalogs and limits. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=real-players-v2` for local development. Start a new chase to use the real-player roster. Player cards omit Batting, its rating no longer affects the engine, and repetition changes sampled probabilities throughout the innings without forcing late singles. A single approach still cannot win. See [current semantics and calibration](docs/three-modes.md).
+New drafts use the `real-players-v2` catalog with `real-players-v1` selection rules and create `v3.5` matches. Saved drafts retain their original catalogs and limits. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=real-players-v2` for local development. Start a new chase to use the real-player roster and corrected scoring. Player cards omit Batting and its rating no longer affects the engine. Repeated Aggressive play faces earlier bowling adaptation, while all sampled scoring outcomes—including winning runs—are retained. Any approach can earn a win; there is no forced score block at 200. See [current semantics and calibration](docs/three-modes.md).
 
 See the [verification record](docs/verification.md) for completed local checks and their limits.
 

@@ -12,6 +12,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--api", required=True)
     parser.add_argument("--origin", required=True)
+    parser.add_argument(
+        "--strategy", choices=["DEFENSIVE", "BALANCED", "AGGRESSIVE"], default="BALANCED"
+    )
     args = parser.parse_args()
     with httpx.Client(base_url=args.api, headers={"Origin": args.origin}, timeout=30) as client:
         client.get("/health").raise_for_status()
@@ -69,7 +72,7 @@ def main() -> None:
             "/api/v1/matches",
             {"draftId": draft["id"], "expectedRevision": draft["revision"]},
         )
-        assert match["rulesetVersion"] == "v3.4"
+        assert match["rulesetVersion"] == "v3.5"
         for _ in range(100):
             if match["state"]["status"] != "LIVE":
                 break
@@ -88,20 +91,19 @@ def main() -> None:
                 f"/api/v1/matches/{match['id']}/decisions",
                 {
                     "expectedRevision": match["revision"],
-                    "strategy": "BALANCED",
+                    "strategy": args.strategy,
                 },
             )
         state = match["state"]
-        assert state["status"] in {"LOST", "TIED"}
-        assert state["runs"] <= 200
-        assert state["approaches_used"] == ["BALANCED"]
-        assert state["runs"] < match["target"]
+        assert state["status"] in {"WON", "LOST", "TIED"}
+        assert state["approaches_used"] == [args.strategy]
+        assert (state["runs"] >= match["target"]) == (state["status"] == "WON")
         assert (
             sum(b["runs"] for b in state["batting"]) + state["wides"] + state["no_balls"]
             == state["runs"]
         )
         print(
-            f"Smoke passed: {draft['catalogVersion']} · {match['id']} · {state['status']} · {state['runs']}/{state['wickets']}"
+            f"Smoke passed: {match['rulesetVersion']} · {draft['catalogVersion']} · {args.strategy} · {match['id']} · {state['status']} · {state['runs']}/{state['wickets']}"
         )
 
 

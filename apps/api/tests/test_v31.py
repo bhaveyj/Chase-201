@@ -26,6 +26,7 @@ from chase_engine.v31.types import Outcome
 from chase_engine.v32 import engine as v32_engine
 from chase_engine.v33 import engine as v33_engine
 from chase_engine.v34 import engine as current_engine
+from chase_engine.v35 import engine as v35_engine
 
 
 def test_v30_golden_replays_remain_exact():
@@ -152,7 +153,7 @@ async def test_simple_cards_expose_only_ovr(client):
             assert player["overallRating"] == source[player["id"]].overallRating
 
 
-@pytest.mark.parametrize("version", ["v3.0", "v3.1", "v3.2", "v3.3", "v3.4"])
+@pytest.mark.parametrize("version", ["v3.0", "v3.1", "v3.2", "v3.3", "v3.4", "v3.5"])
 @pytest.mark.parametrize("free_hit", [False, True])
 async def test_three_mode_api_probabilities_are_exact_and_zero_on_free_hits(
     client, database, monkeypatch, version, free_hit
@@ -163,14 +164,14 @@ async def test_three_mode_api_probabilities_are_exact_and_zero_on_free_hits(
         get_settings(), "catalog_version", "fictional-v3" if version == "v3.0" else "fictional-v4"
     )
     view = await match(client)
-    if version in {"v3.1", "v3.2", "v3.3"}:
+    if version in {"v3.1", "v3.2", "v3.3", "v3.4"}:
         async with database() as db, db.begin():
             saved = await db.get(Match, view["id"])
             saved.ruleset = version
             saved.state = {
                 k: v
                 for k, v in saved.state.items()
-                if (version == "v3.3" or k != "recent_approaches")
+                if (version in {"v3.3", "v3.4"} or k != "recent_approaches")
                 and (version != "v3.1" or k != "approaches_used")
             }
         view = (await client.get(f"/api/v1/matches/{view['id']}")).json()
@@ -181,6 +182,7 @@ async def test_three_mode_api_probabilities_are_exact_and_zero_on_free_hits(
         "v3.2": v32_engine,
         "v3.3": v33_engine,
         "v3.4": current_engine,
+        "v3.5": v35_engine,
     }[version]
     async with database() as db, db.begin():
         saved = await db.get(Match, view["id"])

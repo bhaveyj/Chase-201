@@ -18,7 +18,7 @@ async def test_final_ten_balls_keep_scoring_and_remain_bounded_after_reload(
     client, database, monkeypatch, strategy, maximum
 ):
     view = await match(client)
-    assert view["rulesetVersion"] == "v3.4"
+    assert view["rulesetVersion"] == "v3.5"
     async with database() as db, db.begin():
         saved = await db.get(Match, view["id"])
         saved.ruleset = "v3.3"

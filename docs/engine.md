@@ -1,6 +1,6 @@
 # Historical simulation semantics — ruleset v2.0
 
-**New simple-v1 matches use v3.4.** See [rating-independent batting, three modes and current acceptance](three-modes.md). This page records the frozen historical v2 behavior.
+**New simple-v1 and real-players-v1 matches use v3.5.** See [rating-independent batting, three modes and current acceptance](three-modes.md). This page records the frozen historical v2 behavior.
 
 **Historical version: v2.1.** The architecture and accounting below still apply; the original v2.0 calibration table is retained as a historical reference. See [rating caps and All Out tuning](rating-balance.md) for current coefficients, draft rules and the v2.1 reports. Existing v2.0 matches keep their frozen behavior.
 

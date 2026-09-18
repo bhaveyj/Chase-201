@@ -215,7 +215,7 @@ class MatchData(APIModel):
 
 
 class MatchView(MatchData):
-    rulesetVersion: Literal["v3.0", "v3.1", "v3.2", "v3.3", "v3.4"]
+    rulesetVersion: Literal["v3.0", "v3.1", "v3.2", "v3.3", "v3.4", "v3.5"]
     state: ThreeModeStateView
     events: list[EventView]
     strategyAssessments: list[AssessmentView] = Field(default_factory=list)

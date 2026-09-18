@@ -152,7 +152,7 @@ async def test_offer_role_order_and_revision_validation(client):
 async def test_complete_guest_chase_idempotency_and_scorecards(client, database):
     m = await match(client)
     match_id = m["id"]
-    assert m["rulesetVersion"] == "v3.4" and m["decisionWindow"] == 12
+    assert m["rulesetVersion"] == "v3.5" and m["decisionWindow"] == 12
     assert len(m["strategyAssessments"]) == 3 and len(m["upcomingBowlers"]) == 2
     assert m["context"]["strikerSetness"] == "New"
     assert "seed" not in m and "batting" not in m["team"][0]

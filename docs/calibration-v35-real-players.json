@@ -1,0 +1,638 @@
+{
+  "ruleset": "v3.5",
+  "catalog": "real-players-v2",
+  "seeds": 500,
+  "rulesetSha256": "8e351e3d30477672ff0bd95bdc674e764fa24d695501d2c3a43687a5cb7f8c1a",
+  "scoringRule": "Every sampled outcome is retained, including winning runs for a single approach. No target guard, per-ball ceiling or end-of-innings score correction.",
+  "adaptationRule": "Legal-delivery approach frequency in the persisted last 24 balls; Aggressive reaches full adaptation at 18 uses. Token switches do not clear this history.",
+  "scenarioPrefixes": {
+    "full_chase": [
+      0,
+      0,
+      0
+    ],
+    "low_pressure": [
+      84,
+      161,
+      7
+    ],
+    "medium_pressure": [
+      60,
+      101,
+      3
+    ],
+    "high_pressure": [
+      108,
+      165,
+      4
+    ]
+  },
+  "drafting": "Random legal real-player picks; batting order descending OVR; production opponent selection with seed + 10000.",
+  "policy": "The historical SENSIBLE required-rate/free-hit/history policy and production decision windows, unchanged for comparison.",
+  "acceptance": "Ordered wicket risks, zero-risk free hits, scorecard accounting, seeded replay, varied opening/closing scoring for all modes, historical burst limits, lower opening Aggressive scoring and more successful adaptive play over common seeds.",
+  "scenarios": {
+    "full_chase": {
+      "DEFENSIVE": {
+        "winRate": 0,
+        "meanScore": 148.516,
+        "meanWickets": 2.28,
+        "meanFirstTenRuns": 75.088,
+        "maxScore": 187,
+        "firstThreeOvers": {
+          "TWO": 1549,
+          "ONE": 4337,
+          "WICKET": 174,
+          "FOUR": 774,
+          "DOT": 1896,
+          "SIX": 210,
+          "THREE": 60,
+          "NO_BALL": 64,
+          "WIDE": 147
+        },
+        "lastTwoOvers": {
+          "WICKET": 111,
+          "ONE": 2868,
+          "DOT": 1297,
+          "THREE": 63,
+          "TWO": 1098,
+          "FOUR": 454,
+          "NO_BALL": 52,
+          "SIX": 109,
+          "WIDE": 95
+        },
+        "outcomeCounts": {
+          "TWO": 9922,
+          "ONE": 30608,
+          "WICKET": 1140,
+          "FOUR": 3917,
+          "DOT": 13076,
+          "SIX": 860,
+          "NO_BALL": 493,
+          "THREE": 477,
+          "WIDE": 1054
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "BALANCED": {
+        "winRate": 0.362,
+        "meanScore": 185.838,
+        "meanWickets": 5.918,
+        "meanFirstTenRuns": 97.094,
+        "maxScore": 206,
+        "firstThreeOvers": {
+          "FOUR": 1722,
+          "DOT": 2665,
+          "ONE": 2522,
+          "WICKET": 509,
+          "SIX": 555,
+          "TWO": 986,
+          "NO_BALL": 64,
+          "WIDE": 147,
+          "THREE": 41
+        },
+        "lastTwoOvers": {
+          "WICKET": 215,
+          "FOUR": 854,
+          "DOT": 1156,
+          "ONE": 1193,
+          "SIX": 359,
+          "TWO": 484,
+          "NO_BALL": 38,
+          "WIDE": 72,
+          "THREE": 36
+        },
+        "outcomeCounts": {
+          "FOUR": 9706,
+          "DOT": 16823,
+          "ONE": 17854,
+          "WICKET": 2959,
+          "SIX": 3429,
+          "TWO": 6488,
+          "NO_BALL": 473,
+          "WIDE": 1018,
+          "THREE": 400
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.256,
+        "meanScore": 154.452,
+        "meanWickets": 9.148,
+        "meanFirstTenRuns": 104.826,
+        "maxScore": 206,
+        "firstThreeOvers": {
+          "FOUR": 1920,
+          "DOT": 3802,
+          "TWO": 355,
+          "WICKET": 899,
+          "SIX": 1268,
+          "ONE": 735,
+          "THREE": 21,
+          "NO_BALL": 64,
+          "WIDE": 147
+        },
+        "lastTwoOvers": {
+          "DOT": 250,
+          "FOUR": 124,
+          "SIX": 90,
+          "WICKET": 73,
+          "WIDE": 8,
+          "TWO": 29,
+          "ONE": 41,
+          "NO_BALL": 4
+        },
+        "outcomeCounts": {
+          "FOUR": 8439,
+          "DOT": 20030,
+          "TWO": 2000,
+          "WICKET": 4574,
+          "SIX": 5654,
+          "ONE": 4042,
+          "THREE": 120,
+          "NO_BALL": 355,
+          "WIDE": 789
+        },
+        "thirtyRunOverRate": 0.0011721802552748112,
+        "winsByEightOvers": 0
+      },
+      "SENSIBLE": {
+        "winRate": 0.594,
+        "meanScore": 187.572,
+        "meanWickets": 6.628,
+        "meanFirstTenRuns": 103.62,
+        "maxScore": 206,
+        "firstThreeOvers": {
+          "FOUR": 1723,
+          "DOT": 2670,
+          "ONE": 2514,
+          "WICKET": 509,
+          "SIX": 564,
+          "TWO": 978,
+          "NO_BALL": 64,
+          "WIDE": 147,
+          "THREE": 42
+        },
+        "lastTwoOvers": {
+          "ONE": 798,
+          "FOUR": 500,
+          "DOT": 803,
+          "SIX": 276,
+          "TWO": 349,
+          "WICKET": 173,
+          "WIDE": 53,
+          "NO_BALL": 28,
+          "THREE": 16
+        },
+        "outcomeCounts": {
+          "FOUR": 9668,
+          "DOT": 17371,
+          "ONE": 14772,
+          "WICKET": 3314,
+          "SIX": 4485,
+          "TWO": 5517,
+          "NO_BALL": 456,
+          "WIDE": 973,
+          "THREE": 323
+        },
+        "thirtyRunOverRate": 0.0005318017443097213,
+        "winsByEightOvers": 0
+      }
+    },
+    "low_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0.826,
+        "meanScore": 200.662,
+        "meanWickets": 7.6,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "SIX": 57,
+          "ONE": 1717,
+          "TWO": 587,
+          "DOT": 701,
+          "WIDE": 63,
+          "FOUR": 264,
+          "NO_BALL": 33,
+          "WICKET": 71,
+          "THREE": 25
+        },
+        "outcomeCounts": {
+          "TWO": 2690,
+          "ONE": 7999,
+          "SIX": 240,
+          "DOT": 2912,
+          "FOUR": 1053,
+          "NO_BALL": 119,
+          "WICKET": 300,
+          "WIDE": 270,
+          "THREE": 137
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "BALANCED": {
+        "winRate": 0.84,
+        "meanScore": 199.984,
+        "meanWickets": 8.14,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "WICKET": 41,
+          "ONE": 218,
+          "DOT": 180,
+          "WIDE": 12,
+          "FOUR": 132,
+          "SIX": 55,
+          "TWO": 74,
+          "NO_BALL": 6,
+          "THREE": 4
+        },
+        "outcomeCounts": {
+          "FOUR": 2025,
+          "ONE": 3554,
+          "WICKET": 570,
+          "SIX": 747,
+          "TWO": 1411,
+          "DOT": 3006,
+          "NO_BALL": 87,
+          "THREE": 86,
+          "WIDE": 189
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.634,
+        "meanScore": 196.25,
+        "meanWickets": 8.688,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "DOT": 54,
+          "SIX": 30,
+          "ONE": 14,
+          "FOUR": 22,
+          "WICKET": 14,
+          "TWO": 6,
+          "NO_BALL": 1,
+          "WIDE": 3
+        },
+        "outcomeCounts": {
+          "FOUR": 1852,
+          "DOT": 3540,
+          "ONE": 864,
+          "TWO": 452,
+          "WICKET": 844,
+          "SIX": 1356,
+          "NO_BALL": 73,
+          "WIDE": 147,
+          "THREE": 31
+        },
+        "thirtyRunOverRate": 0.0017678255745433118,
+        "winsByEightOvers": 0
+      },
+      "SENSIBLE": {
+        "winRate": 0.924,
+        "meanScore": 200.982,
+        "meanWickets": 7.638,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "SIX": 83,
+          "ONE": 1351,
+          "FOUR": 264,
+          "NO_BALL": 28,
+          "TWO": 455,
+          "DOT": 586,
+          "WIDE": 45,
+          "WICKET": 59,
+          "THREE": 18
+        },
+        "outcomeCounts": {
+          "TWO": 2501,
+          "ONE": 7287,
+          "SIX": 348,
+          "DOT": 2867,
+          "FOUR": 1228,
+          "NO_BALL": 114,
+          "WICKET": 319,
+          "THREE": 113,
+          "WIDE": 249
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      }
+    },
+    "medium_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0.01,
+        "meanScore": 175.152,
+        "meanWickets": 4.25,
+        "meanFirstTenRuns": 0,
+        "maxScore": 203,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "ONE": 2863,
+          "DOT": 1303,
+          "TWO": 1063,
+          "FOUR": 443,
+          "THREE": 49,
+          "WIDE": 111,
+          "WICKET": 155,
+          "NO_BALL": 46,
+          "SIX": 111
+        },
+        "outcomeCounts": {
+          "TWO": 4988,
+          "ONE": 15334,
+          "SIX": 440,
+          "THREE": 262,
+          "DOT": 6449,
+          "FOUR": 1889,
+          "NO_BALL": 237,
+          "WICKET": 625,
+          "WIDE": 547
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "BALANCED": {
+        "winRate": 0.414,
+        "meanScore": 192.968,
+        "meanWickets": 6.074,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "TWO": 533,
+          "ONE": 1330,
+          "DOT": 1254,
+          "FOUR": 933,
+          "SIX": 358,
+          "WIDE": 90,
+          "WICKET": 282,
+          "NO_BALL": 36,
+          "THREE": 33
+        },
+        "outcomeCounts": {
+          "FOUR": 4747,
+          "DOT": 8324,
+          "ONE": 8798,
+          "WICKET": 1537,
+          "SIX": 1713,
+          "TWO": 3272,
+          "NO_BALL": 227,
+          "WIDE": 525,
+          "THREE": 208
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.504,
+        "meanScore": 187.672,
+        "meanWickets": 8.05,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "ONE": 157,
+          "SIX": 357,
+          "DOT": 810,
+          "TWO": 108,
+          "FOUR": 428,
+          "WICKET": 238,
+          "NO_BALL": 21,
+          "WIDE": 39,
+          "THREE": 3
+        },
+        "outcomeCounts": {
+          "FOUR": 4551,
+          "DOT": 10848,
+          "ONE": 2203,
+          "WICKET": 2525,
+          "SIX": 3286,
+          "TWO": 1189,
+          "NO_BALL": 200,
+          "WIDE": 440,
+          "THREE": 65
+        },
+        "thirtyRunOverRate": 0.0014012143858010276,
+        "winsByEightOvers": 0
+      },
+      "SENSIBLE": {
+        "winRate": 0.65,
+        "meanScore": 194.92,
+        "meanWickets": 6.526,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "ONE": 1037,
+          "DOT": 1093,
+          "TWO": 444,
+          "SIX": 426,
+          "FOUR": 689,
+          "WICKET": 280,
+          "NO_BALL": 34,
+          "WIDE": 82,
+          "THREE": 27
+        },
+        "outcomeCounts": {
+          "FOUR": 4684,
+          "DOT": 8811,
+          "ONE": 7085,
+          "WICKET": 1763,
+          "TWO": 2852,
+          "SIX": 2358,
+          "NO_BALL": 225,
+          "WIDE": 513,
+          "THREE": 183
+        },
+        "thirtyRunOverRate": 0.00020973154362416107,
+        "winsByEightOvers": 0
+      }
+    },
+    "high_pressure": {
+      "DEFENSIVE": {
+        "winRate": 0,
+        "meanScore": 182.014,
+        "meanWickets": 4.27,
+        "meanFirstTenRuns": 0,
+        "maxScore": 200,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "TWO": 1158,
+          "ONE": 2812,
+          "WICKET": 135,
+          "FOUR": 543,
+          "THREE": 47,
+          "DOT": 1152,
+          "NO_BALL": 52,
+          "WIDE": 96,
+          "SIX": 153
+        },
+        "outcomeCounts": {
+          "TWO": 1158,
+          "ONE": 2812,
+          "WICKET": 135,
+          "FOUR": 543,
+          "THREE": 47,
+          "DOT": 1152,
+          "NO_BALL": 52,
+          "WIDE": 96,
+          "SIX": 153
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "BALANCED": {
+        "winRate": 0.034,
+        "meanScore": 188.08,
+        "meanWickets": 4.694,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "FOUR": 1339,
+          "ONE": 1557,
+          "TWO": 690,
+          "WICKET": 347,
+          "SIX": 501,
+          "DOT": 1526,
+          "NO_BALL": 52,
+          "THREE": 31,
+          "WIDE": 96
+        },
+        "outcomeCounts": {
+          "FOUR": 1339,
+          "ONE": 1557,
+          "TWO": 690,
+          "WICKET": 347,
+          "SIX": 501,
+          "DOT": 1526,
+          "NO_BALL": 52,
+          "THREE": 31,
+          "WIDE": 96
+        },
+        "thirtyRunOverRate": 0.0,
+        "winsByEightOvers": 0
+      },
+      "AGGRESSIVE": {
+        "winRate": 0.214,
+        "meanScore": 192.768,
+        "meanWickets": 5.142,
+        "meanFirstTenRuns": 0,
+        "maxScore": 206,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "SIX": 1180,
+          "DOT": 2028,
+          "TWO": 264,
+          "FOUR": 1432,
+          "WICKET": 571,
+          "ONE": 371,
+          "NO_BALL": 51,
+          "WIDE": 93,
+          "THREE": 11
+        },
+        "outcomeCounts": {
+          "SIX": 1180,
+          "DOT": 2028,
+          "TWO": 264,
+          "FOUR": 1432,
+          "WICKET": 571,
+          "ONE": 371,
+          "NO_BALL": 51,
+          "WIDE": 93,
+          "THREE": 11
+        },
+        "thirtyRunOverRate": 0.007,
+        "winsByEightOvers": 0
+      },
+      "SENSIBLE": {
+        "winRate": 0.22,
+        "meanScore": 192.596,
+        "meanWickets": 5.138,
+        "meanFirstTenRuns": 0,
+        "maxScore": 205,
+        "firstThreeOvers": {},
+        "lastTwoOvers": {
+          "SIX": 1146,
+          "DOT": 2000,
+          "TWO": 291,
+          "FOUR": 1419,
+          "WICKET": 569,
+          "ONE": 473,
+          "NO_BALL": 50,
+          "WIDE": 96,
+          "THREE": 15
+        },
+        "outcomeCounts": {
+          "SIX": 1146,
+          "DOT": 2000,
+          "TWO": 291,
+          "FOUR": 1419,
+          "WICKET": 569,
+          "ONE": 473,
+          "NO_BALL": 50,
+          "WIDE": 96,
+          "THREE": 15
+        },
+        "thirtyRunOverRate": 0.004,
+        "winsByEightOvers": 0
+      }
+    }
+  },
+  "historicalAggressive": {
+    "winRate": 0,
+    "meanScore": 167.192,
+    "meanWickets": 9.286,
+    "meanFirstTenRuns": 112.548,
+    "maxScore": 200,
+    "firstThreeOvers": {
+      "FOUR": 1994,
+      "DOT": 3707,
+      "TWO": 363,
+      "WICKET": 852,
+      "SIX": 1349,
+      "ONE": 714,
+      "THREE": 21,
+      "NO_BALL": 64,
+      "WIDE": 147
+    },
+    "lastTwoOvers": {
+      "DOT": 1642,
+      "ONE": 69,
+      "WICKET": 228,
+      "WIDE": 19,
+      "FOUR": 100,
+      "TWO": 37,
+      "SIX": 49,
+      "NO_BALL": 8
+    },
+    "outcomeCounts": {
+      "FOUR": 9114,
+      "DOT": 22582,
+      "TWO": 2086,
+      "WICKET": 4643,
+      "SIX": 6210,
+      "ONE": 4141,
+      "NO_BALL": 370,
+      "WIDE": 822,
+      "THREE": 125
+    },
+    "thirtyRunOverRate": 0.0010839455618451162,
+    "winsByEightOvers": 0
+  },
+  "nonFreeHitStatesChecked": 410098,
+  "freeHitStatesChecked": 3311,
+  "deterministicReplays": 500,
+  "balanceFailures": []
+}

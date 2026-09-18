@@ -170,7 +170,8 @@ export function MatchScreen({
               m?.rulesetVersion === "v3.1" ||
               m?.rulesetVersion === "v3.2" ||
               m?.rulesetVersion === "v3.3" ||
-              m?.rulesetVersion === "v3.4"
+              m?.rulesetVersion === "v3.4" ||
+              m?.rulesetVersion === "v3.5"
             ? strategy
             : v2Strategy,
         crypto.randomUUID(),
@@ -457,7 +458,8 @@ export function MatchScreen({
                 m.rulesetVersion !== "v3.1" &&
                 m.rulesetVersion !== "v3.2" &&
                 m.rulesetVersion !== "v3.3" &&
-                m.rulesetVersion !== "v3.4" ? (
+                m.rulesetVersion !== "v3.4" &&
+                m.rulesetVersion !== "v3.5" ? (
                 <V2Plans
                   strategy={v2Strategy}
                   assessments={m.strategyAssessments}
@@ -472,7 +474,9 @@ export function MatchScreen({
                     m.rulesetVersion === "v3.2" || m.rulesetVersion === "v3.4"
                   }
                   adaptsToRepetition={
-                    m.rulesetVersion === "v3.3" || m.rulesetVersion === "v3.4"
+                    m.rulesetVersion === "v3.3" ||
+                    m.rulesetVersion === "v3.4" ||
+                    m.rulesetVersion === "v3.5"
                   }
                   approachesUsed={m.state.approaches_used}
                   onChange={setStrategy}
