@@ -1,0 +1,707 @@
+[
+  {
+    "name": "Ishan Kishan",
+    "role": "WICKETKEEPER",
+    "rating": 94
+  },
+  {
+    "name": "Abhishek Sharma",
+    "role": "ALL_ROUNDER",
+    "rating": 93
+  },
+  {
+    "name": "Suryakumar Yadav",
+    "role": "BATTER",
+    "rating": 94
+  },
+  {
+    "name": "Sahibzada Farhan",
+    "role": "BATTER",
+    "rating": 88
+  },
+  {
+    "name": "Phil Salt",
+    "role": "WICKETKEEPER",
+    "rating": 92
+  },
+  {
+    "name": "Harry Brook",
+    "role": "BATTER",
+    "rating": 91
+  },
+  {
+    "name": "Jos Buttler",
+    "role": "WICKETKEEPER",
+    "rating": 91
+  },
+  {
+    "name": "Travis Head",
+    "role": "BATTER",
+    "rating": 93
+  },
+  {
+    "name": "Tim Seifert",
+    "role": "WICKETKEEPER",
+    "rating": 87
+  },
+  {
+    "name": "Babar Azam",
+    "role": "BATTER",
+    "rating": 90
+  },
+  {
+    "name": "Virat Kohli",
+    "role": "BATTER",
+    "rating": 92
+  },
+  {
+    "name": "Rohit Sharma",
+    "role": "BATTER",
+    "rating": 88
+  },
+  {
+    "name": "Shubman Gill",
+    "role": "BATTER",
+    "rating": 88
+  },
+  {
+    "name": "Yashasvi Jaiswal",
+    "role": "BATTER",
+    "rating": 90
+  },
+  {
+    "name": "Ruturaj Gaikwad",
+    "role": "BATTER",
+    "rating": 87
+  },
+  {
+    "name": "Shreyas Iyer",
+    "role": "BATTER",
+    "rating": 87
+  },
+  {
+    "name": "Rinku Singh",
+    "role": "BATTER",
+    "rating": 86
+  },
+  {
+    "name": "Tilak Varma",
+    "role": "BATTER",
+    "rating": 87
+  },
+  {
+    "name": "Sanju Samson",
+    "role": "WICKETKEEPER",
+    "rating": 89
+  },
+  {
+    "name": "KL Rahul",
+    "role": "WICKETKEEPER",
+    "rating": 87
+  },
+  {
+    "name": "Rishabh Pant",
+    "role": "WICKETKEEPER",
+    "rating": 88
+  },
+  {
+    "name": "Jitesh Sharma",
+    "role": "WICKETKEEPER",
+    "rating": 82
+  },
+  {
+    "name": "Dhruv Jurel",
+    "role": "WICKETKEEPER",
+    "rating": 80
+  },
+  {
+    "name": "Devon Conway",
+    "role": "WICKETKEEPER",
+    "rating": 88
+  },
+  {
+    "name": "Glenn Maxwell",
+    "role": "ALL_ROUNDER",
+    "rating": 89
+  },
+  {
+    "name": "David Warner",
+    "role": "BATTER",
+    "rating": 87
+  },
+  {
+    "name": "Steve Smith",
+    "role": "BATTER",
+    "rating": 82
+  },
+  {
+    "name": "Mitchell Marsh",
+    "role": "ALL_ROUNDER",
+    "rating": 88
+  },
+  {
+    "name": "Marcus Stoinis",
+    "role": "ALL_ROUNDER",
+    "rating": 86
+  },
+  {
+    "name": "Cameron Green",
+    "role": "ALL_ROUNDER",
+    "rating": 86
+  },
+  {
+    "name": "Tim David",
+    "role": "BATTER",
+    "rating": 85
+  },
+  {
+    "name": "Matthew Wade",
+    "role": "WICKETKEEPER",
+    "rating": 79
+  },
+  {
+    "name": "Heinrich Klaasen",
+    "role": "WICKETKEEPER",
+    "rating": 93
+  },
+  {
+    "name": "Aiden Markram",
+    "role": "ALL_ROUNDER",
+    "rating": 88
+  },
+  {
+    "name": "David Miller",
+    "role": "BATTER",
+    "rating": 88
+  },
+  {
+    "name": "Quinton de Kock",
+    "role": "WICKETKEEPER",
+    "rating": 87
+  },
+  {
+    "name": "Dewald Brevis",
+    "role": "BATTER",
+    "rating": 86
+  },
+  {
+    "name": "Rassie van der Dussen",
+    "role": "BATTER",
+    "rating": 84
+  },
+  {
+    "name": "Reeza Hendricks",
+    "role": "BATTER",
+    "rating": 82
+  },
+  {
+    "name": "Kane Williamson",
+    "role": "BATTER",
+    "rating": 85
+  },
+  {
+    "name": "Rachin Ravindra",
+    "role": "ALL_ROUNDER",
+    "rating": 89
+  },
+  {
+    "name": "Daryl Mitchell",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Finn Allen",
+    "role": "BATTER",
+    "rating": 87
+  },
+  {
+    "name": "Devon Conway",
+    "role": "WICKETKEEPER",
+    "rating": 88
+  },
+  {
+    "name": "Glenn Phillips",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Tom Latham",
+    "role": "WICKETKEEPER",
+    "rating": 82
+  },
+  {
+    "name": "Liam Livingstone",
+    "role": "ALL_ROUNDER",
+    "rating": 88
+  },
+  {
+    "name": "Will Jacks",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Sam Curran",
+    "role": "ALL_ROUNDER",
+    "rating": 86
+  },
+  {
+    "name": "Moeen Ali",
+    "role": "ALL_ROUNDER",
+    "rating": 83
+  },
+  {
+    "name": "Jacob Bethell",
+    "role": "ALL_ROUNDER",
+    "rating": 86
+  },
+  {
+    "name": "Jofra Archer",
+    "role": "BOWLER",
+    "rating": 91
+  },
+  {
+    "name": "Adil Rashid",
+    "role": "BOWLER",
+    "rating": 90
+  },
+  {
+    "name": "Mark Wood",
+    "role": "BOWLER",
+    "rating": 87
+  },
+  {
+    "name": "Liam Dawson",
+    "role": "ALL_ROUNDER",
+    "rating": 83
+  },
+  {
+    "name": "Jos Buttler",
+    "role": "WICKETKEEPER",
+    "rating": 91
+  },
+  {
+    "name": "Rashid Khan",
+    "role": "BOWLER",
+    "rating": 94
+  },
+  {
+    "name": "Mohammad Nabi",
+    "role": "ALL_ROUNDER",
+    "rating": 84
+  },
+  {
+    "name": "Ibrahim Zadran",
+    "role": "BATTER",
+    "rating": 85
+  },
+  {
+    "name": "Rahmanullah Gurbaz",
+    "role": "WICKETKEEPER",
+    "rating": 87
+  },
+  {
+    "name": "Azmatullah Omarzai",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Mujeeb Ur Rahman",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Wanindu Hasaranga",
+    "role": "ALL_ROUNDER",
+    "rating": 90
+  },
+  {
+    "name": "Kusal Mendis",
+    "role": "WICKETKEEPER",
+    "rating": 87
+  },
+  {
+    "name": "Pathum Nissanka",
+    "role": "BATTER",
+    "rating": 86
+  },
+  {
+    "name": "Charith Asalanka",
+    "role": "ALL_ROUNDER",
+    "rating": 85
+  },
+  {
+    "name": "Maheesh Theekshana",
+    "role": "BOWLER",
+    "rating": 85
+  },
+  {
+    "name": "Matheesha Pathirana",
+    "role": "BOWLER",
+    "rating": 86
+  },
+  {
+    "name": "Kamindu Mendis",
+    "role": "ALL_ROUNDER",
+    "rating": 85
+  },
+  {
+    "name": "Sikandar Raza",
+    "role": "ALL_ROUNDER",
+    "rating": 92
+  },
+  {
+    "name": "Brian Bennett",
+    "role": "ALL_ROUNDER",
+    "rating": 85
+  },
+  {
+    "name": "Ryan Burl",
+    "role": "ALL_ROUNDER",
+    "rating": 79
+  },
+  {
+    "name": "Blessing Muzarabani",
+    "role": "BOWLER",
+    "rating": 83
+  },
+  {
+    "name": "Mohammad Rizwan",
+    "role": "WICKETKEEPER",
+    "rating": 88
+  },
+  {
+    "name": "Saim Ayub",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Fakhar Zaman",
+    "role": "BATTER",
+    "rating": 86
+  },
+  {
+    "name": "Mohammad Haris",
+    "role": "WICKETKEEPER",
+    "rating": 82
+  },
+  {
+    "name": "Shadab Khan",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Salman Ali Agha",
+    "role": "ALL_ROUNDER",
+    "rating": 84
+  },
+  {
+    "name": "Shaheen Shah Afridi",
+    "role": "BOWLER",
+    "rating": 91
+  },
+  {
+    "name": "Haris Rauf",
+    "role": "BOWLER",
+    "rating": 86
+  },
+  {
+    "name": "Naseem Shah",
+    "role": "BOWLER",
+    "rating": 85
+  },
+  {
+    "name": "Abrar Ahmed",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Jasprit Bumrah",
+    "role": "BOWLER",
+    "rating": 96
+  },
+  {
+    "name": "Arshdeep Singh",
+    "role": "BOWLER",
+    "rating": 90
+  },
+  {
+    "name": "Varun Chakravarthy",
+    "role": "BOWLER",
+    "rating": 92
+  },
+  {
+    "name": "Kuldeep Yadav",
+    "role": "BOWLER",
+    "rating": 88
+  },
+  {
+    "name": "Mohammed Siraj",
+    "role": "BOWLER",
+    "rating": 85
+  },
+  {
+    "name": "Axar Patel",
+    "role": "ALL_ROUNDER",
+    "rating": 89
+  },
+  {
+    "name": "Ravindra Jadeja",
+    "role": "ALL_ROUNDER",
+    "rating": 88
+  },
+  {
+    "name": "Washington Sundar",
+    "role": "ALL_ROUNDER",
+    "rating": 82
+  },
+  {
+    "name": "Shivam Dube",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Yash Dayal",
+    "role": "BOWLER",
+    "rating": 80
+  },
+  {
+    "name": "Avesh Khan",
+    "role": "BOWLER",
+    "rating": 81
+  },
+  {
+    "name": "Mukesh Kumar",
+    "role": "BOWLER",
+    "rating": 79
+  },
+  {
+    "name": "Ravi Bishnoi",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Trent Boult",
+    "role": "BOWLER",
+    "rating": 90
+  },
+  {
+    "name": "Lockie Ferguson",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Mitchell Santner",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Matt Henry",
+    "role": "BOWLER",
+    "rating": 87
+  },
+  {
+    "name": "Ben Sears",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Adam Zampa",
+    "role": "BOWLER",
+    "rating": 89
+  },
+  {
+    "name": "Pat Cummins",
+    "role": "BOWLER",
+    "rating": 89
+  },
+  {
+    "name": "Josh Hazlewood",
+    "role": "BOWLER",
+    "rating": 92
+  },
+  {
+    "name": "Mitchell Starc",
+    "role": "BOWLER",
+    "rating": 89
+  },
+  {
+    "name": "Nathan Ellis",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Spencer Johnson",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Gerald Coetzee",
+    "role": "BOWLER",
+    "rating": 83
+  },
+  {
+    "name": "Marco Jansen",
+    "role": "ALL_ROUNDER",
+    "rating": 87
+  },
+  {
+    "name": "Kagiso Rabada",
+    "role": "BOWLER",
+    "rating": 89
+  },
+  {
+    "name": "Anrich Nortje",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Keshav Maharaj",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Tabraiz Shamsi",
+    "role": "BOWLER",
+    "rating": 81
+  },
+  {
+    "name": "Ottneil Baartman",
+    "role": "BOWLER",
+    "rating": 80
+  },
+  {
+    "name": "Shoriful Islam",
+    "role": "BOWLER",
+    "rating": 80
+  },
+  {
+    "name": "Mahedi Hasan",
+    "role": "ALL_ROUNDER",
+    "rating": 82
+  },
+  {
+    "name": "Litton Das",
+    "role": "WICKETKEEPER",
+    "rating": 82
+  },
+  {
+    "name": "Towhid Hridoy",
+    "role": "BATTER",
+    "rating": 82
+  },
+  {
+    "name": "Mustafizur Rahman",
+    "role": "BOWLER",
+    "rating": 83
+  },
+  {
+    "name": "Taskin Ahmed",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Mehidy Hasan Miraz",
+    "role": "ALL_ROUNDER",
+    "rating": 84
+  },
+  {
+    "name": "Nicholas Pooran",
+    "role": "WICKETKEEPER",
+    "rating": 91
+  },
+  {
+    "name": "Shai Hope",
+    "role": "WICKETKEEPER",
+    "rating": 86
+  },
+  {
+    "name": "Brandon King",
+    "role": "BATTER",
+    "rating": 83
+  },
+  {
+    "name": "Rovman Powell",
+    "role": "ALL_ROUNDER",
+    "rating": 82
+  },
+  {
+    "name": "Andre Russell",
+    "role": "ALL_ROUNDER",
+    "rating": 86
+  },
+  {
+    "name": "Jason Holder",
+    "role": "ALL_ROUNDER",
+    "rating": 83
+  },
+  {
+    "name": "Alzarri Joseph",
+    "role": "BOWLER",
+    "rating": 82
+  },
+  {
+    "name": "Gudakesh Motie",
+    "role": "BOWLER",
+    "rating": 84
+  },
+  {
+    "name": "Evin Lewis",
+    "role": "BATTER",
+    "rating": 83
+  },
+  {
+    "name": "Andre Fletcher",
+    "role": "WICKETKEEPER",
+    "rating": 78
+  },
+  {
+    "name": "George Munsey",
+    "role": "BATTER",
+    "rating": 82
+  },
+  {
+    "name": "Brandon Mavuta",
+    "role": "ALL_ROUNDER",
+    "rating": 77
+  },
+  {
+    "name": "Gerhard Erasmus",
+    "role": "ALL_ROUNDER",
+    "rating": 81
+  },
+  {
+    "name": "Michael Levitt",
+    "role": "BATTER",
+    "rating": 82
+  },
+  {
+    "name": "Bas de Leede",
+    "role": "ALL_ROUNDER",
+    "rating": 78
+  },
+  {
+    "name": "Paul Stirling",
+    "role": "ALL_ROUNDER",
+    "rating": 82
+  },
+  {
+    "name": "Lorcan Tucker",
+    "role": "WICKETKEEPER",
+    "rating": 81
+  },
+  {
+    "name": "Harry Tector",
+    "role": "ALL_ROUNDER",
+    "rating": 81
+  },
+  {
+    "name": "Curtis Campher",
+    "role": "ALL_ROUNDER",
+    "rating": 81
+  },
+  {
+    "name": "Mark Watt",
+    "role": "BOWLER",
+    "rating": 81
+  }
+]

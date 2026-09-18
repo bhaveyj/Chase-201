@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from chase201.catalog import COMPOSITION, ROLES
 from chase201.config import get_settings
-from chase201.draft_rules import SIMPLE_SELECTION, draft_offers, opponent_players, rating_band
+from chase201.draft_rules import SIMPLE_SELECTIONS, draft_offers, opponent_players, rating_band
 from chase201.models import (
     BattingPerformance,
     BowlingPerformance,
@@ -212,7 +212,7 @@ async def draft_view(db: AsyncSession, draft: Draft) -> dict:
                 "role": slot.role,
                 "position": slot.position,
                 "options": [
-                    summary(p, profile, draft.selection_ruleset == SIMPLE_SELECTION)
+                    summary(p, profile, draft.selection_ruleset in SIMPLE_SELECTIONS)
                     for slot_id, p, profile in offers
                     if slot_id == slot.id
                 ],
@@ -231,7 +231,7 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
     version = await db.get(CatalogVersion, get_settings().catalog_version)
     if not version or (get_settings().environment == "production" and not version.approved):
         raise HTTPException(503, "The player catalog is not ready")
-    if version.selection_ruleset not in {TRADEOFF_SELECTION, SIMPLE_SELECTION}:
+    if version.selection_ruleset not in {TRADEOFF_SELECTION, *SIMPLE_SELECTIONS}:
         raise HTTPException(503, "New drafts require a validated simple or tradeoff catalog")
     draft = Draft(
         session_id=None if principal.user_id else principal.id,
@@ -243,8 +243,8 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
     await db.flush()
     catalog = list((await db.scalars(select(Player).where(Player.catalog_id == version.id))).all())
     try:
-        if version.selection_ruleset == SIMPLE_SELECTION:
-            offers = draft_offers(catalog, secrets.SystemRandom())
+        if version.selection_ruleset in SIMPLE_SELECTIONS:
+            offers = draft_offers(catalog, secrets.SystemRandom(), version.selection_ruleset)
         else:
             profiles = await engine_team(db, [p.id for p in catalog])
             validate_allocation(
@@ -419,7 +419,7 @@ async def create_match(db: AsyncSession, draft: Draft, principal: Session) -> Ma
     )
     opponent = [p.id for p in opponent_players(catalog, secrets.SystemRandom())]
     ids = await team_ids(db, team.id)
-    ruleset = "v3.4" if draft.selection_ruleset == SIMPLE_SELECTION else "v3.0"
+    ruleset = "v3.4" if draft.selection_ruleset in SIMPLE_SELECTIONS else "v3.0"
     state = engine_for(ruleset).initial_state(
         await engine_team(db, ids, ruleset), await engine_team(db, opponent, ruleset)
     )
@@ -603,7 +603,7 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
                         **summary(
                             players[player_id],
                             display_profiles[player_id],
-                            match.ruleset in SIMPLE_RULESETS
+                            match.ruleset in SIMPLE_RULESETS,
                         ),
                         "style": bowlers[player_id].bowling_style.value,
                         "over": over + 1,

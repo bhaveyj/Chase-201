@@ -1,5 +1,17 @@
 # Verification record — gameplay redesign
 
+## Real-player draft pool — 19 September 2026
+
+New drafts use the `real-players-v2` catalog and `real-players-v1` selection rules, creating v3.4 matches. The [200-player roster and sources](player-catalog.md) cover 17 countries: 52 batters, 31 wicketkeepers, 55 all-rounders and 62 bowlers. All 139 unique supplied identities retain their exact roles and ratings; duplicated Devon Conway/Jos Buttler rows are collapsed, and 61 researched identities are added.
+
+- Five hundred draft seeds exercised all 200 identities, with 55 disjoint offers and the correct 5/1/2/3 XI composition on every seed. Elite keepers/bowlers and the supplied 77–79-rated entries remain draftable under the new versioned rating limits.
+- The full PostgreSQL suite passed **421 tests**, including concurrency and historical replay checks. After profile calibration and fixture isolation, all **9 real-catalog tests** passed against PostgreSQL. Four additional acceptance-comparison tests passed, covering sampling uncertainty, identical/better plans and rejection of materially weaker plans.
+- **19 frontend unit tests**, **4 desktop/mobile browser journeys**, and a further complete desktop chase using the final calibrated catalog passed. Browser checks cover accessibility, no overflow, draft limits, ordering, reloads, match completion, reconciled scorecards and history. Draft screenshots were visually checked; artifacts are under private ignored `outputs/real-players/`.
+- Ruff, MyPy, import boundaries, ESLint, TypeScript and the production build passed. OpenAPI export and generated TypeScript types have no contract drift. An API wheel was built and inspected to confirm the final JSON roster and profile calibration are included. Temporary build/type-directory changes were removed.
+- A private database backup was captured before activation. Hash comparisons verified every pre-existing row unchanged, including **50 original drafts and 44 original matches**. The final calibration was imported as v2, preserving v1 and its already-created game: **51 drafts, 45 matches and 500 existing profiles** were unchanged during that import. Each activation added only its catalog and 200 identities/profiles.
+- The calibrated [500-seed report](calibration-real-players-v2.json) passed all acceptance gates: **62.8% adaptive wins**, 0% wins for each fixed approach, and 82.6%/84.0% Defensive/Balanced wins in qualified low-pressure continuations. It covers 8,000 chases/continuations and 500 deterministic replays; the rules hash matches the original v3.4 report. Useful-plan comparisons for the real roster account for paired common-seed uncertainty; all other acceptance limits and engine coefficients remain unchanged.
+- The tested frontend is served from `.next-real-players` on port 3000, with the final API on port 8000 and local `CATALOG_VERSION=real-players-v2`. The final Balanced-only live smoke completed **196/4, lost**, with reconciled figures. Start a new chase to use the new pool; saved games retain their original catalog and profiles.
+
 ## Batting stat removal and varied repeated play — 17 September 2026
 
 New simple-v1 chases use v3.4. Simple player cards omit the Batting label, number and accessible description. Batting ratings no longer affect delivery probabilities, sustainable scoring, pressure or matchup feedback. The 60-run headroom and per-ball fixed-approach scoring budgets are replaced by probabilistic repetition adaptation throughout the innings. A single approach still cannot win.
@@ -11,7 +23,7 @@ New simple-v1 chases use v3.4. Simple player cards omit the Batting label, numbe
 - Earlier `.next` and browser artifact directories were locked by Windows. Verification used fresh `.next-verify-v34`, `.next-e2e-v34` and `outputs/browser-v34` directories. The tested frontend is served on port 3000; the final API is served on port 8000. Both are healthy and the live API exposes v3.4.
 - A live Balanced-only smoke chase completed **161/10, lost**, with reconciled scorecards. It created a separate guest draft/match; existing matches, catalogs and receipts were not rewritten. New games are required to use the updated engine.
 
-## Approach variation and 60�65% difficulty � 16 September 2026
+## Approach variation and 60–65% difficulty — 16 September 2026
 
 New simple-v1 chases now use v3.2. The player-card Batting bar is removed, leaving a plain numeric rating. At least two approaches must be played on legal deliveries before scoring the winning runs; every fixed approach is prevented from winning by the server. Saved matches retain their earlier engines.
 

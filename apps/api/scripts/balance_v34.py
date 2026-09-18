@@ -10,11 +10,12 @@ import json
 import random
 from collections import Counter, defaultdict
 from dataclasses import asdict
+from math import sqrt
 from pathlib import Path
 from statistics import mean
 
-from chase201.catalog import simple_fictional_players
-from chase201.draft_rules import draft_offers, opponent_players
+from chase201.catalog import REAL_CATALOG_VERSION, real_players, simple_fictional_players
+from chase201.draft_rules import REAL_SELECTION, SIMPLE_SELECTION, draft_offers, opponent_players
 from chase201.models import Player
 from chase_engine.v31.types import BowlingStyle, Outcome
 from chase_engine.v34.engine import (
@@ -38,8 +39,26 @@ SCENARIOS = {
 POLICIES = [s.value for s in StrategyId] + ["SENSIBLE"]
 
 
-def catalog():
-    source = simple_fictional_players()
+def statistically_competitive(candidate, leader):
+    """Paired common-seed wins: accept a gap within 1.96 standard errors."""
+    differences = [
+        int(best["won"]) - int(plan["won"]) for plan, best in zip(candidate, leader, strict=True)
+    ]
+    gap = mean(differences)
+    if gap <= 0:
+        return True
+    if len(differences) < 2:
+        return False
+    standard_error = sqrt(
+        sum((difference - gap) ** 2 for difference in differences)
+        / (len(differences) - 1)
+        / len(differences)
+    )
+    return gap <= 1.96 * standard_error
+
+
+def catalog(version="fictional-v4"):
+    source = real_players() if version == REAL_CATALOG_VERSION else simple_fictional_players()
     players = [Player(id=p.id, role=p.role, overall_rating=p.overallRating) for p in source]
     profiles = {
         p.id: PlayerProfile(
@@ -170,13 +189,14 @@ def run(scenario, policy, seed, team, opponent, audit=True):
     }
 
 
-def characterize(seeds):
-    players, profiles = catalog()
+def characterize(seeds, version="fictional-v4"):
+    players, profiles = catalog(version)
+    selection = REAL_SELECTION if version == REAL_CATALOG_VERSION else SIMPLE_SELECTION
     samples = defaultdict(list)
     fingerprints = set()
     for seed in range(seeds):
         rng = random.Random(seed)
-        offers = draft_offers(players, rng)
+        offers = draft_offers(players, rng, selection)
         picks = [rng.choice(group) for group in offers]
         # A sensible order keeps the tail last; choices within every offer are random.
         team = sorted([profiles[p.id] for p in picks], key=lambda p: p.overall, reverse=True)
@@ -254,11 +274,20 @@ def characterize(seeds):
             failures.append(
                 f"{policy} wicket rate outside {low}–{high}: {full[policy]['wicketRate']}"
             )
-        if not any(
-            rows[policy]["winRate"] >= max(rows[p]["winRate"] for p in POLICIES[:3])
-            and rows[policy]["winRate"] >= 0.05
-            for rows in results.values()
-        ):
+        useful = False
+        for scenario, rows in results.items():
+            if rows[policy]["winRate"] < 0.05:
+                continue
+            leader = max(POLICIES[:3], key=lambda p: rows[p]["winRate"])
+            competitive = rows[policy]["winRate"] >= rows[leader]["winRate"]
+            if version == REAL_CATALOG_VERSION:
+                competitive = statistically_competitive(
+                    samples[scenario, policy], samples[scenario, leader]
+                )
+            if competitive:
+                useful = True
+                break
+        if not useful:
             failures.append(f"{policy} lacks a useful winning scenario")
     for policy in POLICIES:
         for metric, limit in (
@@ -277,8 +306,13 @@ def characterize(seeds):
                 failures.append(f"{policy} lacks varied outcomes in {phase}")
     return {
         "ruleset": "v3.4",
-        "catalog": "fictional-v4",
-        "selectionRuleset": "simple-v1",
+        "catalog": version,
+        "selectionRuleset": selection,
+        "usefulPlanCriterion": (
+            "At least 5% wins in a scenario, within 1.96 paired standard errors of the best fixed plan over common seeds."
+            if version == REAL_CATALOG_VERSION
+            else "At least 5% wins in a scenario and the highest observed fixed-plan win rate."
+        ),
         "rulesetSha256": hashlib.sha256(
             json.dumps(asdict(DEFAULT_RULES), sort_keys=True).encode()
         ).hexdigest(),
@@ -305,10 +339,13 @@ def main():
     parser.add_argument("--seeds", type=int, default=500)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--catalog", choices=["fictional-v4", REAL_CATALOG_VERSION], default="fictional-v4"
+    )
     args = parser.parse_args()
     if args.seeds < 1 or (args.check and args.seeds < 500):
         parser.error("Acceptance requires at least 500 common seeds")
-    report = characterize(args.seeds)
+    report = characterize(args.seeds, args.catalog)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print(
         json.dumps(

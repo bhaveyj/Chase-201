@@ -3,6 +3,7 @@ import asyncio
 import json
 import random
 from collections import Counter
+from importlib.resources import files
 from pathlib import Path
 from typing import Literal, cast
 
@@ -10,12 +11,18 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from chase201.draft_rules import ROLES, SIMPLE_SELECTION, draft_offers
+from chase201.draft_rules import (
+    REAL_SELECTION,
+    ROLES,
+    SIMPLE_SELECTIONS,
+    draft_offers,
+)
 from chase201.models import CatalogVersion, Player, SimulationProfile
 from chase201.profile_defaults import expanded_profile
 from chase201.tradeoffs import TRADEOFF_SELECTION, DraftProfile, allocate
 
 COMPOSITION = Counter(ROLES)
+REAL_CATALOG_VERSION = "real-players-v2"
 
 
 class ImportPlayer(BaseModel):
@@ -39,7 +46,9 @@ class CatalogImport(BaseModel):
     license: str = Field(min_length=1, max_length=1000)
     approved: bool = False
     players: list[ImportPlayer]
-    selectionRuleset: Literal["open-v1", "tradeoffs-v1", "simple-v1"] = "tradeoffs-v1"
+    selectionRuleset: Literal["open-v1", "tradeoffs-v1", "simple-v1", "real-players-v1"] = (
+        "tradeoffs-v1"
+    )
 
 
 async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
@@ -55,11 +64,12 @@ async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
             "Catalog needs at least 25 batters, 5 keepers, 10 all-rounders, 15 bowlers"
         )
     allocation: list[list[str]] = []
-    if data.selectionRuleset == SIMPLE_SELECTION:
+    if data.selectionRuleset in SIMPLE_SELECTIONS:
         # Validate role/tier capacity before writing any catalog rows.
         draft_offers(
             [Player(id=p.id, role=p.role, overall_rating=p.overallRating) for p in data.players],
             random.Random(0),
+            data.selectionRuleset,
         )
     if data.selectionRuleset == TRADEOFF_SELECTION:
         if any(
@@ -124,7 +134,59 @@ async def import_catalog(db: AsyncSession, data: CatalogImport) -> None:
         )
 
 
+def real_players() -> list[ImportPlayer]:
+    """Static identities and editorial game ratings; no live feed at runtime."""
+    roster = json.loads(
+        files("chase201")
+        .joinpath("data", f"{REAL_CATALOG_VERSION}.json")
+        .read_text(encoding="utf-8")
+    )
+    players = []
+    for row in roster["players"]:
+        role, rating = row["role"], row["rating"]
+        batting = round(
+            rating * (0.45 if role == "BOWLER" else 0.94 if role == "ALL_ROUNDER" else 1), 2
+        )
+        bowling = round(
+            rating * (1 if role == "BOWLER" else 0.90 if role == "ALL_ROUNDER" else 0.30), 2
+        )
+        players.append(
+            ImportPlayer(
+                id=row["id"],
+                name=row["name"],
+                role=role,
+                overallRating=rating,
+                batting=batting,
+                bowling=bowling,
+                batting_control=batting,
+                batting_rotation=batting,
+                batting_power=batting,
+                bowling_control=bowling,
+                bowling_threat=round(
+                    max(1, bowling + roster["simulationProfile"]["bowlingThreatAdjustment"]), 2
+                ),
+                bowling_style=row["bowlingStyle"],
+            )
+        )
+    return players
+
+
+async def seed_real(db: AsyncSession) -> None:
+    if not await db.get(CatalogVersion, REAL_CATALOG_VERSION):
+        await import_catalog(
+            db,
+            CatalogImport(
+                version=REAL_CATALOG_VERSION,
+                selectionRuleset=REAL_SELECTION,
+                source="User-supplied roster plus official ICC 2026 T20 World Cup and IPL 2026 squad lists; see docs/player-catalog.md",
+                license="Player identities from public squad lists; user-supplied and project-authored game ratings. No images, logos, official stats feed or endorsement rights included.",
+                players=real_players(),
+            ),
+        )
+
+
 async def seed_fictional(db: AsyncSession) -> None:
+    """Legacy fixtures for tests and historical benchmarks; never the default seed."""
     for version, players in (
         ("fictional-v1", fictional_players()),
         ("fictional-v2", balanced_fictional_players()),
@@ -275,14 +337,17 @@ async def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", type=Path)
+    parser.add_argument("--legacy-fixtures", action="store_true")
     args = parser.parse_args()
     async with SessionFactory() as db, db.begin():
         if args.file:
             await import_catalog(
                 db, CatalogImport.model_validate(json.loads(args.file.read_text()))
             )
-        else:
+        elif args.legacy_fixtures:
             await seed_fictional(db)
+        else:
+            await seed_real(db)
         versions = (await db.scalars(select(CatalogVersion.id))).all()
         print(f"Available catalogs: {', '.join(versions)}")
 

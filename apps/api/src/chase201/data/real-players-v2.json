@@ -1,0 +1,2017 @@
+{
+  "version": "real-players-v2",
+  "researchedOn": "2026-09-19",
+  "ratingNotes": "139 unique user-supplied players retain their exact roles and ratings. 61 additions have editorial T20 game ratings on the same 1-100 scale; these are not official ICC ratings. Bowling profiles are deterministic game estimates, not measured statistics. International retirement does not exclude user-supplied franchise players.",
+  "sources": {
+    "user": "User-supplied potential player list (141 rows, two repeated identities).",
+    "ipl-2026": "https://www.iplt20.com/news/article/tata-ipl-2026-player-retentions-announced",
+    "icc-t20wc-2026": "https://www.icc-cricket.com/tournaments/mens-t20-world-cup-2026/news/all-the-squads-for-icc-men-s-t20-world-cup-2026",
+    "icc-ratings-context": "https://www.icc-cricket.com/tournaments/mens-t20-world-cup-2026/news/india-batters-win-rankings-boost-for-t20-world-cup-heroics"
+  },
+  "players": [
+    {
+      "name": "Abhishek Sharma",
+      "role": "ALL_ROUNDER",
+      "rating": 93,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "abhishek-sharma",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Hardik Pandya",
+      "role": "ALL_ROUNDER",
+      "rating": 92,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "hardik-pandya",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sikandar Raza",
+      "role": "ALL_ROUNDER",
+      "rating": 92,
+      "country": "Zimbabwe",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "sikandar-raza",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Sunil Narine",
+      "role": "ALL_ROUNDER",
+      "rating": 92,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "sunil-narine",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Wanindu Hasaranga",
+      "role": "ALL_ROUNDER",
+      "rating": 90,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "wanindu-hasaranga",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Axar Patel",
+      "role": "ALL_ROUNDER",
+      "rating": 89,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "axar-patel",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Glenn Maxwell",
+      "role": "ALL_ROUNDER",
+      "rating": 89,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "glenn-maxwell",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Rachin Ravindra",
+      "role": "ALL_ROUNDER",
+      "rating": 89,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rachin-ravindra",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Aiden Markram",
+      "role": "ALL_ROUNDER",
+      "rating": 88,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "aiden-markram",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Liam Livingstone",
+      "role": "ALL_ROUNDER",
+      "rating": 88,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "liam-livingstone",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mitchell Marsh",
+      "role": "ALL_ROUNDER",
+      "rating": 88,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mitchell-marsh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ravindra Jadeja",
+      "role": "ALL_ROUNDER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ravindra-jadeja",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Azmatullah Omarzai",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "azmatullah-omarzai",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Daryl Mitchell",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "daryl-mitchell",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Glenn Phillips",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "glenn-phillips",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Marco Jansen",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "marco-jansen",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mitchell Santner",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mitchell-santner",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Saim Ayub",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "saim-ayub",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Shadab Khan",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shadab-khan",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Shivam Dube",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shivam-dube",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Will Jacks",
+      "role": "ALL_ROUNDER",
+      "rating": 87,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "will-jacks",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Andre Russell",
+      "role": "ALL_ROUNDER",
+      "rating": 86,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "andre-russell",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Cameron Green",
+      "role": "ALL_ROUNDER",
+      "rating": 86,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "cameron-green",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Jacob Bethell",
+      "role": "ALL_ROUNDER",
+      "rating": 86,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jacob-bethell",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Marcus Stoinis",
+      "role": "ALL_ROUNDER",
+      "rating": 86,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "marcus-stoinis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sam Curran",
+      "role": "ALL_ROUNDER",
+      "rating": 86,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "sam-curran",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Brian Bennett",
+      "role": "ALL_ROUNDER",
+      "rating": 85,
+      "country": "Zimbabwe",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "brian-bennett",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Charith Asalanka",
+      "role": "ALL_ROUNDER",
+      "rating": 85,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "charith-asalanka",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Kamindu Mendis",
+      "role": "ALL_ROUNDER",
+      "rating": 85,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kamindu-mendis",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mehidy Hasan Miraz",
+      "role": "ALL_ROUNDER",
+      "rating": 84,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mehidy-hasan-miraz",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mohammad Nabi",
+      "role": "ALL_ROUNDER",
+      "rating": 84,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mohammad-nabi",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Romario Shepherd",
+      "role": "ALL_ROUNDER",
+      "rating": 84,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "romario-shepherd",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Salman Ali Agha",
+      "role": "ALL_ROUNDER",
+      "rating": 84,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "salman-ali-agha",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Dipendra Singh Airee",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "Nepal",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "dipendra-singh-airee",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Jason Holder",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jason-holder",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Krunal Pandya",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "krunal-pandya",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Liam Dawson",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "liam-dawson",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Moeen Ali",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "moeen-ali",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Nitish Kumar Reddy",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "nitish-kumar-reddy",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Riyan Parag",
+      "role": "ALL_ROUNDER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "riyan-parag",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Brandon McMullen",
+      "role": "ALL_ROUNDER",
+      "rating": 82,
+      "country": "Scotland",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "brandon-mcmullen",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mahedi Hasan",
+      "role": "ALL_ROUNDER",
+      "rating": 82,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mahedi-hasan",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Paul Stirling",
+      "role": "ALL_ROUNDER",
+      "rating": 82,
+      "country": "Ireland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "paul-stirling",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Rovman Powell",
+      "role": "ALL_ROUNDER",
+      "rating": 82,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rovman-powell",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Washington Sundar",
+      "role": "ALL_ROUNDER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "washington-sundar",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Cooper Connolly",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "Australia",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "cooper-connolly",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Curtis Campher",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "Ireland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "curtis-campher",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Gerhard Erasmus",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "Namibia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "gerhard-erasmus",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Gulbadin Naib",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "Afghanistan",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "gulbadin-naib",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Harry Tector",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "Ireland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "harry-tector",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "James Neesham",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "New Zealand",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "james-neesham",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Roston Chase",
+      "role": "ALL_ROUNDER",
+      "rating": 81,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "roston-chase",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Ryan Burl",
+      "role": "ALL_ROUNDER",
+      "rating": 79,
+      "country": "Zimbabwe",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ryan-burl",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Bas de Leede",
+      "role": "ALL_ROUNDER",
+      "rating": 78,
+      "country": "Netherlands",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "bas-de-leede",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Brandon Mavuta",
+      "role": "ALL_ROUNDER",
+      "rating": 77,
+      "country": "Zimbabwe",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "brandon-mavuta",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Suryakumar Yadav",
+      "role": "BATTER",
+      "rating": 94,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "suryakumar-yadav",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Travis Head",
+      "role": "BATTER",
+      "rating": 93,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "travis-head",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Virat Kohli",
+      "role": "BATTER",
+      "rating": 92,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "virat-kohli",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Harry Brook",
+      "role": "BATTER",
+      "rating": 91,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "harry-brook",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Babar Azam",
+      "role": "BATTER",
+      "rating": 90,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "babar-azam",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Yashasvi Jaiswal",
+      "role": "BATTER",
+      "rating": 90,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "yashasvi-jaiswal",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "David Miller",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "david-miller",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rohit Sharma",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rohit-sharma",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sahibzada Farhan",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "sahibzada-farhan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sai Sudharsan",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "sai-sudharsan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shubman Gill",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shubman-gill",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tristan Stubbs",
+      "role": "BATTER",
+      "rating": 88,
+      "country": "South Africa",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "tristan-stubbs",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "David Warner",
+      "role": "BATTER",
+      "rating": 87,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "david-warner",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Finn Allen",
+      "role": "BATTER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "finn-allen",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ruturaj Gaikwad",
+      "role": "BATTER",
+      "rating": 87,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ruturaj-gaikwad",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shreyas Iyer",
+      "role": "BATTER",
+      "rating": 87,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shreyas-iyer",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tilak Varma",
+      "role": "BATTER",
+      "rating": 87,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "tilak-varma",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Dewald Brevis",
+      "role": "BATTER",
+      "rating": 86,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "dewald-brevis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Fakhar Zaman",
+      "role": "BATTER",
+      "rating": 86,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "fakhar-zaman",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Pathum Nissanka",
+      "role": "BATTER",
+      "rating": 86,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "pathum-nissanka",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rinku Singh",
+      "role": "BATTER",
+      "rating": 86,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rinku-singh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ben Duckett",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "England",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "ben-duckett",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ibrahim Zadran",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ibrahim-zadran",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Kane Williamson",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kane-williamson",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rajat Patidar",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "rajat-patidar",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sherfane Rutherford",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "sherfane-rutherford",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shimron Hetmyer",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "shimron-hetmyer",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tim David",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "tim-david",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Vaibhav Suryavanshi",
+      "role": "BATTER",
+      "rating": 85,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "vaibhav-suryavanshi",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rassie van der Dussen",
+      "role": "BATTER",
+      "rating": 84,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rassie-van-der-dussen",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Brandon King",
+      "role": "BATTER",
+      "rating": 83,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "brandon-king",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Evin Lewis",
+      "role": "BATTER",
+      "rating": 83,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "evin-lewis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shashank Singh",
+      "role": "BATTER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "shashank-singh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "George Munsey",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "Scotland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "george-munsey",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mark Chapman",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "New Zealand",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "mark-chapman",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Michael Levitt",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "Netherlands",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "michael-levitt",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Muhammad Waseem",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "UAE",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "muhammad-waseem",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Priyansh Arya",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "priyansh-arya",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Reeza Hendricks",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "reeza-hendricks",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Steve Smith",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "steve-smith",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Towhid Hridoy",
+      "role": "BATTER",
+      "rating": 82,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "towhid-hridoy",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ajinkya Rahane",
+      "role": "BATTER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "ajinkya-rahane",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ayush Mhatre",
+      "role": "BATTER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "ayush-mhatre",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Matthew Breetzke",
+      "role": "BATTER",
+      "rating": 81,
+      "country": "South Africa",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "matthew-breetzke",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Nehal Wadhera",
+      "role": "BATTER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "nehal-wadhera",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Nitish Rana",
+      "role": "BATTER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "nitish-rana",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Angkrish Raghuvanshi",
+      "role": "BATTER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "angkrish-raghuvanshi",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ashutosh Sharma",
+      "role": "BATTER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "ashutosh-sharma",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Devdutt Padikkal",
+      "role": "BATTER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "devdutt-padikkal",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Richie Berrington",
+      "role": "BATTER",
+      "rating": 80,
+      "country": "Scotland",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "richie-berrington",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Max O'Dowd",
+      "role": "BATTER",
+      "rating": 79,
+      "country": "Netherlands",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "max-o-dowd",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sediqullah Atal",
+      "role": "BATTER",
+      "rating": 79,
+      "country": "Afghanistan",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "sediqullah-atal",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Jasprit Bumrah",
+      "role": "BOWLER",
+      "rating": 96,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jasprit-bumrah",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rashid Khan",
+      "role": "BOWLER",
+      "rating": 94,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rashid-khan",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Josh Hazlewood",
+      "role": "BOWLER",
+      "rating": 92,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "josh-hazlewood",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Varun Chakravarthy",
+      "role": "BOWLER",
+      "rating": 92,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "varun-chakravarthy",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Jofra Archer",
+      "role": "BOWLER",
+      "rating": 91,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jofra-archer",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shaheen Shah Afridi",
+      "role": "BOWLER",
+      "rating": 91,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shaheen-shah-afridi",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Adil Rashid",
+      "role": "BOWLER",
+      "rating": 90,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "adil-rashid",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Arshdeep Singh",
+      "role": "BOWLER",
+      "rating": 90,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "arshdeep-singh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Trent Boult",
+      "role": "BOWLER",
+      "rating": 90,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "trent-boult",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Adam Zampa",
+      "role": "BOWLER",
+      "rating": 89,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "adam-zampa",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Kagiso Rabada",
+      "role": "BOWLER",
+      "rating": 89,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kagiso-rabada",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mitchell Starc",
+      "role": "BOWLER",
+      "rating": 89,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mitchell-starc",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Pat Cummins",
+      "role": "BOWLER",
+      "rating": 89,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "pat-cummins",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Kuldeep Yadav",
+      "role": "BOWLER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kuldeep-yadav",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mark Wood",
+      "role": "BOWLER",
+      "rating": 87,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mark-wood",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Matt Henry",
+      "role": "BOWLER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "matt-henry",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Akeal Hosein",
+      "role": "BOWLER",
+      "rating": 86,
+      "country": "West Indies",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "akeal-hosein",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Fazalhaq Farooqi",
+      "role": "BOWLER",
+      "rating": 86,
+      "country": "Afghanistan",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "fazalhaq-farooqi",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Haris Rauf",
+      "role": "BOWLER",
+      "rating": 86,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "haris-rauf",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Matheesha Pathirana",
+      "role": "BOWLER",
+      "rating": 86,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "matheesha-pathirana",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Noor Ahmad",
+      "role": "BOWLER",
+      "rating": 86,
+      "country": "Afghanistan",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "noor-ahmad",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Maheesh Theekshana",
+      "role": "BOWLER",
+      "rating": 85,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "maheesh-theekshana",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mohammed Siraj",
+      "role": "BOWLER",
+      "rating": 85,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mohammed-siraj",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Naseem Shah",
+      "role": "BOWLER",
+      "rating": 85,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "naseem-shah",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Yuzvendra Chahal",
+      "role": "BOWLER",
+      "rating": 85,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "yuzvendra-chahal",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Abrar Ahmed",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "abrar-ahmed",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Anrich Nortje",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "anrich-nortje",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Bhuvneshwar Kumar",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "bhuvneshwar-kumar",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Gudakesh Motie",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "gudakesh-motie",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Lockie Ferguson",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "lockie-ferguson",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mohammed Shami",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "mohammed-shami",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mujeeb Ur Rahman",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mujeeb-ur-rahman",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Nathan Ellis",
+      "role": "BOWLER",
+      "rating": 84,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "nathan-ellis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Blessing Muzarabani",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "Zimbabwe",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "blessing-muzarabani",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Gerald Coetzee",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "gerald-coetzee",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Harshal Patel",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "harshal-patel",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Jacob Duffy",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "New Zealand",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "jacob-duffy",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Lungi Ngidi",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "South Africa",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "lungi-ngidi",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mustafizur Rahman",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mustafizur-rahman",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Prasidh Krishna",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "prasidh-krishna",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "T Natarajan",
+      "role": "BOWLER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "t-natarajan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Alzarri Joseph",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "alzarri-joseph",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ben Sears",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ben-sears",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Harshit Rana",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "harshit-rana",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Keshav Maharaj",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "keshav-maharaj",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Ravi Bishnoi",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ravi-bishnoi",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Sandeep Sharma",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "sandeep-sharma",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Spencer Johnson",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "spencer-johnson",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Taskin Ahmed",
+      "role": "BOWLER",
+      "rating": 82,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "taskin-ahmed",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Avesh Khan",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "avesh-khan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ish Sodhi",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "New Zealand",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "ish-sodhi",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Khaleel Ahmed",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "khaleel-ahmed",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mark Watt",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "Scotland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mark-watt",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Mayank Yadav",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "mayank-yadav",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Richard Ngarava",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "Zimbabwe",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "richard-ngarava",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sandeep Lamichhane",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "Nepal",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "sandeep-lamichhane",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Tabraiz Shamsi",
+      "role": "BOWLER",
+      "rating": 81,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "tabraiz-shamsi",
+      "bowlingStyle": "SPIN"
+    },
+    {
+      "name": "Josh Little",
+      "role": "BOWLER",
+      "rating": 80,
+      "country": "Ireland",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "josh-little",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ottneil Baartman",
+      "role": "BOWLER",
+      "rating": 80,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ottneil-baartman",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shoriful Islam",
+      "role": "BOWLER",
+      "rating": 80,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shoriful-islam",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Yash Dayal",
+      "role": "BOWLER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "yash-dayal",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mukesh Kumar",
+      "role": "BOWLER",
+      "rating": 79,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mukesh-kumar",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ishan Kishan",
+      "role": "WICKETKEEPER",
+      "rating": 94,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "ishan-kishan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Heinrich Klaasen",
+      "role": "WICKETKEEPER",
+      "rating": 93,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "heinrich-klaasen",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Phil Salt",
+      "role": "WICKETKEEPER",
+      "rating": 92,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "phil-salt",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Jos Buttler",
+      "role": "WICKETKEEPER",
+      "rating": 91,
+      "country": "England",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jos-buttler",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Nicholas Pooran",
+      "role": "WICKETKEEPER",
+      "rating": 91,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "nicholas-pooran",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Sanju Samson",
+      "role": "WICKETKEEPER",
+      "rating": 89,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "sanju-samson",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Devon Conway",
+      "role": "WICKETKEEPER",
+      "rating": 88,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "devon-conway",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mohammad Rizwan",
+      "role": "WICKETKEEPER",
+      "rating": 88,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mohammad-rizwan",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rishabh Pant",
+      "role": "WICKETKEEPER",
+      "rating": 88,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rishabh-pant",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "KL Rahul",
+      "role": "WICKETKEEPER",
+      "rating": 87,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kl-rahul",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Kusal Mendis",
+      "role": "WICKETKEEPER",
+      "rating": 87,
+      "country": "Sri Lanka",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "kusal-mendis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Quinton de Kock",
+      "role": "WICKETKEEPER",
+      "rating": 87,
+      "country": "South Africa",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "quinton-de-kock",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Rahmanullah Gurbaz",
+      "role": "WICKETKEEPER",
+      "rating": 87,
+      "country": "Afghanistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "rahmanullah-gurbaz",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tim Seifert",
+      "role": "WICKETKEEPER",
+      "rating": 87,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "tim-seifert",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Josh Inglis",
+      "role": "WICKETKEEPER",
+      "rating": 86,
+      "country": "Australia",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "josh-inglis",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Shai Hope",
+      "role": "WICKETKEEPER",
+      "rating": 86,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "shai-hope",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Ryan Rickelton",
+      "role": "WICKETKEEPER",
+      "rating": 85,
+      "country": "South Africa",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "ryan-rickelton",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Prabhsimran Singh",
+      "role": "WICKETKEEPER",
+      "rating": 83,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "prabhsimran-singh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Jitesh Sharma",
+      "role": "WICKETKEEPER",
+      "rating": 82,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "jitesh-sharma",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Litton Das",
+      "role": "WICKETKEEPER",
+      "rating": 82,
+      "country": "Bangladesh",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "litton-das",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Mohammad Haris",
+      "role": "WICKETKEEPER",
+      "rating": 82,
+      "country": "Pakistan",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "mohammad-haris",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tom Banton",
+      "role": "WICKETKEEPER",
+      "rating": 82,
+      "country": "England",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "tom-banton",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Tom Latham",
+      "role": "WICKETKEEPER",
+      "rating": 82,
+      "country": "New Zealand",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "tom-latham",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Lorcan Tucker",
+      "role": "WICKETKEEPER",
+      "rating": 81,
+      "country": "Ireland",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "lorcan-tucker",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Abishek Porel",
+      "role": "WICKETKEEPER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "abishek-porel",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Dhruv Jurel",
+      "role": "WICKETKEEPER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "dhruv-jurel",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "MS Dhoni",
+      "role": "WICKETKEEPER",
+      "rating": 80,
+      "country": "India",
+      "ratingSource": "editorial",
+      "identitySource": "ipl-2026",
+      "id": "ms-dhoni",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Scott Edwards",
+      "role": "WICKETKEEPER",
+      "rating": 80,
+      "country": "Netherlands",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "scott-edwards",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Matthew Wade",
+      "role": "WICKETKEEPER",
+      "rating": 79,
+      "country": "Australia",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "matthew-wade",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Aasif Sheikh",
+      "role": "WICKETKEEPER",
+      "rating": 78,
+      "country": "Nepal",
+      "ratingSource": "editorial",
+      "identitySource": "icc-t20wc-2026",
+      "id": "aasif-sheikh",
+      "bowlingStyle": "PACE"
+    },
+    {
+      "name": "Andre Fletcher",
+      "role": "WICKETKEEPER",
+      "rating": 78,
+      "country": "West Indies",
+      "ratingSource": "user",
+      "identitySource": "user",
+      "id": "andre-fletcher",
+      "bowlingStyle": "PACE"
+    }
+  ],
+  "simulationProfile": {
+    "bowlingThreatAdjustment": -3.0,
+    "notes": "Role-adjusted bowling control is unchanged; threat is three points lower to maintain the existing v3.4 chase-difficulty envelope with real players. Displayed roles and ratings are unchanged."
+  }
+}

@@ -1,6 +1,6 @@
 # Rating-independent batting and varied repeated play — v3.4
 
-New `simple-v1` drafts use `fictional-v4` and create `v3.4` matches. Target 201, 20 overs, XI rating limits and decision windows remain unchanged. Saved matches keep their recorded engine, including v3.3; existing `tradeoffs-v1` drafts still create v3.0 matches.
+New drafts use the 200-player `real-players-v2` catalog with `real-players-v1` selection rules and create `v3.4` matches. See [roster, sources and role-specific rating limits](player-catalog.md). Target 201, 20 overs and decision windows remain unchanged. Saved matches keep their recorded engine, including v3.3; existing `simple-v1` drafts still create v3.4 matches and `tradeoffs-v1` drafts still create v3.0 matches.
 
 ## Player cards and ability inputs
 
@@ -26,7 +26,9 @@ The only scoring guard redirects a scoring outcome that would reach target 201 t
 
 Shared phase priors compensate for removing player-specific Batting ability; the approach vectors and contextual effects are retained. The adaptive-play acceptance target remains 60–65% full-chase wins in the documented randomized-draft benchmark. This is a benchmark range, not a guarantee for every strategy or team.
 
-The final benchmark passes every gate: **63.2% adaptive-play wins**, **0% Defensive-only**, **0% Balanced-only**, and **0% Aggressive-only**. Defensive and Balanced both win **83.4%** of the qualified low-pressure continuations. Fixed-mode scoring remains varied in the opening and final three overs.
+The original fictional-v4 benchmark passes every gate: **63.2% adaptive-play wins**, **0% Defensive-only**, **0% Balanced-only**, and **0% Aggressive-only**. Defensive and Balanced both win **83.4%** of the qualified low-pressure continuations. Fixed-mode scoring remains varied in the opening and final three overs.
+
+The [real-player calibration](calibration-real-players-v2.json) measures **62.8% adaptive-play wins**, with **0% wins for each fixed approach**. Defensive and Balanced win 82.6% and 84.0% of qualified low-pressure continuations. The [catalog notes](player-catalog.md) explain the calibrated bowling profiles and the paired sampling-uncertainty comparison used for useful plans. The engine coefficients and earlier catalogs remain frozen.
 
 ```powershell
 .venv/Scripts/python.exe apps/api/scripts/balance_v34.py --seeds 500 --check --output docs/calibration-v34-final.json
@@ -40,6 +42,6 @@ Regression tests compare ratings 1 and 100 against identical seeds, require iden
 
 ## Activation
 
-Restart the API and frontend, then start a new chase. Existing `fictional-v4` installations need no catalog reimport or schema change. The generated API contract accepts v3.4 alongside earlier versions; downgrade protection includes v3.4. Saved matches and receipts are not rewritten.
+Run `python -m chase201.catalog` from `apps/api`, set `CATALOG_VERSION=real-players-v2`, restart the API and frontend, then start a new chase. No schema change is required. The generated API contract accepts v3.4 alongside earlier versions; downgrade protection includes v3.4. Saved matches and receipts are not rewritten.
 
 See [historical v3.2](three-modes-v32.md), [v3.1](three-modes-v31.md) and [v3.0](three-modes-v30.md).

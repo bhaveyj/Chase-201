@@ -38,7 +38,7 @@ async function setupXI(page: Page) {
     "Your approach controls scoring and risk. Adapt your plans to the chase.",
   );
   await expect(page.getByLabel("XI rating limits")).toContainText(
-    "One batter and one all-rounder rated 90–92",
+    "One batter and one all-rounder rated 90–100",
   );
   await page.screenshot({
     path: test.info().outputPath("draft.png"),
@@ -51,8 +51,10 @@ async function setupXI(page: Page) {
     expect(ratings).toHaveLength(5);
     for (const text of ratings) {
       const rating = parseInt(text, 10);
-      expect(rating).toBeGreaterThanOrEqual(slot === 0 || slot === 6 ? 90 : 78);
-      expect(rating).toBeLessThanOrEqual(slot === 0 || slot === 6 ? 92 : 85);
+      expect(rating).toBeGreaterThanOrEqual(slot === 0 || slot === 6 ? 90 : 75);
+      expect(rating).toBeLessThanOrEqual(
+        slot === 0 || slot === 6 || slot === 5 || slot >= 8 ? 100 : 89,
+      );
     }
     const card = page
       .getByRole("button", { name: /^Select .+, .+, rating/ })
@@ -69,7 +71,7 @@ async function setupXI(page: Page) {
   ).toBeVisible();
   await accessible(page);
   await expect(page.getByLabel("XI rating limits")).toContainText(
-    "Core players9/9",
+    "Core players5/5",
   );
   // Reordering must be available to keyboard users, without drag-and-drop.
   const move = page.getByRole("button", { name: /^Move .+ down$/ }).first();

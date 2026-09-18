@@ -12,7 +12,7 @@ from pathlib import Path
 if os.environ.get("ENVIRONMENT") == "production":
     raise RuntimeError("The E2E test server must never run in production")
 os.environ["ENVIRONMENT"] = "test"
-os.environ["CATALOG_VERSION"] = "fictional-v4"
+os.environ["CATALOG_VERSION"] = "real-players-v2"
 scratch = tempfile.TemporaryDirectory(prefix="chase201-e2e-")
 os.environ["DATABASE_URL"] = f"sqlite+aiosqlite:///{(Path(scratch.name) / 'e2e.db').as_posix()}"
 os.environ["API_URL"] = "http://localhost:8001"
@@ -21,7 +21,7 @@ os.environ["GOOGLE_CLIENT_SECRET"] = "e2e-secret"
 os.environ["SECRET_KEY"] = "isolated-e2e-test-server-secret-key-only"
 
 from chase201 import auth  # noqa: E402
-from chase201.catalog import seed_fictional  # noqa: E402
+from chase201.catalog import seed_real  # noqa: E402
 from chase201.db import SessionFactory, engine  # noqa: E402
 from chase201.main import app  # noqa: E402
 from chase201.models import Base  # noqa: E402
@@ -37,7 +37,7 @@ async def prepare():
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
     async with SessionFactory() as db, db.begin():
-        await seed_fictional(db)
+        await seed_real(db)
     await engine.dispose()
 
 

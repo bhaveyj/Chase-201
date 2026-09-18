@@ -3,11 +3,13 @@
 from collections import Counter
 from dataclasses import dataclass
 from random import Random
-from typing import Protocol
+from typing import Final, Protocol
 
 LEGACY_SELECTION = "open-v1"
 BALANCED_SELECTION = "balanced-v1"
 SIMPLE_SELECTION = "simple-v1"
+REAL_SELECTION: Final = "real-players-v1"
+SIMPLE_SELECTIONS = frozenset({SIMPLE_SELECTION, REAL_SELECTION})
 STAR_POSITIONS = (0, 6)  # One batter and one all-rounder; batting order stays editable.
 ROLES = ["BATTER"] * 5 + ["WICKETKEEPER"] + ["ALL_ROUNDER"] * 2 + ["BOWLER"] * 3
 
@@ -22,6 +24,12 @@ class RatingBand:
 def rating_band(position: int, ruleset: str = BALANCED_SELECTION) -> RatingBand:
     if ruleset == LEGACY_SELECTION:
         return RatingBand("Open selection", 1, 100)
+    if ruleset == REAL_SELECTION and 0 <= position < len(ROLES):
+        if position in STAR_POSITIONS:
+            return RatingBand("Star player", 90, 100)
+        if ROLES[position] in {"WICKETKEEPER", "BOWLER"}:
+            return RatingBand("Specialist", 75, 100)
+        return RatingBand("Core player", 75, 89)
     if ruleset not in {
         BALANCED_SELECTION,
         "tradeoffs-v1",
@@ -41,13 +49,15 @@ class RatedPlayer(Protocol):
     overall_rating: int
 
 
-def draft_offers[P: RatedPlayer](catalog: list[P], rng: Random) -> list[list[P]]:
+def draft_offers[P: RatedPlayer](
+    catalog: list[P], rng: Random, ruleset: str = BALANCED_SELECTION
+) -> list[list[P]]:
     """Every position has five unique options, without blocking any future selection."""
     remaining = list(catalog)
     rng.shuffle(remaining)
     offers = []
     for position, role in enumerate(ROLES):
-        band = rating_band(position)
+        band = rating_band(position, ruleset)
         options = [
             p
             for p in remaining

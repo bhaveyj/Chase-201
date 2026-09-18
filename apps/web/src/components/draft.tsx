@@ -164,14 +164,19 @@ export function DraftScreen({ id }: { id: string }) {
                   : "Round out your XI."}
           </h2>
           <p className="subtle">
-            {["balanced-v1", "tradeoffs-v1", "simple-v1"].includes(
-              draft.selectionRuleset ?? "open-v1",
-            )
+            {[
+              "balanced-v1",
+              "tradeoffs-v1",
+              "simple-v1",
+              "real-players-v1",
+            ].includes(draft.selectionRuleset ?? "open-v1")
               ? `${slot.ratingLabel} · ${slot.minimumRating}–${slot.maximumRating} OVR. Select one player.`
               : "Select one player to fill this spot."}
           </p>
           <p className="attribute-guide" id="attribute-guide">
-            {draft.selectionRuleset === "simple-v1" ? (
+            {["simple-v1", "real-players-v1"].includes(
+              draft.selectionRuleset ?? "open-v1",
+            ) ? (
               <>
                 Your approach controls scoring and risk. Adapt your plans to the
                 chase.
@@ -201,7 +206,7 @@ export function DraftScreen({ id }: { id: string }) {
                   aria-pressed={selected}
                   aria-label={`Select ${player.name}, ${roleLabel[player.role]}, rating ${player.overallRating}${attributeDescription(player)}`}
                   aria-describedby="attribute-guide"
-                  className={`player-card ${draft.selectionRuleset === "simple-v1" ? "simple-card" : ""} ${selected ? "selected" : ""}`}
+                  className={`player-card ${["simple-v1", "real-players-v1"].includes(draft.selectionRuleset ?? "open-v1") ? "simple-card" : ""} ${selected ? "selected" : ""}`}
                   data-role={player.role}
                   disabled={select.isPending || !session.data}
                   onClick={() =>
@@ -274,9 +279,12 @@ export function DraftScreen({ id }: { id: string }) {
             )}
           </div>
           <p className="draft-note">
-            {["balanced-v1", "tradeoffs-v1", "simple-v1"].includes(
-              draft.selectionRuleset ?? "open-v1",
-            )
+            {[
+              "balanced-v1",
+              "tradeoffs-v1",
+              "simple-v1",
+              "real-players-v1",
+            ].includes(draft.selectionRuleset ?? "open-v1")
               ? "Your two star picks can bat anywhere in the XI. Set the order next."
               : "No budgets. No credits. Just cricket judgment."}
           </p>

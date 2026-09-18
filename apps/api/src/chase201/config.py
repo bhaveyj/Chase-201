@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     google_client_id: str = ""
     google_client_secret: str = ""
-    catalog_version: str = "fictional-v4"
+    catalog_version: str = "real-players-v2"
 
     @property
     def secure_cookies(self) -> bool:

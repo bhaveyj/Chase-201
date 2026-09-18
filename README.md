@@ -2,7 +2,7 @@
 
 A guest-first, single-player cricket chase. Draft an XI, choose the batting order, and chase 201 in 20 overs. The complete Next.js → FastAPI → PostgreSQL journey is implemented.
 
-The included catalog contains **75 original fictional players**. No real-player data or likenesses are bundled. Production mode refuses the fictional catalog; import a legally approved static dataset before launch.
+The default catalog contains **200 real cricket players across 17 countries**: 139 unique user-supplied players with their original roles and ratings, plus 61 researched additions. Added ratings are editorial T20 game estimates, not official ICC ratings. See the [roster and sources](docs/player-catalog.md). Historical fictional catalogs remain available for saved games and regression fixtures.
 
 ## Run locally
 
@@ -47,9 +47,9 @@ If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` fil
 - Immediate guest play; resumable drafts and live matches; 30-day retention **per guest game**, with a renewable guest access cookie.
 - Google OIDC authorization code flow with PKCE, nonce, browser-bound single-use state, verified RS256 ID tokens, opaque backend sessions, token rotation, and guest-to-user claiming.
 - Immutable catalog versions and private simulation profiles; exact 5/1/2/3 role composition; five disjoint offers per slot; unique selections and complete batting-order validation.
-- One match per confirmed XI and a balanced AI XI from the same catalog. New drafts have one star batter and one star all-rounder rated 90–92, with nine core players rated 78–85. Stars may bat anywhere; the server validates the limits at every team boundary.
+- One match per confirmed XI and a balanced AI XI from the same catalog. New real-player drafts have one star batter and one star all-rounder rated 90–100, five core players rated 75–89, and a keeper plus three bowlers rated 75–100. Stars may bat anywhere; the server validates the limits at every team boundary. Saved fictional drafts retain their original 90–92/78–85 limits.
 - Exactly three modes for new matches: Defensive, Balanced and Aggressive; per-delivery matchup/context simulation; wicket and free-hit interruptions; recent deliveries, partnerships, setness and exact next-delivery wicket risk.
-- One plain numeric Batting rating beside OVR, without a slider or bar. Modes control risk and reward; unique five-player offers retain role and rating limits. Historical cards keep their original attributes.
+- Simple player cards show name, role and OVR. Modes control risk and reward; unique five-player offers retain role and rating limits. Historical cards keep their original attributes.
 - Server-owned deterministic seeds, versioned rules, transactionally stored decisions/events/state/scorecards, ownership checks, CSRF, expected revisions, and idempotent retries.
 - Desktop/mobile UI, keyboard-operable team ordering and strategy controls, accessible status/error messages, reduced-motion support, and automated WCAG AA checks.
 - Alembic migration, Docker image, Railway/Vercel configuration, CI, cleanup command, generated API types, calibration report command, and deployment smoke test.
@@ -117,7 +117,7 @@ npm run api:types
 
 CI checks migration upgrade/downgrade and schema drift, architecture boundaries, Python/TypeScript typing, both unit suites, common-seed gameplay balance and catalog sensitivity, PostgreSQL concurrency, generated-contract drift, the production build, and browser journeys.
 
-New `simple-v1` drafts use `fictional-v4` and create `v3.4` matches. Saved matches through `v3.3` retain their original engines; `tradeoffs-v1` drafts still create `v3.0` matches. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=fictional-v4` for local development. Start a new chase for rating-independent batting and varied repeated-approach scoring: player cards omit Batting, its rating no longer affects the engine, and repetition changes sampled probabilities throughout the innings without forcing late singles. A single approach still cannot win. See [current semantics and calibration](docs/three-modes.md).
+New drafts use the `real-players-v2` catalog with `real-players-v1` selection rules and create `v3.4` matches. Saved drafts retain their original catalogs and limits. Apply `alembic upgrade head`, run `python -m chase201.catalog`, and set `CATALOG_VERSION=real-players-v2` for local development. Start a new chase to use the real-player roster. Player cards omit Batting, its rating no longer affects the engine, and repetition changes sampled probabilities throughout the innings without forcing late singles. A single approach still cannot win. See [current semantics and calibration](docs/three-modes.md).
 
 See the [verification record](docs/verification.md) for completed local checks and their limits.
 

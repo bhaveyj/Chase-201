@@ -5,6 +5,8 @@ import uuid
 
 import httpx
 
+from chase201.draft_rules import SIMPLE_SELECTIONS, rating_band
+
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -26,11 +28,12 @@ def main() -> None:
         session = write("POST", "/api/v1/guest-sessions", {"expectedRevision": 0})
         client.headers["X-CSRF-Token"] = session["csrfToken"]
         draft = write("POST", "/api/v1/drafts", {"expectedRevision": session["revision"]})
-        assert draft["selectionRuleset"] == "simple-v1"
+        assert draft["selectionRuleset"] in SIMPLE_SELECTIONS
         assert len(draft["slots"]) == 11
         assert len({p["id"] for s in draft["slots"] for p in s["options"]}) == 55
         for position, slot in enumerate(draft["slots"]):
-            minimum, maximum = (90, 92) if position in (0, 6) else (78, 85)
+            band = rating_band(position, draft["selectionRuleset"])
+            minimum, maximum = band.minimum, band.maximum
             assert len(slot["options"]) == 5
             assert all(minimum <= p["overallRating"] <= maximum for p in slot["options"])
             for player in slot["options"]:
@@ -98,7 +101,7 @@ def main() -> None:
             == state["runs"]
         )
         print(
-            f"Smoke passed: {match['id']} · {state['status']} · {state['runs']}/{state['wickets']}"
+            f"Smoke passed: {draft['catalogVersion']} · {match['id']} · {state['status']} · {state['runs']}/{state['wickets']}"
         )
 
 
