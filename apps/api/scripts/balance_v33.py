@@ -10,6 +10,7 @@ import json
 import random
 from collections import Counter, defaultdict
 from dataclasses import asdict
+from math import sqrt
 from pathlib import Path
 from statistics import mean
 
@@ -36,6 +37,24 @@ SCENARIOS = {
     "high_pressure": (108, 165, 4),
 }
 POLICIES = [s.value for s in StrategyId] + ["SENSIBLE"]
+
+
+def statistically_competitive(candidate, leader):
+    """Paired common-seed wins: accept a gap within 1.96 standard errors."""
+    differences = [
+        int(best["won"]) - int(plan["won"]) for plan, best in zip(candidate, leader, strict=True)
+    ]
+    gap = mean(differences)
+    if gap <= 0:
+        return True
+    if len(differences) < 2:
+        return False
+    standard_error = sqrt(
+        sum((difference - gap) ** 2 for difference in differences)
+        / (len(differences) - 1)
+        / len(differences)
+    )
+    return gap <= 1.96 * standard_error
 
 
 def catalog():
@@ -243,11 +262,15 @@ def characterize(seeds):
             failures.append(
                 f"{policy} wicket rate outside {low}–{high}: {full[policy]['wicketRate']}"
             )
-        if not any(
-            rows[policy]["winRate"] >= max(rows[p]["winRate"] for p in POLICIES[:3])
-            and rows[policy]["winRate"] >= 0.05
-            for rows in results.values()
-        ):
+        useful = False
+        for scenario, rows in results.items():
+            if rows[policy]["winRate"] < 0.05:
+                continue
+            leader = max(POLICIES[:3], key=lambda p: rows[p]["winRate"])
+            if statistically_competitive(samples[scenario, policy], samples[scenario, leader]):
+                useful = True
+                break
+        if not useful:
             failures.append(f"{policy} lacks a useful winning scenario")
     for policy in POLICIES:
         for metric, limit in (
