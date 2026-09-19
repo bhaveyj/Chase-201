@@ -14,7 +14,16 @@ from chase201.catalog import COMPOSITION
 from chase201.cleanup import cleanup
 from chase201.config import get_settings
 from chase201.main import app
-from chase201.models import BattingPerformance, Decision, Draft, Match, MatchEvent, Session, now
+from chase201.models import (
+    BattingPerformance,
+    CatalogVersion,
+    Decision,
+    Draft,
+    Match,
+    MatchEvent,
+    Session,
+    now,
+)
 
 
 async def guest(client):
@@ -27,6 +36,28 @@ async def guest(client):
     assert r.status_code == 200, r.text
     client.headers["X-CSRF-Token"] = r.json()["csrfToken"]
     return r.json()
+
+
+async def test_health_requires_the_configured_catalog(client, database, monkeypatch):
+    assert (await client.get("/health")).status_code == 200
+    settings = get_settings()
+    monkeypatch.setattr(settings, "catalog_version", "missing-catalog")
+    response = await client.get("/health")
+    assert response.status_code == 503
+
+    async with database() as db, db.begin():
+        db.add(
+            CatalogVersion(
+                id="unapproved-catalog",
+                source="test",
+                license="test",
+                approved=False,
+            )
+        )
+    monkeypatch.setattr(settings, "catalog_version", "unapproved-catalog")
+    monkeypatch.setattr(settings, "environment", "production")
+    response = await client.get("/health")
+    assert response.status_code == 503
 
 
 async def mutate(client, method, url, body, key=None):

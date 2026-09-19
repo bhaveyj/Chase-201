@@ -1,9 +1,9 @@
 import time
 
 import pytest
-from authlib.jose import JsonWebKey, JsonWebToken
-from authlib.jose.errors import JoseError
-from joserfc.errors import JoseError as RFCError
+from joserfc import jwt
+from joserfc.errors import JoseError
+from joserfc.jwk import generate_key
 
 from chase201.auth import validate_google_token
 from chase201.config import Settings, get_settings
@@ -11,7 +11,7 @@ from chase201.config import Settings, get_settings
 
 @pytest.fixture(scope="module")
 def signing_key():
-    return JsonWebKey.generate_key("RSA", 2048, {"kid": "test-google-key"}, is_private=True)
+    return generate_key("RSA", 2048, {"kid": "test-google-key"})
 
 
 def signed_token(key, **changes):
@@ -25,9 +25,12 @@ def signed_token(key, **changes):
     }
     claims.update(changes)
     return {
-        "id_token": JsonWebToken(["RS256"])
-        .encode({"alg": "RS256", "kid": "test-google-key"}, claims, key)
-        .decode()
+        "id_token": jwt.encode(
+            {"alg": "RS256", "kid": "test-google-key"},
+            claims,
+            key,
+            algorithms=["RS256"],
+        )
     }
 
 
@@ -51,7 +54,7 @@ def test_google_signature_and_claims(signing_key, monkeypatch):
 )
 def test_rejects_invalid_google_claims(signing_key, monkeypatch, changes):
     monkeypatch.setattr(get_settings(), "google_client_id", "test-client")
-    with pytest.raises((JoseError, RFCError)):
+    with pytest.raises(JoseError):
         validate_google_token(
             signed_token(signing_key, **changes),
             {"keys": [signing_key.as_dict(is_private=False)]},
@@ -61,8 +64,8 @@ def test_rejects_invalid_google_claims(signing_key, monkeypatch, changes):
 
 def test_rejects_bad_signature(signing_key, monkeypatch):
     monkeypatch.setattr(get_settings(), "google_client_id", "test-client")
-    wrong_key = JsonWebKey.generate_key("RSA", 2048, {"kid": "test-google-key"}, is_private=True)
-    with pytest.raises((JoseError, RFCError)):
+    wrong_key = generate_key("RSA", 2048, {"kid": "test-google-key"})
+    with pytest.raises(JoseError):
         validate_google_token(
             signed_token(wrong_key),
             {"keys": [signing_key.as_dict(is_private=False)]},
@@ -75,3 +78,30 @@ def test_production_configuration_rejects_unsafe_defaults():
         Settings(environment="production")
     with pytest.raises(ValueError):
         Settings(cors_origins=["*"])
+
+
+def test_configuration_rejects_ambiguous_or_incomplete_deployments():
+    with pytest.raises(ValueError):
+        Settings(environment="prod")
+    with pytest.raises(ValueError):
+        Settings(google_client_id="client-without-secret")
+    with pytest.raises(ValueError):
+        Settings(frontend_url="https://play.example.com/path")
+
+    production = {
+        "environment": "production",
+        "database_url": "postgresql+asyncpg://app:secret@db.internal/app",
+        "secret_key": "a-unique-production-secret-with-32-characters",
+        "frontend_url": "https://play.example.com",
+        "api_url": "https://api.example.com",
+        "cors_origins": ["https://play.example.com"],
+        "catalog_version": "approved-2026-01",
+    }
+    with pytest.raises(ValueError):
+        Settings(**production)
+    settings = Settings(
+        **production,
+        google_client_id="google-client",
+        google_client_secret="google-secret",
+    )
+    assert settings.secure_cookies

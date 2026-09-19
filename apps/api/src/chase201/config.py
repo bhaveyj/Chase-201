@@ -1,4 +1,6 @@
 from functools import lru_cache
+from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -13,7 +15,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     api_url: str = "http://localhost:8000"
     cors_origins: list[str] = ["http://localhost:3000"]
-    environment: str = "development"
+    environment: Literal["development", "test", "production"] = "development"
     google_client_id: str = ""
     google_client_secret: str = ""
     catalog_version: str = "real-players-v2"
@@ -24,10 +26,24 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def safe_production(self) -> "Settings":
+        urls = [self.frontend_url, self.api_url, *self.cors_origins]
+        if any(
+            (parsed := urlsplit(url)).scheme not in {"http", "https"}
+            or not parsed.netloc
+            or parsed.path
+            or parsed.query
+            or parsed.fragment
+            or parsed.username
+            or parsed.password
+            for url in urls
+        ):
+            raise ValueError("Frontend, API and CORS URLs must be HTTP(S) origins without paths")
         if "*" in self.cors_origins or self.frontend_url not in self.cors_origins:
             raise ValueError(
                 "CORS must explicitly include the frontend origin; wildcards are forbidden"
             )
+        if bool(self.google_client_id) != bool(self.google_client_secret):
+            raise ValueError("Google OAuth requires both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET")
         if self.environment == "production":
             if len(self.secret_key) < 32 or self.secret_key.startswith("local-development"):
                 raise ValueError(
@@ -42,6 +58,8 @@ class Settings(BaseSettings):
                 raise ValueError("Production requires PostgreSQL")
             if self.catalog_version.startswith("fictional"):
                 raise ValueError("Production requires an approved, licensed player catalog")
+            if not self.google_client_id:
+                raise ValueError("Production requires Google OAuth credentials")
         return self
 
 

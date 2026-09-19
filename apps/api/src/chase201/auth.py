@@ -7,11 +7,12 @@ from typing import Annotated, Any
 
 import httpx
 from authlib.integrations.httpx_client import AsyncOAuth2Client
-from authlib.jose import JsonWebToken
 from authlib.oidc.core import CodeIDToken
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from itsdangerous import BadSignature, URLSafeTimedSerializer
+from joserfc import jwt
+from joserfc.jwk import KeySet, KeySetSerialization
 from sqlalchemy import select, update
 from sqlalchemy import text as sql_text
 from sqlalchemy.exc import IntegrityError
@@ -318,13 +319,19 @@ async def exchange_google(code: str, attempt: OAuthAttempt) -> dict:
     return validate_google_token(token, keys, attempt.nonce)
 
 
-def validate_google_token(token: dict, keys: dict, nonce: str) -> dict:
+def validate_google_token(
+    token: dict[str, Any], keys: KeySetSerialization, nonce: str
+) -> dict[str, Any]:
     settings = get_settings()
-    claims = JsonWebToken(["RS256"]).decode(
+    decoded = jwt.decode(
         token["id_token"],
-        keys,
-        claims_cls=CodeIDToken,
-        claims_options={
+        KeySet.import_key_set(keys),
+        algorithms=["RS256"],
+    )
+    claims = CodeIDToken(
+        decoded.claims,
+        decoded.header,
+        options={
             "iss": {
                 "essential": True,
                 "values": ["https://accounts.google.com", "accounts.google.com"],
@@ -333,7 +340,7 @@ def validate_google_token(token: dict, keys: dict, nonce: str) -> dict:
             "sub": {"essential": True},
             "exp": {"essential": True},
         },
-        claims_params={
+        params={
             "nonce": nonce,
             "client_id": settings.google_client_id,
             "access_token": token.get("access_token"),

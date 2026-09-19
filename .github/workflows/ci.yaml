@@ -21,6 +21,7 @@ jobs:
     env:
       DATABASE_URL: postgresql+asyncpg://chase201:test-only@localhost:5432/chase201_test
       TEST_DATABASE_URL: postgresql+asyncpg://chase201:test-only@localhost:5432/chase201_test
+      NEXT_PUBLIC_API_URL: http://localhost:8000
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4

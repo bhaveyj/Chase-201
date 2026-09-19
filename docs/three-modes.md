@@ -34,6 +34,6 @@ Regression tests exercise every scoring outcome at 200 on the final legal ball, 
 
 ## Activation
 
-Restart the API and rebuild/restart the frontend together, then start a new chase. No catalog import or schema change is needed for this engine fix. The API contract and frontend accept v3.5 alongside every earlier version. The current local preview uses `.next-v35` on port 3000 and the API on port 8000. Existing profiles, saved match snapshots, events, scorecards and receipts are preserved.
+Restart the API and rebuild/restart the frontend together, then start a new chase. No catalog import or schema change is needed for this engine fix. The API contract and frontend accept v3.5 alongside every earlier version. Existing profiles, saved match snapshots, events, scorecards and receipts are preserved.
 
 See [historical v3.4](three-modes-v34.md), [v3.2](three-modes-v32.md), [v3.1](three-modes-v31.md) and [v3.0](three-modes-v30.md).

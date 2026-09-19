@@ -4,7 +4,7 @@ The repository is ready to configure on Railway (API/PostgreSQL) and Vercel (Nex
 
 ## Player catalog
 
-The development seed is fictional and is not approved for production. Supply an approved, manually curated JSON dataset with provenance and usage rights. The import schema is `CatalogImport` in `chase201/catalog.py`:
+The bundled `real-players-v2` roster is useful for development and testing, but its public-source identities and editorial ratings do not constitute production licensing approval. Supply an approved, manually curated JSON dataset with provenance and usage rights. The import schema is `CatalogImport` in `chase201/catalog.py`:
 
 ```json
 {
@@ -12,17 +12,18 @@ The development seed is fictional and is not approved for production. Supply an 
   "source": "Documented approved source",
   "license": "Documented rights and approval reference",
   "approved": true,
+  "selectionRuleset": "real-players-v1",
   "players": [
-    {"id": "stable-id", "name": "Approved identity", "role": "BATTER", "overallRating": 80, "batting": 82, "bowling": 25}
+    {"id": "stable-id", "name": "Approved identity", "role": "BATTER", "overallRating": 80, "batting": 82, "bowling": 25, "bowling_style": "PACE"}
   ]
 }
 ```
 
-The fragment illustrates the schema, not a valid full catalog. Include at least 25 batters, 5 wicketkeepers, 10 all-rounders and 15 bowlers. Every role-specific slot gets five disjoint offers so all drafts remain completable. IDs must be unique; coefficients and ratings range from 1–100. Import refuses an existing version and never overwrites its rows.
+The fragment illustrates the schema, not a valid full catalog. For `real-players-v1`, provide at least five batters and five all-rounders rated 90–100; 20 more batters and five more all-rounders rated 75–89; and five wicketkeepers plus 15 bowlers rated 75–100. Every slot gets five disjoint offers, so all drafts remain completable. IDs must be unique; coefficients and ratings range from 1–100. Import refuses an existing version and never overwrites its rows.
 
-After migrating, run `python -m chase201.catalog --file /path/to/approved.json` against the intended database, and set `CATALOG_VERSION` to its version. `approved: true` records an actual human approval; the importer cannot determine legal rights. Recalibrate the engine against the imported catalog.
+After migrating, run `python -m chase201.catalog --file /path/to/approved.json` against the intended database, and set `CATALOG_VERSION` to its version. `approved: true` records an actual human approval; the importer cannot determine legal rights. Recalibrate v3.5 against the final roster before launch; the checked `balance_v35.py` report currently targets the bundled roster, so adapting that input is a required release task once the approved dataset is known.
 
-Rating-limited drafts require at least 5 batters and 5 all-rounders rated 90–92, plus 20 batters, 5 keepers, 5 all-rounders and 15 bowlers rated 78–85. New simple catalogs must declare `selectionRuleset: simple-v1`, supply a `batting` rating (1–100), and support eleven disjoint five-player offers. They require no playstyles, legacy batting attributes or non-dominance constraints. Imports fail before activation when these conditions cannot be met. For local development, apply `alembic upgrade head`, seed immutable fixtures with `python -m chase201.catalog`, and select `fictional-v4`; preserve all existing catalog profiles. See [v3 rollout and verification](three-modes.md).
+For local development, apply `alembic upgrade head`, seed the bundled roster with `python -m chase201.catalog`, and select `real-players-v2`. Use `--legacy-fixtures` only when testing historical saved-game compatibility. Preserve every imported catalog because existing drafts and matches retain their catalog and engine versions. See [current v3.5 semantics](three-modes.md).
 
 ## Railway
 
@@ -30,16 +31,23 @@ Rating-limited drafts require at least 5 batters and 5 all-rounders rated 90–9
 2. Set `DATABASE_URL` with the `postgresql+asyncpg://` scheme and Railway’s private Postgres host; set `ENVIRONMENT=production`, a fresh random `SECRET_KEY` of at least 32 characters, and the approved `CATALOG_VERSION`.
 3. Set `FRONTEND_URL=https://play.chase201.com`, `API_URL=https://api.chase201.com`, and `CORS_ORIGINS=["https://play.chase201.com"]` using your actual related domains. Configure DNS/TLS in both hosting projects.
 4. Provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google web OAuth client. Register exactly `https://api.chase201.com/api/v1/auth/google/callback`. For local development use `http://localhost:8000/api/v1/auth/google/callback` as an additional authorized redirect.
-5. The pre-deploy command applies Alembic revisions. `/health` checks database connectivity. The Docker process runs as a non-root user and reads Railway’s `PORT`.
+5. The pre-deploy command applies Alembic revisions. `/health` checks database connectivity and confirms that the configured catalog exists; in production it must also be approved. The Docker process runs as a non-root user and reads Railway’s `PORT`.
 6. Add an hourly cron service using the same image/environment, command `python -m chase201.cleanup`, schedule `0 * * * *`, and no HTTP healthcheck. It should exit after each run. This is necessary to physically delete expired guest data; requests deny expired games immediately even between cleanup runs.
 
-The application refuses production startup with a development secret, HTTP URLs, wildcard CORS, SQLite, or the fictional catalog. Import your approved version before directing traffic to the service. Store credentials only in the hosting environment; never in Git or a `NEXT_PUBLIC_` variable.
+The application refuses production startup with an unknown environment name, a development secret, incomplete Google credentials, HTTP URLs, URL paths, wildcard CORS, SQLite, or a fictional catalog. Readiness stays unhealthy until the configured approved catalog is imported. Store credentials only in the hosting environment; never in Git or a `NEXT_PUBLIC_` variable.
 
 ## Vercel
 
-Import the monorepo, select `apps/web` as Root Directory, and include files outside that root so npm can access the workspace lockfile. `apps/web/vercel.json` supplies installation/build commands. Set `NEXT_PUBLIC_API_URL=https://api.chase201.com` before building and attach the related frontend domain. The public API URL is the only frontend environment variable required.
+Import the monorepo, select `apps/web` as Root Directory, and include files outside that root so npm can access the workspace lockfile. `apps/web/vercel.json` supplies installation/build commands. Set `NEXT_PUBLIC_API_URL=https://api.chase201.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
 
 Use related HTTPS custom domains for cookie-based authentication. Default unrelated Vercel/Railway hostnames are not the intended production topology for SameSite=Lax cookies. Add any preview origin explicitly only when it is an approved related domain; never use wildcard credentialed CORS.
+
+## Launch inputs still required
+
+- A production-approved player JSON file, its documented rights/provenance, and a v3.5 calibration run against that exact roster.
+- A Railway project with PostgreSQL, API, and hourly cleanup services; a Vercel project for `apps/web`; and the final related HTTPS domains/DNS records.
+- A fresh secret key, final service URLs/CORS origins, and a Google web OAuth client with its consent screen and exact callback URI configured.
+- A database backup/restore plan, error and uptime monitoring, and an owner for the retention cron and incident response.
 
 ## Validate the deployment
 

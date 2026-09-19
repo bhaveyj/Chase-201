@@ -40,4 +40,4 @@ From `apps/api`, run `python -m chase201.catalog`. The command imports only the 
 
 The JSON is included in the installed Python package and Docker image. Imports are immutable: roster edits require a new catalog version. Existing production catalog-approval checks remain in force; the bundled dataset does not assert licensing approval.
 
-For a production frontend preview, rebuild with `npm run build` before restarting so the new role-specific limits and counters are included. The current local preview uses `.next-v35` on port 3000 and the API on port 8000.
+For a production frontend preview, rebuild with `npm run build` before restarting so the current role-specific limits and counters are included.

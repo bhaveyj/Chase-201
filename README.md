@@ -37,9 +37,9 @@ npm run dev
 
 Open [the game](http://localhost:3000). [Interactive API documentation](http://localhost:8000/docs) is available locally. On macOS/Linux, use `.venv/bin/python`, `.venv/bin/alembic`, and `cp` instead of the Windows equivalents. Run API commands from `apps/api` so the environment file and migration configuration resolve correctly.
 
-For a local production preview, run `npm run build` followed by `npm run start --workspace apps/web`, with `NEXT_OUTPUT_DIR` unset for both commands. The standard `.next` build contains the current 38-0-inspired design. Historical output folders such as `.next-release` contain older UI builds and should not be used to restart the current game.
+For a local production preview, run `npm run build` followed by `npm run start --workspace apps/web`, with `NEXT_OUTPUT_DIR` unset for both commands. The build requires `NEXT_PUBLIC_API_URL`; copying `apps/web/.env.example` to `apps/web/.env.local` supplies the local value.
 
-If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` file and change the port in `apps/api/.env` and `TEST_DATABASE_URL` to 5433. The current workspace uses this override. Compose keeps the database volume when its published port changes.
+If another project uses port 5432, set `POSTGRES_PORT=5433` in a root `.env` file and change the port in `apps/api/.env` and `TEST_DATABASE_URL` to 5433. Compose keeps the database volume when its published port changes.
 
 ## What is implemented
 
