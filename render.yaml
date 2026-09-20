@@ -18,23 +18,11 @@ services:
       - key: CATALOG_VERSION
         value: real-players-v2
       - key: FRONTEND_URL
-        value: https://chase201-web.onrender.com
+        value: https://web-omega-eight-96.vercel.app
       - key: API_URL
         value: https://chase201-api.onrender.com
       - key: CORS_ORIGINS
-        value: '["https://chase201-web.onrender.com"]'
-
-  - type: web
-    name: chase201-web
-    runtime: node
-    plan: free
-    buildCommand: npm ci && npm run build --workspace apps/web
-    startCommand: npm run start --workspace apps/web -- --port $PORT
-    envVars:
-      - key: NODE_VERSION
-        value: 20.19.2
-      - key: NEXT_PUBLIC_API_URL
-        value: https://chase201-api.onrender.com
+        value: '["https://web-omega-eight-96.vercel.app"]'
 
 databases:
   - name: chase201-db

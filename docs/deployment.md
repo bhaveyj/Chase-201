@@ -1,6 +1,6 @@
 # Deployment
 
-The repository is ready to configure on Render (API/PostgreSQL/web) via `render.yaml`, or on Vercel plus another API host. No hosting project, custom domain, or Google credential is included.
+The repository is ready to configure on Render (API/PostgreSQL) via `render.yaml` and Vercel for the Next.js frontend. No custom domain or Google credential is included.
 
 ## Player catalog
 
@@ -30,21 +30,20 @@ For local development, apply `alembic upgrade head`, seed the bundled roster wit
 The root `render.yaml` defines a free-preview Render Blueprint with:
 
 - `chase201-api`: Docker web service using `apps/api/Dockerfile`.
-- `chase201-web`: Next.js web service using the workspace build.
 - `chase201-db`: Render Postgres.
 
 The API container startup command runs `alembic upgrade head && python -m chase201.catalog --approve-real-catalog` before starting Uvicorn, so the approved bundled `real-players-v2` catalog is seeded before `/health` is checked. Render free web services do not support `preDeployCommand`, so this startup step intentionally lives in the Docker command. Render supplies Postgres URLs as `postgresql://...`; the API normalizes them to SQLAlchemy's asyncpg driver form at startup.
 
 The default Blueprint uses Render's free web and Postgres plans. Render's free Postgres is suitable for preview/hobby deployment, but it is capped at 1 GB and expires after 30 days unless upgraded. Do not treat the free database as durable production storage.
 
-After syncing the Blueprint, the default service URLs are expected to be:
+After syncing the Blueprint and deploying the frontend to Vercel, the default service URLs are expected to be:
 
 ```text
-Frontend: https://chase201-web.onrender.com
+Frontend: https://web-omega-eight-96.vercel.app
 API:      https://chase201-api.onrender.com
 ```
 
-If Render assigns different hostnames, update `FRONTEND_URL`, `API_URL`, `CORS_ORIGINS`, and `NEXT_PUBLIC_API_URL` in Render, then redeploy both services.
+If Render or Vercel assigns different hostnames, update `FRONTEND_URL`, `API_URL`, `CORS_ORIGINS`, and `NEXT_PUBLIC_API_URL`, then redeploy the affected services.
 
 Guest-only launch does not require Google credentials. To enable sign-in later, provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on `chase201-api` and register exactly `https://chase201-api.onrender.com/api/v1/auth/google/callback`, or the equivalent custom API domain.
 
@@ -63,7 +62,7 @@ The application refuses production startup with an unknown environment name, a d
 
 ## Vercel
 
-Import the monorepo, select `apps/web` as Root Directory, and include files outside that root so npm can access the workspace lockfile. `apps/web/vercel.json` supplies installation/build commands. Set `NEXT_PUBLIC_API_URL=https://api.chase201.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
+Import or deploy `apps/web` as the Vercel project. `apps/web/vercel.json` supplies installation/build commands for a standalone Vercel deploy. Set `NEXT_PUBLIC_API_URL=https://chase201-api.onrender.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
 
 Use related HTTPS custom domains for cookie-based authentication when you enable sign-in. Default unrelated Vercel/Render hostnames are acceptable for guest-only preview, but are not the intended final topology for OAuth-backed sessions. Add any preview origin explicitly only when it is an approved related domain; never use wildcard credentialed CORS.
 
@@ -79,7 +78,7 @@ Use related HTTPS custom domains for cookie-based authentication when you enable
 From an installed API environment:
 
 ```sh
-python scripts/smoke.py --api https://chase201-api.onrender.com --origin https://chase201-web.onrender.com
+python scripts/smoke.py --api https://chase201-api.onrender.com --origin https://web-omega-eight-96.vercel.app
 ```
 
 This intentionally creates one guest draft, completes a chase, and checks score reconciliation. The guest data expires through normal retention. If Google sign-in is enabled, also verify actual Google consent/sign-in in a browser and confirm that a guest match appears in authenticated history. The mocked test flow cannot validate a live Google project’s redirect configuration or consent screen.
