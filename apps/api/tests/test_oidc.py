@@ -97,11 +97,16 @@ def test_configuration_rejects_ambiguous_or_incomplete_deployments():
         "cors_origins": ["https://play.example.com"],
         "catalog_version": "approved-2026-01",
     }
-    with pytest.raises(ValueError):
-        Settings(**production)
-    settings = Settings(
+    settings = Settings(**production)
+    assert settings.secure_cookies
+    render_settings = Settings(
+        **{k: v for k, v in production.items() if k != "database_url"},
+        database_url="postgresql://app:secret@render.internal/app",
+    )
+    assert render_settings.database_url == "postgresql+asyncpg://app:secret@render.internal/app"
+    oauth_settings = Settings(
         **production,
         google_client_id="google-client",
         google_client_secret="google-secret",
     )
-    assert settings.secure_cookies
+    assert oauth_settings.secure_cookies

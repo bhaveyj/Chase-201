@@ -26,6 +26,8 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def safe_production(self) -> "Settings":
+        if self.database_url.startswith("postgresql://"):
+            self.database_url = self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         urls = [self.frontend_url, self.api_url, *self.cors_origins]
         if any(
             (parsed := urlsplit(url)).scheme not in {"http", "https"}
@@ -58,8 +60,6 @@ class Settings(BaseSettings):
                 raise ValueError("Production requires PostgreSQL")
             if self.catalog_version.startswith("fictional"):
                 raise ValueError("Production requires an approved, licensed player catalog")
-            if not self.google_client_id:
-                raise ValueError("Production requires Google OAuth credentials")
         return self
 
 

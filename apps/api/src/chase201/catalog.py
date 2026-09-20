@@ -180,6 +180,7 @@ async def seed_real(db: AsyncSession) -> None:
                 selectionRuleset=REAL_SELECTION,
                 source="User-supplied roster plus official ICC 2026 T20 World Cup and IPL 2026 squad lists; see docs/player-catalog.md",
                 license="Player identities from public squad lists; user-supplied and project-authored game ratings. No images, logos, official stats feed or endorsement rights included.",
+                approved=True,
                 players=real_players(),
             ),
         )

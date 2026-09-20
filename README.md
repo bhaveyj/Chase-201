@@ -123,6 +123,6 @@ See the [verification record](docs/verification.md) for completed local checks a
 
 ## Production launch
 
-See [deployment instructions](docs/deployment.md), [API contract notes](docs/api.md), and [engine semantics](docs/engine.md). Live Google credentials, related HTTPS custom domains, hosting projects, and an approved player dataset must be supplied. No external deployment or real Google account login is performed by the local test suite.
+See [deployment instructions](docs/deployment.md), [API contract notes](docs/api.md), and [engine semantics](docs/engine.md). Hosting projects, production HTTPS origins, and an approved player dataset must be supplied. Google credentials are optional for guest-only launch and required only when enabling sign-in. No external deployment or real Google account login is performed by the local test suite.
 
 The application intentionally has no score sharing, defending mode, multiplayer, WebSockets, live data, or social features.

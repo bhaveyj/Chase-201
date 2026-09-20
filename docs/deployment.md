@@ -1,6 +1,6 @@
 # Deployment
 
-The repository is ready to configure on Railway (API/PostgreSQL) and Vercel (Next.js). No hosting project, real-player license, custom domain, or Google credential is included.
+The repository is ready to configure on Render (API/PostgreSQL/web) via `render.yaml`, or on Vercel plus another API host. No hosting project, custom domain, or Google credential is included.
 
 ## Player catalog
 
@@ -25,38 +25,63 @@ After migrating, run `python -m chase201.catalog --file /path/to/approved.json` 
 
 For local development, apply `alembic upgrade head`, seed the bundled roster with `python -m chase201.catalog`, and select `real-players-v2`. Use `--legacy-fixtures` only when testing historical saved-game compatibility. Preserve every imported catalog because existing drafts and matches retain their catalog and engine versions. See [current v3.5 semantics](three-modes.md).
 
+## Render
+
+The root `render.yaml` defines a free-preview Render Blueprint with:
+
+- `chase201-api`: Docker web service using `apps/api/Dockerfile`.
+- `chase201-web`: Next.js web service using the workspace build.
+- `chase201-db`: Render Postgres.
+
+The API pre-deploy command runs `alembic upgrade head && python -m chase201.catalog`, so the approved bundled `real-players-v2` catalog is seeded before `/health` is checked. Render supplies Postgres URLs as `postgresql://...`; the API normalizes them to SQLAlchemy's asyncpg driver form at startup.
+
+The default Blueprint uses Render's free web and Postgres plans. Render's free Postgres is suitable for preview/hobby deployment, but it is capped at 1 GB and expires after 30 days unless upgraded. Do not treat the free database as durable production storage.
+
+After syncing the Blueprint, the default service URLs are expected to be:
+
+```text
+Frontend: https://chase201-web.onrender.com
+API:      https://chase201-api.onrender.com
+```
+
+If Render assigns different hostnames, update `FRONTEND_URL`, `API_URL`, `CORS_ORIGINS`, and `NEXT_PUBLIC_API_URL` in Render, then redeploy both services.
+
+Guest-only launch does not require Google credentials. To enable sign-in later, provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on `chase201-api` and register exactly `https://chase201-api.onrender.com/api/v1/auth/google/callback`, or the equivalent custom API domain.
+
+Render cron jobs are not part of the free Blueprint. For production retention cleanup, add a paid Render cron job or another scheduler that runs `python -m chase201.cleanup` hourly against the same API image and environment.
+
 ## Railway
 
 1. Create a PostgreSQL service and API service using the repository root as build context. `railway.json` points to `apps/api/Dockerfile`.
 2. Set `DATABASE_URL` with the `postgresql+asyncpg://` scheme and Railway’s private Postgres host; set `ENVIRONMENT=production`, a fresh random `SECRET_KEY` of at least 32 characters, and the approved `CATALOG_VERSION`.
 3. Set `FRONTEND_URL=https://play.chase201.com`, `API_URL=https://api.chase201.com`, and `CORS_ORIGINS=["https://play.chase201.com"]` using your actual related domains. Configure DNS/TLS in both hosting projects.
-4. Provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google web OAuth client. Register exactly `https://api.chase201.com/api/v1/auth/google/callback`. For local development use `http://localhost:8000/api/v1/auth/google/callback` as an additional authorized redirect.
+4. Optional: provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google web OAuth client to enable sign-in. Register exactly `https://api.chase201.com/api/v1/auth/google/callback`. For local development use `http://localhost:8000/api/v1/auth/google/callback` as an additional authorized redirect. If these values are omitted, the app launches as guest-only and the Google sign-in route returns a temporary unavailable response.
 5. The pre-deploy command applies Alembic revisions. `/health` checks database connectivity and confirms that the configured catalog exists; in production it must also be approved. The Docker process runs as a non-root user and reads Railway’s `PORT`.
 6. Add an hourly cron service using the same image/environment, command `python -m chase201.cleanup`, schedule `0 * * * *`, and no HTTP healthcheck. It should exit after each run. This is necessary to physically delete expired guest data; requests deny expired games immediately even between cleanup runs.
 
-The application refuses production startup with an unknown environment name, a development secret, incomplete Google credentials, HTTP URLs, URL paths, wildcard CORS, SQLite, or a fictional catalog. Readiness stays unhealthy until the configured approved catalog is imported. Store credentials only in the hosting environment; never in Git or a `NEXT_PUBLIC_` variable.
+The application refuses production startup with an unknown environment name, a development secret, incomplete Google credentials, HTTP URLs, URL paths, wildcard CORS, SQLite, or a fictional catalog. Google credentials are optional, but must be provided as a complete client ID/client secret pair when sign-in is enabled. Readiness stays unhealthy until the configured approved catalog is imported. Store credentials only in the hosting environment; never in Git or a `NEXT_PUBLIC_` variable.
 
 ## Vercel
 
 Import the monorepo, select `apps/web` as Root Directory, and include files outside that root so npm can access the workspace lockfile. `apps/web/vercel.json` supplies installation/build commands. Set `NEXT_PUBLIC_API_URL=https://api.chase201.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
 
-Use related HTTPS custom domains for cookie-based authentication. Default unrelated Vercel/Railway hostnames are not the intended production topology for SameSite=Lax cookies. Add any preview origin explicitly only when it is an approved related domain; never use wildcard credentialed CORS.
+Use related HTTPS custom domains for cookie-based authentication when you enable sign-in. Default unrelated Vercel/Render hostnames are acceptable for guest-only preview, but are not the intended final topology for OAuth-backed sessions. Add any preview origin explicitly only when it is an approved related domain; never use wildcard credentialed CORS.
 
 ## Launch inputs still required
 
 - A production-approved player JSON file, its documented rights/provenance, and a v3.5 calibration run against that exact roster.
-- A Railway project with PostgreSQL, API, and hourly cleanup services; a Vercel project for `apps/web`; and the final related HTTPS domains/DNS records.
-- A fresh secret key, final service URLs/CORS origins, and a Google web OAuth client with its consent screen and exact callback URI configured.
-- A database backup/restore plan, error and uptime monitoring, and an owner for the retention cron and incident response.
+- A Render Blueprint sync for `render.yaml` or equivalent manually created Render services. For durable production, upgrade Postgres before the 30-day free database expiry.
+- A fresh secret key and final service URLs/CORS origins. A Google web OAuth client with its consent screen and exact callback URI is only needed when enabling sign-in.
+- A database backup/restore plan, error and uptime monitoring, and an owner for the retention cleanup scheduler and incident response.
 
 ## Validate the deployment
 
 From an installed API environment:
 
 ```sh
-python scripts/smoke.py --api https://api.chase201.com --origin https://play.chase201.com
+python scripts/smoke.py --api https://chase201-api.onrender.com --origin https://chase201-web.onrender.com
 ```
 
-This intentionally creates one guest draft, completes a chase, and checks score reconciliation. The guest data expires through normal retention. Then verify actual Google consent/sign-in in a browser and confirm that a guest match appears in authenticated history. The mocked test flow cannot validate a live Google project’s redirect configuration or consent screen.
+This intentionally creates one guest draft, completes a chase, and checks score reconciliation. The guest data expires through normal retention. If Google sign-in is enabled, also verify actual Google consent/sign-in in a browser and confirm that a guest match appears in authenticated history. The mocked test flow cannot validate a live Google project’s redirect configuration or consent screen.
 
 The primary setup references used are [Next.js installation](https://nextjs.org/docs/app/getting-started/installation), [Tailwind with Next.js](https://tailwindcss.com/docs/installation/framework-guides/nextjs), [SQLAlchemy asyncio](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html), [Alembic migrations](https://alembic.sqlalchemy.org/en/latest/tutorial.html), [Google OpenID Connect](https://developers.google.com/identity/openid-connect/openid-connect), [Railway configuration](https://docs.railway.com/config-as-code/reference), and [Vercel monorepos](https://vercel.com/docs/monorepos).
