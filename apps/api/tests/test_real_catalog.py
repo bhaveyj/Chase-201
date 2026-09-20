@@ -103,6 +103,9 @@ async def test_real_seed_is_idempotent_and_keeps_historical_catalogs(database, r
             )
             == 200
         )
+        await seed_real(db, approved=True)
+        await db.refresh(version)
+        assert version.approved
 
 
 async def test_real_import_checks_role_tier_capacity_before_writing(database):
