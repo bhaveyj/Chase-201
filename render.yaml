@@ -5,7 +5,6 @@ services:
     plan: free
     dockerfilePath: apps/api/Dockerfile
     dockerContext: .
-    preDeployCommand: alembic upgrade head && python -m chase201.catalog
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL

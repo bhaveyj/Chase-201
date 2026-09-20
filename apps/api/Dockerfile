@@ -11,4 +11,4 @@ COPY apps/api/migrations ./migrations
 COPY apps/api/scripts/smoke.py ./scripts/smoke.py
 USER appuser
 EXPOSE 8000
-CMD ["sh", "-c", "exec uvicorn chase201.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+CMD ["sh", "-c", "alembic upgrade head && python -m chase201.catalog && exec uvicorn chase201.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

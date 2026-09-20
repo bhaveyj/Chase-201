@@ -33,7 +33,7 @@ The root `render.yaml` defines a free-preview Render Blueprint with:
 - `chase201-web`: Next.js web service using the workspace build.
 - `chase201-db`: Render Postgres.
 
-The API pre-deploy command runs `alembic upgrade head && python -m chase201.catalog`, so the approved bundled `real-players-v2` catalog is seeded before `/health` is checked. Render supplies Postgres URLs as `postgresql://...`; the API normalizes them to SQLAlchemy's asyncpg driver form at startup.
+The API container startup command runs `alembic upgrade head && python -m chase201.catalog` before starting Uvicorn, so the approved bundled `real-players-v2` catalog is seeded before `/health` is checked. Render free web services do not support `preDeployCommand`, so this startup step intentionally lives in the Docker command. Render supplies Postgres URLs as `postgresql://...`; the API normalizes them to SQLAlchemy's asyncpg driver form at startup.
 
 The default Blueprint uses Render's free web and Postgres plans. Render's free Postgres is suitable for preview/hobby deployment, but it is capped at 1 GB and expires after 30 days unless upgraded. Do not treat the free database as durable production storage.
 
