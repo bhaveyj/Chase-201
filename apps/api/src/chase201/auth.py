@@ -40,13 +40,14 @@ def future(value: datetime) -> bool:
 
 
 def set_cookie(response: Response, key: str, value: str, max_age: int) -> None:
+    secure = get_settings().secure_cookies
     response.set_cookie(
         key,
         value,
         max_age=max_age,
         httponly=True,
-        secure=get_settings().secure_cookies,
-        samesite="lax",
+        secure=secure,
+        samesite="none" if secure else "lax",
         path="/",
     )
 

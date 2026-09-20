@@ -6,6 +6,7 @@ from datetime import timedelta
 from urllib.parse import parse_qs, urlparse
 
 import pytest
+from fastapi import Response
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import func, select
 
@@ -58,6 +59,17 @@ async def test_health_requires_the_configured_catalog(client, database, monkeypa
     monkeypatch.setattr(settings, "environment", "production")
     response = await client.get("/health")
     assert response.status_code == 503
+
+
+def test_production_cookies_can_cross_vercel_render_boundary(monkeypatch):
+    settings = get_settings()
+    monkeypatch.setattr(settings, "environment", "production")
+    response = Response()
+    auth.set_cookie(response, auth.COOKIE, "token", 60)
+    cookie = response.headers["set-cookie"]
+    assert "HttpOnly" in cookie
+    assert "Secure" in cookie
+    assert "SameSite=none" in cookie
 
 
 async def mutate(client, method, url, body, key=None):
