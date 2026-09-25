@@ -4,7 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from chase201.config import get_settings
 
-engine = create_async_engine(get_settings().database_url, pool_pre_ping=True)
+settings = get_settings()
+engine = create_async_engine(
+    settings.database_url, pool_pre_ping=True, connect_args=settings.database_connect_args
+)
 SessionFactory = async_sessionmaker(engine, expire_on_commit=False)
 
 

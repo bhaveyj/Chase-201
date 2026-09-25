@@ -39,11 +39,13 @@ async def guest(client):
     return r.json()
 
 
-async def test_health_requires_the_configured_catalog(client, database, monkeypatch):
+async def test_readiness_requires_the_configured_catalog(client, database, monkeypatch):
     assert (await client.get("/health")).status_code == 200
+    assert (await client.get("/ready")).status_code == 200
     settings = get_settings()
     monkeypatch.setattr(settings, "catalog_version", "missing-catalog")
-    response = await client.get("/health")
+    assert (await client.get("/health")).status_code == 200
+    response = await client.get("/ready")
     assert response.status_code == 503
 
     async with database() as db, db.begin():
@@ -57,7 +59,7 @@ async def test_health_requires_the_configured_catalog(client, database, monkeypa
         )
     monkeypatch.setattr(settings, "catalog_version", "unapproved-catalog")
     monkeypatch.setattr(settings, "environment", "production")
-    response = await client.get("/health")
+    response = await client.get("/ready")
     assert response.status_code == 503
 
 

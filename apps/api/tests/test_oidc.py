@@ -104,6 +104,17 @@ def test_configuration_rejects_ambiguous_or_incomplete_deployments():
         database_url="postgresql://app:secret@render.internal/app",
     )
     assert render_settings.database_url == "postgresql+asyncpg://app:secret@render.internal/app"
+    neon_settings = Settings(
+        **{k: v for k, v in production.items() if k != "database_url"},
+        database_url=(
+            "postgresql://app:secret@ep-example.ap-southeast-1.aws.neon.tech/app"
+            "?sslmode=require&channel_binding=require"
+        ),
+    )
+    assert neon_settings.database_url == (
+        "postgresql+asyncpg://app:secret@ep-example.ap-southeast-1.aws.neon.tech/app"
+    )
+    assert neon_settings.database_connect_args["ssl"].check_hostname
     oauth_settings = Settings(
         **production,
         google_client_id="google-client",

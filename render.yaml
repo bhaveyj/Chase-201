@@ -8,9 +8,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: chase201-db
-          property: connectionString
+        sync: false
       - key: ENVIRONMENT
         value: production
       - key: SECRET_KEY
@@ -23,10 +21,3 @@ services:
         value: https://chase201-api.onrender.com
       - key: CORS_ORIGINS
         value: '["https://web-omega-eight-96.vercel.app"]'
-
-databases:
-  - name: chase201-db
-    plan: free
-    databaseName: chase201
-    user: chase201
-    postgresMajorVersion: "17"

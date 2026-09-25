@@ -1,6 +1,6 @@
 # Deployment
 
-The repository is ready to configure on Render (API/PostgreSQL) via `render.yaml` and Vercel for the Next.js frontend. No custom domain or Google credential is included.
+The intended deployment uses Render for the API, Neon for PostgreSQL, and Vercel for the Next.js frontend. The live Render database connection must still be switched during cutover. No custom domain or Google credential is included.
 
 ## Player catalog
 
@@ -27,14 +27,13 @@ For local development, apply `alembic upgrade head`, seed the bundled roster wit
 
 ## Render
 
-The root `render.yaml` defines a free-preview Render Blueprint with:
+The root `render.yaml` defines the free Render Docker web service `chase201-api`. Its `DATABASE_URL` is a secret supplied in the Render Dashboard, not a Render Postgres reference. An existing Render Postgres resource is not deleted when its Blueprint definition is removed; leave it in place until any data migration and cutover are verified.
 
-- `chase201-api`: Docker web service using `apps/api/Dockerfile`.
-- `chase201-db`: Render Postgres.
+For this app, set Render's `DATABASE_URL` to the **direct** Neon production URL (`DATABASE_URL_UNPOOLED` in the gitignored root `.env` created by `neon link`). The Docker startup command runs `alembic upgrade head && python -m chase201.catalog --approve-real-catalog` before Uvicorn, and migrations must use a direct connection. The API converts Neon's libpq URL to SQLAlchemy/asyncpg and verifies TLS certificates. Do not put the URL or password in Git. On an existing Render Blueprint, `sync: false` does not prompt for or replace the existing variable: edit it manually on the service's Environment page, then deploy.
 
-The API container startup command runs `alembic upgrade head && python -m chase201.catalog --approve-real-catalog` before starting Uvicorn, so the approved bundled `real-players-v2` catalog is seeded before `/health` is checked. Render free web services do not support `preDeployCommand`, so this startup step intentionally lives in the Docker command. Render supplies Postgres URLs as `postgresql://...`; the API normalizes them to SQLAlchemy's asyncpg driver form at startup.
+Before changing Render's URL, decide whether existing users, OAuth identities, drafts, and played matches must be retained. The Neon production branch currently has the application schema and bundled 200-player catalog, but no old user/game records. Back up and transfer required records before cutover; do not delete the Render database until the transfer and live app are verified.
 
-The default Blueprint uses Render's free web and Postgres plans. Render's free Postgres is suitable for preview/hobby deployment, but it is capped at 1 GB and expires after 30 days unless upgraded. Do not treat the free database as durable production storage.
+`/health` is a cheap process check for Render and UptimeRobot; it does not query Neon every few seconds. `/ready` checks database connectivity and the configured approved catalog. Check `/ready` after deployment and investigate a non-200 response. The Docker startup still requires the database and catalog to be ready before it serves requests.
 
 After syncing the Blueprint and deploying the frontend to Vercel, the default service URLs are expected to be:
 
@@ -55,7 +54,7 @@ Render cron jobs are not part of the free Blueprint. For production retention cl
 2. Set `DATABASE_URL` with the `postgresql+asyncpg://` scheme and Railway’s private Postgres host; set `ENVIRONMENT=production`, a fresh random `SECRET_KEY` of at least 32 characters, and the approved `CATALOG_VERSION`.
 3. Set `FRONTEND_URL=https://play.chase201.com`, `API_URL=https://api.chase201.com`, and `CORS_ORIGINS=["https://play.chase201.com"]` using your actual related domains. Configure DNS/TLS in both hosting projects.
 4. Optional: provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` from a Google web OAuth client to enable sign-in. Register exactly `https://api.chase201.com/api/v1/auth/google/callback`. For local development use `http://localhost:8000/api/v1/auth/google/callback` as an additional authorized redirect. If these values are omitted, the app launches as guest-only and the Google sign-in route returns a temporary unavailable response.
-5. The pre-deploy command applies Alembic revisions. `/health` checks database connectivity and confirms that the configured catalog exists; in production it must also be approved. The Docker process runs as a non-root user and reads Railway’s `PORT`.
+5. The pre-deploy command applies Alembic revisions. `/health` checks the API process; `/ready` checks database connectivity and confirms that the configured catalog exists and is approved in production. The Docker process runs as a non-root user and reads Railway’s `PORT`.
 6. Add an hourly cron service using the same image/environment, command `python -m chase201.cleanup`, schedule `0 * * * *`, and no HTTP healthcheck. It should exit after each run. This is necessary to physically delete expired guest data; requests deny expired games immediately even between cleanup runs.
 
 The application refuses production startup with an unknown environment name, a development secret, incomplete Google credentials, HTTP URLs, URL paths, wildcard CORS, SQLite, or a fictional catalog. Google credentials are optional, but must be provided as a complete client ID/client secret pair when sign-in is enabled. Readiness stays unhealthy until the configured approved catalog is imported. Store credentials only in the hosting environment; never in Git or a `NEXT_PUBLIC_` variable.
@@ -69,7 +68,7 @@ Use related HTTPS custom domains for cookie-based authentication when you enable
 ## Launch inputs still required
 
 - A production-approved player JSON file, its documented rights/provenance, and a v3.5 calibration run against that exact roster.
-- A Render Blueprint sync for `render.yaml` or equivalent manually created Render services. For durable production, upgrade Postgres before the 30-day free database expiry.
+- A Render Blueprint sync for `render.yaml`, any required old-data transfer, and a manual Render `DATABASE_URL` update to the direct Neon production connection.
 - A fresh secret key and final service URLs/CORS origins. A Google web OAuth client with its consent screen and exact callback URI is only needed when enabling sign-in.
 - A database backup/restore plan, error and uptime monitoring, and an owner for the retention cleanup scheduler and incident response.
 

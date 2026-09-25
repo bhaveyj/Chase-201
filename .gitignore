@@ -24,3 +24,4 @@ playwright-report/
 work/
 outputs/
 !.env.example
+.neon

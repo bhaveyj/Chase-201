@@ -1,9 +1,11 @@
+import ssl
 from functools import lru_cache
 from typing import Literal
 from urllib.parse import urlsplit
 
 from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import make_url
 
 
 class Settings(BaseSettings):
@@ -24,10 +26,35 @@ class Settings(BaseSettings):
     def secure_cookies(self) -> bool:
         return self.environment == "production"
 
+    @property
+    def database_connect_args(self) -> dict[str, ssl.SSLContext]:
+        if self.database_url.startswith("postgresql+asyncpg://"):
+            if (make_url(self.database_url).host or "").endswith(".neon.tech"):
+                return {"ssl": ssl.create_default_context()}
+        return {}
+
     @model_validator(mode="after")
     def safe_production(self) -> "Settings":
         if self.database_url.startswith("postgresql://"):
             self.database_url = self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if self.database_url.startswith("postgresql+asyncpg://"):
+            url = make_url(self.database_url)
+            query = dict(url.query)
+            sslmode = query.pop("sslmode", None)
+            channel_binding = query.pop("channel_binding", None)
+            is_neon = (url.host or "").endswith(".neon.tech")
+            if channel_binding is not None and not is_neon:
+                raise ValueError("asyncpg cannot enforce channel binding for this database")
+            if is_neon:
+                if sslmode in {"disable", "allow", "prefer"}:
+                    raise ValueError("Neon connections require verified TLS")
+                # asyncpg cannot use Neon's libpq channel_binding option. A verified
+                # SSLContext supplies hostname and certificate verification instead.
+                query.pop("ssl", None)
+            elif sslmode is not None:
+                query["ssl"] = sslmode
+            if query != dict(url.query):
+                self.database_url = url.set(query=query).render_as_string(hide_password=False)
         urls = [self.frontend_url, self.api_url, *self.cors_origins]
         if any(
             (parsed := urlsplit(url)).scheme not in {"http", "https"}

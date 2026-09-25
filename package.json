@@ -11,5 +11,9 @@
     "test": "npm run test --workspace apps/web",
     "test:e2e": "npm run test:e2e --workspace apps/web",
     "api:types": "npm run api:types --workspace apps/web"
+  },
+  "dependencies": {
+    "@neon/config": "^1.7.3",
+    "@neon/env": "^1.4.4"
   }
 }

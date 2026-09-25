@@ -31,7 +31,12 @@ async def security_headers(request: Request, call_next):  # type: ignore[no-unty
 
 
 @app.get("/health")
-async def health(db: DB) -> dict:
+async def health() -> dict:
+    return {"status": "ok"}
+
+
+@app.get("/ready")
+async def ready(db: DB) -> dict:
     await db.execute(text("SELECT 1"))
     catalog = await db.get(CatalogVersion, get_settings().catalog_version)
     if catalog is None or (get_settings().environment == "production" and not catalog.approved):
