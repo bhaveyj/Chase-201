@@ -1,6 +1,6 @@
 # Deployment
 
-The intended deployment uses Render for the API, Neon for PostgreSQL, and Vercel for the Next.js frontend. The live Render database connection must still be switched during cutover. No custom domain or Google credential is included.
+The deployment uses Render for the API, Neon for PostgreSQL, and Vercel for the Next.js frontend. No custom domain or Google credential is included.
 
 ## Player catalog
 
@@ -31,7 +31,7 @@ The root `render.yaml` defines the free Render Docker web service `chase201-api`
 
 For this app, set Render's `DATABASE_URL` to the **direct** Neon production URL (`DATABASE_URL_UNPOOLED` in the gitignored root `.env` created by `neon link`). The Docker startup command runs `alembic upgrade head && python -m chase201.catalog --approve-real-catalog` before Uvicorn, and migrations must use a direct connection. The API converts Neon's libpq URL to SQLAlchemy/asyncpg and verifies TLS certificates. Do not put the URL or password in Git. On an existing Render Blueprint, `sync: false` does not prompt for or replace the existing variable: edit it manually on the service's Environment page, then deploy.
 
-Before changing Render's URL, decide whether existing users, OAuth identities, drafts, and played matches must be retained. The Neon production branch currently has the application schema and bundled 200-player catalog, but no old user/game records. Back up and transfer required records before cutover; do not delete the Render database until the transfer and live app are verified.
+The Render-to-Neon cutover completed on 2026-09-26. The transfer preserved the existing sessions, drafts, teams, matches, decisions, events, performance rows, idempotency records, and the bundled 200-player catalog. Row counts and content fingerprints were checked after the live deployment. Keep the old Render database temporarily as a rollback source; it is no longer used by `chase201-api`.
 
 `/health` is a cheap process check for Render and UptimeRobot; it does not query Neon every few seconds. `/ready` checks database connectivity and the configured approved catalog. Check `/ready` after deployment and investigate a non-200 response. The Docker startup still requires the database and catalog to be ready before it serves requests.
 
@@ -68,7 +68,7 @@ Use related HTTPS custom domains for cookie-based authentication when you enable
 ## Launch inputs still required
 
 - A production-approved player JSON file, its documented rights/provenance, and a v3.5 calibration run against that exact roster.
-- A Render Blueprint sync for `render.yaml`, any required old-data transfer, and a manual Render `DATABASE_URL` update to the direct Neon production connection.
+- A Render Blueprint sync for `render.yaml` that preserves the dashboard-managed Neon `DATABASE_URL` secret.
 - A fresh secret key and final service URLs/CORS origins. A Google web OAuth client with its consent screen and exact callback URI is only needed when enabling sign-in.
 - A database backup/restore plan, error and uptime monitoring, and an owner for the retention cleanup scheduler and incident response.
 
