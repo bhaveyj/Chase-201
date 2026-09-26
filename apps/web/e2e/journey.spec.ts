@@ -204,6 +204,12 @@ test("guest drafts, changes strategy, completes a chase and sees reconciled scor
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+  await page.getByRole("link", { name: "View match history" }).click();
+  await expect(page).toHaveURL(/\/history$/);
+  await expect(page.locator(".history-card").first()).toHaveAttribute(
+    "href",
+    `${new URL(matchUrl).pathname}/result`,
+  );
 });
 
 test("repeated Aggressive survives reload and completes with ordinary scoring", async ({

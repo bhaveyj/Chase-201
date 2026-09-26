@@ -97,14 +97,16 @@ def test_configuration_rejects_ambiguous_or_incomplete_deployments():
         "cors_origins": ["https://play.example.com"],
         "catalog_version": "approved-2026-01",
     }
-    settings = Settings(**production)
+    settings = Settings(_env_file=None, **production)
     assert settings.secure_cookies
     render_settings = Settings(
+        _env_file=None,
         **{k: v for k, v in production.items() if k != "database_url"},
         database_url="postgresql://app:secret@render.internal/app",
     )
     assert render_settings.database_url == "postgresql+asyncpg://app:secret@render.internal/app"
     neon_settings = Settings(
+        _env_file=None,
         **{k: v for k, v in production.items() if k != "database_url"},
         database_url=(
             "postgresql://app:secret@ep-example.ap-southeast-1.aws.neon.tech/app"
@@ -112,10 +114,30 @@ def test_configuration_rejects_ambiguous_or_incomplete_deployments():
         ),
     )
     assert neon_settings.database_url == (
+        "postgresql+asyncpg://app:secret@ep-example-pooler.ap-southeast-1.aws.neon.tech/app"
+    )
+    assert neon_settings.migration_database_url == (
         "postgresql+asyncpg://app:secret@ep-example.ap-southeast-1.aws.neon.tech/app"
     )
     assert neon_settings.database_connect_args["ssl"].check_hostname
+    split_settings = Settings(
+        _env_file=None,
+        **{k: v for k, v in production.items() if k != "database_url"},
+        database_url="postgresql://app:secret@ep-example-pooler.ap-southeast-1.aws.neon.tech/app?sslmode=require",
+        database_url_unpooled="postgresql://app:secret@ep-example.ap-southeast-1.aws.neon.tech/app?sslmode=require",
+    )
+    assert "-pooler" in split_settings.database_url
+    assert "-pooler" not in split_settings.migration_database_url
+    assert split_settings.connect_args_for(split_settings.migration_database_url)["ssl"].check_hostname
+    with pytest.raises(ValueError, match="same database"):
+        Settings(
+            _env_file=None,
+            **{k: v for k, v in production.items() if k != "database_url"},
+            database_url="postgresql://app:secret@ep-example-pooler.ap-southeast-1.aws.neon.tech/app",
+            database_url_unpooled="postgresql://app:secret@ep-other.ap-southeast-1.aws.neon.tech/app",
+        )
     oauth_settings = Settings(
+        _env_file=None,
         **production,
         google_client_id="google-client",
         google_client_secret="google-secret",

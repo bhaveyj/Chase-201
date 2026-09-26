@@ -12,7 +12,7 @@ export function HistoryScreen() {
   const query = useQuery({
     queryKey: ["history", offset],
     queryFn: () => api.history(offset),
-    enabled: session.data?.kind === "user",
+    enabled: session.data?.kind === "user" || session.data?.kind === "guest",
   });
   if (session.isPending) return <Loading />;
   if (session.error)
@@ -33,15 +33,17 @@ export function HistoryScreen() {
         <em>has a story.</em>
       </h1>
       <p className="lead-small">
-        Your innings, your decisions, your cricket history.
+        {session.data?.kind === "guest"
+          ? "Your guest innings from this browser, kept for 30 days."
+          : "Your innings, your decisions, your cricket history."}
       </p>
-      {session.data?.kind !== "user" ? (
+      {session.data?.kind === "anonymous" ? (
         <div className="history-empty">
           <Clock3 size={35} />
-          <h2>Keep your story going.</h2>
+          <h2>Start your story.</h2>
           <p>
-            Sign in to save and view your matches. Guest matches played in this
-            browser during the last 30 days come with you.
+            Play as a guest to see your matches here for 30 days. Sign in later
+            to save them to your account.
           </p>
           <GoogleLink />
           <Link className="text-link" href="/play">
@@ -57,7 +59,7 @@ export function HistoryScreen() {
           <div className="history-list">
             {query.data.matches.length === 0 ? (
               <div className="history-empty">
-                <h2>Your first page is waiting.</h2>
+                <h2>Your first chase is waiting.</h2>
                 <Link className="button primary" href="/play">
                   Play your first chase <ArrowRight size={17} />
                 </Link>

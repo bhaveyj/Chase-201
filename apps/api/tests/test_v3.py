@@ -145,7 +145,11 @@ async def test_active_contract_rejects_all_old_modes_and_keeps_three_after_reloa
         assert m["rulesetVersion"] == DEFAULT_RULES.version
         assert [a["strategy"] for a in m["strategyAssessments"]] == list(StrategyId)
         assert m["events"][-1]["strategy"] == mode.value
-        assert (await client.get(f"/api/v1/matches/{m['id']}")).json() == m
+        full = (await client.get(f"/api/v1/matches/{m['id']}")).json()
+        assert {key: value for key, value in full.items() if key != "events"} == {
+            key: value for key, value in m.items() if key != "events"
+        }
+        assert full["events"][-1] == m["events"][-1]
 
 
 async def test_draft_profiles_match_the_immutable_simulation_values(client):

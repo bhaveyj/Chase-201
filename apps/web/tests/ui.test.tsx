@@ -1,8 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { afterEach, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { ErrorPanel, Steps } from "@/components/common";
-import { APIError } from "@/lib/api";
+import { api, APIError } from "@/lib/api";
+import { HistoryScreen } from "@/components/history";
 import { useUI } from "@/lib/ui-store";
 import { BattingPlans, LegacyPlans } from "@/components/batting-plans";
 import { V2Plans } from "@/components/v2-plans";
@@ -11,6 +13,40 @@ import {
   PlayerAttributes,
   attributeDescription,
 } from "@/components/player-attributes";
+
+afterEach(() => vi.restoreAllMocks());
+
+it("shows saved guest matches in history", async () => {
+  vi.spyOn(api, "session").mockResolvedValue({
+    kind: "guest",
+    csrfToken: "token",
+    revision: 0,
+    googleEnabled: false,
+  });
+  vi.spyOn(api, "history").mockResolvedValue({
+    matches: [
+      {
+        id: "guest-match",
+        status: "WON",
+        runs: 201,
+        wickets: 3,
+        balls: 110,
+        createdAt: "2026-09-26T12:00:00Z",
+      },
+    ],
+    nextOffset: null,
+  });
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <HistoryScreen />
+    </QueryClientProvider>,
+  );
+  expect(await screen.findByRole("link", { name: /201\/3/ })).toHaveAttribute(
+    "href",
+    "/match/guest-match/result",
+  );
+  expect(screen.getByText(/kept for 30 days/i)).toBeVisible();
+});
 
 it("retains five original plans for v2 saves", () => {
   render(

@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { api, APIError, API_URL, overs, strategySchema } from "@/lib/api";
+import { api, APIError, API_URL, mergeDecisionMatch, overs, strategySchema } from "@/lib/api";
 import type { Match } from "@/lib/api";
 
 const server = setupServer();
@@ -88,6 +88,17 @@ describe("server state client", () => {
     await expect(api.draft("x")).rejects.toEqual(
       new APIError(409, "State changed"),
     );
+  });
+  it("merges new decision events only into the preceding revision", () => {
+    const previous = { revision: 2, events: [{ revision: 1 }, { revision: 2 }] } as Match;
+    const next = { revision: 3, events: [{ revision: 3 }] } as Match;
+    expect(mergeDecisionMatch(previous, next)?.events.map((event) => event.revision)).toEqual([
+      1, 2, 3,
+    ]);
+    expect(mergeDecisionMatch(undefined, next)).toBeNull();
+    expect(mergeDecisionMatch({ ...previous, revision: 1 }, next)).toBeNull();
+    const fullResponse = { ...next, events: [...previous.events, ...next.events] } as Match;
+    expect(mergeDecisionMatch(previous, fullResponse)?.events).toHaveLength(3);
   });
   it("formats legal balls and validates strategy values", () => {
     expect(overs(119)).toBe("19.5");

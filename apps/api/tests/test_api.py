@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 import pytest
 from fastapi import Response
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy import func, select
+from sqlalchemy import event, func, select
 
 from chase201 import auth
 from chase201.catalog import COMPOSITION
@@ -161,7 +161,7 @@ async def test_bootstrap_csrf_origin_and_ownership(client):
         await guest(other)
         assert (await other.get(f"/api/v1/drafts/{d['id']}")).status_code == 404
         assert (await mutate(other, "PUT", url, payload)).status_code == 404
-    assert (await client.get("/api/v1/me/matches")).status_code == 401
+    assert (await client.get("/api/v1/me/matches")).json()["matches"] == []
 
 
 async def test_offer_role_order_and_revision_validation(client):
@@ -204,8 +204,23 @@ async def test_complete_guest_chase_idempotency_and_scorecards(client, database)
     path = f"/api/v1/matches/{match_id}/decisions"
     old = {"expectedRevision": 0, "strategy": "BALANCED"}
     first_key = str(uuid.uuid4())
-    first = await mutate(client, "POST", path, old, first_key)
+    scorecard_statements: list[str] = []
+    sync_engine = database.kw["bind"].sync_engine
+
+    def record_scorecard_sql(connection, cursor, statement, parameters, context, executemany):
+        if "batting_performances" in statement or "bowling_performances" in statement:
+            scorecard_statements.append(statement)
+
+    event.listen(sync_engine, "before_cursor_execute", record_scorecard_sql)
+    try:
+        first = await mutate(client, "POST", path, old, first_key)
+    finally:
+        event.remove(sync_engine, "before_cursor_execute", record_scorecard_sql)
     assert first.status_code == 200, first.text
+    assert len(scorecard_statements) == 2
+    assert all("ON CONFLICT" in statement for statement in scorecard_statements)
+    assert "total;dur=" in first.headers["Server-Timing"]
+    assert "scorecard;dur=" in first.headers["Server-Timing"]
     assert (await mutate(client, "POST", path, old, first_key)).json() == first.json()
     assert (await mutate(client, "POST", path, old)).status_code == 409
     m = first.json()
@@ -239,7 +254,13 @@ async def test_complete_guest_chase_idempotency_and_scorecards(client, database)
     assert (
         await mutate(client, "POST", path, {**old, "expectedRevision": m["revision"]})
     ).status_code == 409
-    assert (await client.get(f"/api/v1/matches/{match_id}")).json() == m
+    full = (await client.get(f"/api/v1/matches/{match_id}")).json()
+    assert {key: value for key, value in full.items() if key != "events"} == {
+        key: value for key, value in m.items() if key != "events"
+    }
+    assert len(full["events"]) == m["revision"]
+    assert full["events"][-1] == m["events"][-1]
+    assert (await client.get("/api/v1/me/matches")).json()["matches"][0]["id"] == match_id
     assert (await mutate(client, "POST", path, old, first_key)).json() == first.json()
     events = (await client.get(f"/api/v1/matches/{match_id}/events?after_revision=1")).json()
     assert all(e["revision"] > 1 for e in events)

@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     database_url: str = (
         "postgresql+asyncpg://chase201:local-development-only@localhost:5432/chase201"
     )
+    database_url_unpooled: str | None = None
     secret_key: str = "local-development-change-this-secret-before-deploying"
     frontend_url: str = "http://localhost:3000"
     api_url: str = "http://localhost:8000"
@@ -28,17 +29,25 @@ class Settings(BaseSettings):
 
     @property
     def database_connect_args(self) -> dict[str, ssl.SSLContext]:
-        if self.database_url.startswith("postgresql+asyncpg://"):
-            if (make_url(self.database_url).host or "").endswith(".neon.tech"):
+        return self.connect_args_for(self.database_url)
+
+    @staticmethod
+    def connect_args_for(url: str) -> dict[str, ssl.SSLContext]:
+        if url.startswith("postgresql+asyncpg://"):
+            if (make_url(url).host or "").endswith(".neon.tech"):
                 return {"ssl": ssl.create_default_context()}
         return {}
 
-    @model_validator(mode="after")
-    def safe_production(self) -> "Settings":
-        if self.database_url.startswith("postgresql://"):
-            self.database_url = self.database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
-        if self.database_url.startswith("postgresql+asyncpg://"):
-            url = make_url(self.database_url)
+    @property
+    def migration_database_url(self) -> str:
+        return self.database_url_unpooled or self.database_url
+
+    @staticmethod
+    def normalize_database_url(value: str) -> str:
+        if value.startswith("postgresql://"):
+            value = value.replace("postgresql://", "postgresql+asyncpg://", 1)
+        if value.startswith("postgresql+asyncpg://"):
+            url = make_url(value)
             query = dict(url.query)
             sslmode = query.pop("sslmode", None)
             channel_binding = query.pop("channel_binding", None)
@@ -48,13 +57,48 @@ class Settings(BaseSettings):
             if is_neon:
                 if sslmode in {"disable", "allow", "prefer"}:
                     raise ValueError("Neon connections require verified TLS")
-                # asyncpg cannot use Neon's libpq channel_binding option. A verified
-                # SSLContext supplies hostname and certificate verification instead.
                 query.pop("ssl", None)
             elif sslmode is not None:
                 query["ssl"] = sslmode
             if query != dict(url.query):
-                self.database_url = url.set(query=query).render_as_string(hide_password=False)
+                return url.set(query=query).render_as_string(hide_password=False)
+        return value
+
+    @model_validator(mode="after")
+    def safe_production(self) -> "Settings":
+        self.database_url = self.normalize_database_url(self.database_url)
+        if self.database_url_unpooled:
+            self.database_url_unpooled = self.normalize_database_url(self.database_url_unpooled)
+            runtime = make_url(self.database_url)
+            migration = make_url(self.database_url_unpooled)
+            if (
+                runtime.drivername != migration.drivername
+                or runtime.database != migration.database
+                or (runtime.host or "").endswith(".neon.tech")
+                != (migration.host or "").endswith(".neon.tech")
+            ):
+                raise ValueError("Runtime and migration URLs must target the same database")
+        if self.environment == "production" and self.database_url.startswith("postgresql+asyncpg://"):
+            url = make_url(self.database_url)
+            host = url.host or ""
+            if host.endswith(".neon.tech"):
+                endpoint, region = host.split(".", 1)
+                direct_host = f"{endpoint.removesuffix('-pooler')}.{region}"
+                if self.database_url_unpooled:
+                    direct = make_url(self.database_url_unpooled)
+                    if direct.host != direct_host or direct.database != url.database:
+                        raise ValueError("Neon runtime and migration URLs must target the same database")
+                if endpoint.endswith("-pooler"):
+                    if not self.database_url_unpooled:
+                        self.database_url_unpooled = url.set(
+                            host=direct_host
+                        ).render_as_string(hide_password=False)
+                else:
+                    if not self.database_url_unpooled:
+                        self.database_url_unpooled = self.database_url
+                    self.database_url = url.set(
+                        host=f"{endpoint}-pooler.{region}"
+                    ).render_as_string(hide_password=False)
         urls = [self.frontend_url, self.api_url, *self.cors_origins]
         if any(
             (parsed := urlsplit(url)).scheme not in {"http", "https"}

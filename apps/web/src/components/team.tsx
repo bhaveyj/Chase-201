@@ -176,6 +176,11 @@ export function TeamScreen({ id }: { id: string }) {
                 : "Confirm XI & play"}
             <ArrowRight size={18} />
           </button>
+          {confirm.isPending && (
+            <p className="subtle" role="status">
+              Saving your XI and preparing the opposition…
+            </p>
+          )}
           {draft.status !== "CONFIRMED" && (
             <Link className="text-link" href={`/draft/${id}`}>
               <ArrowLeft size={16} /> Back to draft

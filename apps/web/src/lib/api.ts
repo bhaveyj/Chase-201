@@ -6,6 +6,16 @@ export type Session = components["schemas"]["SessionView"];
 export type Draft = components["schemas"]["DraftView"];
 export type Match =
   components["schemas"]["MatchView"] | components["schemas"]["SavedMatchView"];
+
+export function mergeDecisionMatch(previous: Match | undefined, next: Match): Match | null {
+  if (
+    !previous ||
+    previous.revision !== next.revision - 1 ||
+    previous.rulesetVersion !== next.rulesetVersion
+  ) return null;
+  if (next.events.some((event) => event.revision <= previous.revision)) return next;
+  return { ...next, events: [...previous.events, ...next.events] } as Match;
+}
 export type Player = components["schemas"]["PlayerSummary"];
 export type V2Strategy =
   components["schemas"]["V2StrategyDecision"]["strategy"];

@@ -1,3 +1,6 @@
+import logging
+from time import perf_counter
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
@@ -7,6 +10,9 @@ from chase201.auth import router as auth_router
 from chase201.config import get_settings
 from chase201.models import CatalogVersion
 from chase201.routes import router
+from chase201.timing import request_timings
+
+logger = logging.getLogger("chase201.timing")
 
 app = FastAPI(title="Chase 201 API", version="1.0.0")
 app.add_middleware(
@@ -15,12 +21,25 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "OPTIONS"],
     allow_headers=["Content-Type", "X-CSRF-Token", "Idempotency-Key"],
+    expose_headers=["Server-Timing"],
 )
 
 
 @app.middleware("http")
 async def security_headers(request: Request, call_next):  # type: ignore[no-untyped-def]
-    response = await call_next(request)
+    timings: dict[str, float] = {}
+    token = request_timings.set(timings)
+    started = perf_counter()
+    try:
+        response = await call_next(request)
+    finally:
+        request_timings.reset(token)
+    timings["total"] = (perf_counter() - started) * 1000
+    response.headers["Server-Timing"] = ", ".join(
+        f"{name};dur={duration:.1f}" for name, duration in timings.items()
+    )
+    if request.url.path.endswith("/decisions"):
+        logger.info("decision request status=%s timing_ms=%s", response.status_code, timings)
     response.headers["Cache-Control"] = "no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "no-referrer"

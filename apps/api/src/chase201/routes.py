@@ -1,11 +1,11 @@
-from datetime import UTC
+from datetime import UTC, timedelta
 
 from fastapi import APIRouter, Header, HTTPException, Query
 from sqlalchemy import select
 
 from chase201 import services as svc
 from chase201.auth import DB, MutationPrincipal, Principal
-from chase201.models import Match, User
+from chase201.models import Match, User, now
 from chase201.schemas import (
     DraftView,
     EventView,
@@ -21,6 +21,7 @@ from chase201.schemas import (
     V2EventView,
     V2StrategyDecision,
 )
+from chase201.timing import timed
 
 router = APIRouter(prefix="/api/v1")
 
@@ -135,14 +136,19 @@ async def decide(
     session: MutationPrincipal,
     idempotency_key: str = Header(),
 ) -> dict:
-    match = await svc.get_match(db, match_id, session, lock=True)
+    with timed("match_lock"):
+        match = await svc.get_match(db, match_id, session, lock=True)
     scope, payload = f"match:{match.id}:decision", body.model_dump()
     if result := await svc.replay(db, session, idempotency_key, scope, payload):
         return result
     svc.check_revision(match, body.expectedRevision)
-    await svc.advance_match(db, match, body)
+    people = await svc.load_match_people(db, match)
+    with timed("simulation_and_write"):
+        await svc.advance_match(db, match, body, people)
+    with timed("view"):
+        view = await svc.match_view(db, match, people, after_revision=body.expectedRevision)
     return svc.remember(
-        db, session, idempotency_key, scope, payload, await svc.match_view(db, match)
+        db, session, idempotency_key, scope, payload, view
     )
 
 
@@ -158,13 +164,14 @@ async def events(
 async def history(
     db: DB, session: Principal, offset: int = Query(0, ge=0), limit: int = Query(20, ge=1, le=50)
 ) -> dict:
-    if not session.user_id:
-        raise HTTPException(401, "Sign in to view saved match history")
+    owner = Match.user_id == session.user_id if session.user_id else Match.session_id == session.id
+    if session.kind == "guest":
+        owner = owner & (Match.created_at > now() - timedelta(days=30))
     rows = list(
         (
             await db.scalars(
                 select(Match)
-                .where(Match.user_id == session.user_id)
+                .where(owner)
                 .order_by(Match.created_at.desc(), Match.id)
                 .offset(offset)
                 .limit(limit + 1)

@@ -4,12 +4,14 @@ import json
 import random
 import secrets
 from collections import Counter
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import UTC, timedelta
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert as postgres_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from chase201.catalog import COMPOSITION, ROLES
@@ -35,6 +37,7 @@ from chase201.models import (
     now,
 )
 from chase201.schemas import LegacyStrategyDecision, StrategyDecision, V2StrategyDecision
+from chase201.timing import timed
 from chase201.tradeoffs import (
     TRADEOFF_SELECTION,
     DraftProfile,
@@ -331,9 +334,18 @@ async def validate_order(db: AsyncSession, draft: Draft, order: list[str]) -> No
         raise HTTPException(
             422, "XI must contain 5 batters, 1 keeper, 2 all-rounders and 3 bowlers"
         )
+    offered = set(
+        (
+            await db.execute(
+                select(DraftOffer.slot_id, DraftOffer.player_id).where(
+                    DraftOffer.slot_id.in_([slot.id for _, slot, _ in rows])
+                )
+            )
+        ).all()
+    )
     for choice, slot, player in rows:
         validate_rating(draft, slot, player)
-        if slot.role != player.role or not await db.get(DraftOffer, (slot.id, choice.player_id)):
+        if slot.role != player.role or (slot.id, choice.player_id) not in offered:
             raise HTTPException(422, "Selected player does not belong to the slot's offers")
 
 
@@ -355,11 +367,16 @@ async def engine_team(db: AsyncSession, ids: list[str], ruleset: str = "v3.0") -
             .where(Player.id.in_(ids))
         )
     ).all()
-    profiles = {
-        p.id: v31_engine.PlayerProfile(
-            id=p.id,
-            role=p.role,
-            overall=p.overall_rating,
+    profiles = {p.id: engine_profile(p, profile, ruleset) for p, profile in rows}
+    return [profiles[i] for i in ids]
+
+
+def engine_profile(player: Player, profile: SimulationProfile, ruleset: str) -> Any:
+    return (
+        v31_engine.PlayerProfile(
+            id=player.id,
+            role=player.role,
+            overall=player.overall_rating,
             batting=75 if ruleset in {"v3.4", "v3.5"} else profile.batting,
             bowling_control=profile.bowling_control,
             bowling_threat=profile.bowling_threat,
@@ -367,9 +384,9 @@ async def engine_team(db: AsyncSession, ids: list[str], ruleset: str = "v3.0") -
         )
         if ruleset in SIMPLE_RULESETS
         else PlayerProfile(
-            p.id,
-            p.role,
-            p.overall_rating,
+            player.id,
+            player.role,
+            player.overall_rating,
             profile.batting_control,
             profile.batting_rotation,
             profile.batting_power,
@@ -377,9 +394,40 @@ async def engine_team(db: AsyncSession, ids: list[str], ruleset: str = "v3.0") -
             profile.bowling_threat,
             BowlingStyle(profile.bowling_style),
         )
-        for p, profile in rows
-    }
-    return [profiles[i] for i in ids]
+    )
+
+
+@dataclass
+class MatchPeople:
+    ids: list[str]
+    players: dict[str, Player]
+    profiles: dict[str, SimulationProfile]
+
+    def engine_team(self, ids: list[str], ruleset: str) -> list[Any]:
+        return [engine_profile(self.players[i], self.profiles[i], ruleset) for i in ids]
+
+    def legacy_team(self, ids: list[str]) -> list[legacy.Player]:
+        return [
+            legacy.Player(i, self.profiles[i].batting, self.profiles[i].bowling, self.players[i].role)
+            for i in ids
+        ]
+
+
+async def load_match_people(db: AsyncSession, match: Match) -> MatchPeople:
+    with timed("roster"):
+        ids = await team_ids(db, match.team_id)
+        rows = (
+            await db.execute(
+                select(Player, SimulationProfile)
+                .join(SimulationProfile, SimulationProfile.player_id == Player.id)
+                .where(Player.id.in_([*ids, *match.opponent]))
+            )
+        ).all()
+    return MatchPeople(
+        ids,
+        {player.id: player for player, _ in rows},
+        {player.id: profile for player, profile in rows},
+    )
 
 
 async def legacy_team(db: AsyncSession, ids: list[str]) -> list[legacy.Player]:
@@ -416,12 +464,12 @@ async def create_match(db: AsyncSession, draft: Draft, principal: Session) -> Ma
     existing = await db.scalar(select(Match).where(Match.team_id == team.id))
     if existing:
         raise HTTPException(409, "This XI already has a match; draft a new XI to play again")
-    await validate_order(db, draft, await team_ids(db, team.id))
+    ids = await team_ids(db, team.id)
+    await validate_order(db, draft, ids)
     catalog = list(
         (await db.scalars(select(Player).where(Player.catalog_id == draft.catalog_id))).all()
     )
     opponent = [p.id for p in opponent_players(catalog, secrets.SystemRandom())]
-    ids = await team_ids(db, team.id)
     ruleset = "v3.5" if draft.selection_ruleset in SIMPLE_SELECTIONS else "v3.0"
     state = engine_for(ruleset).initial_state(
         await engine_team(db, ids, ruleset), await engine_team(db, opponent, ruleset)
@@ -451,20 +499,30 @@ async def persist_scorecard(
         (BattingPerformance, [asdict(entry) for entry in state.batting]),
         (BowlingPerformance, [asdict(entry) for entry in state.bowling]),
     ]
-    for entity, entries in groups:
-        for values in entries:
-            row = await db.get(entity, (match.id, values["player_id"]))
-            if row:
-                for key, value in values.items():
-                    setattr(row, key, value)
-            else:
-                db.add(entity(match_id=match.id, **values))
+    dialect = db.get_bind().dialect.name
+    if dialect not in {"postgresql", "sqlite"}:
+        raise RuntimeError(f"Scorecard upsert is unsupported on {dialect}")
+    insert = postgres_insert if dialect == "postgresql" else sqlite_insert
+    with timed("scorecard"):
+        for entity, entries in groups:
+            rows = [{"match_id": match.id, **values} for values in entries]
+            statement = insert(entity).values(rows)
+            statement = statement.on_conflict_do_update(
+                index_elements=[entity.match_id, entity.player_id],
+                set_={
+                    key: getattr(statement.excluded, key)
+                    for key in entries[0]
+                    if key != "player_id"
+                },
+            )
+            await db.execute(statement)
 
 
 async def advance_match(
     db: AsyncSession,
     match: Match,
     decision: StrategyDecision | V2StrategyDecision | LegacyStrategyDecision,
+    people: MatchPeople | None = None,
 ) -> None:
     if match.state["status"] != "LIVE":
         raise HTTPException(409, "This match has finished")
@@ -473,15 +531,17 @@ async def advance_match(
         f"{match.id}:{match.revision}:{match.ruleset}".encode(),
         hashlib.sha256,
     ).digest()
-    ids = await team_ids(db, match.team_id)
+    if people is None:
+        people = await load_match_people(db, match)
+    ids = people.ids
     if match.ruleset == "v1.0":
         if not isinstance(decision, LegacyStrategyDecision):
             raise HTTPException(422, "This saved match uses the original intent and risk controls")
         old_state = legacy.GameState.from_dict(match.state)
         transition: Transition | legacy.Transition = legacy.simulate_step(
             old_state,
-            await legacy_team(db, ids),
-            await legacy_team(db, match.opponent),
+            people.legacy_team(ids),
+            people.legacy_team(match.opponent),
             legacy.Strategy(decision.intent, decision.riskFocus),
             legacy.decision_window(old_state.balls),
             legacy.RULESETS[match.ruleset],
@@ -509,8 +569,8 @@ async def advance_match(
         rules = engine.RULESETS[match.ruleset]
         transition = engine.simulate_step(
             state,
-            await engine_team(db, ids, match.ruleset),
-            await engine_team(db, match.opponent, match.ruleset),
+            people.engine_team(ids, match.ruleset),
+            people.engine_team(match.opponent, match.ruleset),
             engine.StrategyId(decision.strategy.value),
             engine.window_for(state, rules).max_legal_balls,
             rules,
@@ -546,22 +606,17 @@ async def events_view(db: AsyncSession, match_id: str, after_revision: int = 0) 
     return [{"revision": e.revision, "sequence": e.sequence, **e.payload} for e in events]
 
 
-async def match_view(db: AsyncSession, match: Match) -> dict:
-    ids = await team_ids(db, match.team_id)
-    players = {
-        p.id: p
-        for p in (
-            await db.scalars(select(Player).where(Player.id.in_([*ids, *match.opponent])))
-        ).all()
-    }
-    display_profiles = {
-        p.player_id: p
-        for p in (
-            await db.scalars(
-                select(SimulationProfile).where(SimulationProfile.player_id.in_(players))
-            )
-        ).all()
-    }
+async def match_view(
+    db: AsyncSession,
+    match: Match,
+    people: MatchPeople | None = None,
+    after_revision: int = 0,
+) -> dict:
+    if people is None:
+        people = await load_match_people(db, match)
+    ids = people.ids
+    players = people.players
+    display_profiles = people.profiles
     contextual: dict[str, Any] = {"context": None, "strategyAssessments": [], "upcomingBowlers": []}
     if match.ruleset == "v1.0":
         target = legacy.RULESETS[match.ruleset].target
@@ -575,8 +630,8 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
         state = engine.GameState.from_dict(match.state)
         window_size = engine.window_for(state, rules).max_legal_balls
         if state.status == "LIVE":
-            batters = {p.id: p for p in await engine_team(db, ids, match.ruleset)}
-            bowlers = {p.id: p for p in await engine_team(db, match.opponent, match.ruleset)}
+            batters = {p.id: p for p in people.engine_team(ids, match.ruleset)}
+            bowlers = {p.id: p for p in people.engine_team(match.opponent, match.ruleset)}
             batter = batters[state.batting[state.striker].player_id]
             partner = batters[state.batting[state.non_striker].player_id]
             bowler = bowlers[engine.current_bowler(state).player_id]
@@ -627,6 +682,6 @@ async def match_view(db: AsyncSession, match: Match) -> dict:
             summary(players[i], display_profiles[i], match.ruleset in SIMPLE_RULESETS)
             for i in match.opponent
         ],
-        "events": await events_view(db, match.id),
+        "events": await events_view(db, match.id, after_revision),
         "createdAt": match.created_at.replace(tzinfo=UTC).isoformat(),
     }

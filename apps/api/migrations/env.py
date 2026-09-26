@@ -15,8 +15,9 @@ def run_sync(connection):
 
 async def online():
     settings = get_settings()
+    url = settings.migration_database_url
     engine = create_async_engine(
-        settings.database_url, connect_args=settings.database_connect_args
+        url, connect_args=settings.connect_args_for(url)
     )
     async with engine.connect() as connection:
         await connection.run_sync(run_sync)
@@ -25,7 +26,7 @@ async def online():
 
 if context.is_offline_mode():
     context.configure(
-        url=get_settings().database_url, target_metadata=Base.metadata, literal_binds=True
+        url=get_settings().migration_database_url, target_metadata=Base.metadata, literal_binds=True
     )
     with context.begin_transaction():
         context.run_migrations()

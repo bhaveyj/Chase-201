@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowRight, Check, CircleDot, Target } from "lucide-react";
-import { api, Match, overs, roleLabel } from "@/lib/api";
+import { api, APIError, Match, mergeDecisionMatch, overs, roleLabel } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, GoogleLink, Loading, useSession } from "./common";
 
@@ -176,7 +176,15 @@ export function MatchScreen({
             : v2Strategy,
         crypto.randomUUID(),
       ),
-    onSuccess: (next) => client.setQueryData(["match", id], next),
+    onSuccess: (next) => {
+      const previous = client.getQueryData<Match>(["match", id]);
+      const merged = mergeDecisionMatch(previous, next);
+      if (merged) {
+        client.setQueryData<Match>(["match", id], merged);
+      } else {
+        void client.invalidateQueries({ queryKey: ["match", id] });
+      }
+    },
     onError: () => {
       void client.invalidateQueries({ queryKey: ["match", id] });
     },
@@ -493,7 +501,22 @@ export function MatchScreen({
                   : `Play next ${windowLabel}`}
                 <ArrowRight size={20} />
               </button>
-              {action.error && <ErrorPanel error={action.error} />}
+              {action.isPending && (
+                <p className="subtle" role="status">
+                  Simulating the next passage of play and updating the scorecard…
+                </p>
+              )}
+              {action.error instanceof APIError && action.error.status === 409 ? (
+                <div className="error-panel" role="alert">
+                  <strong>This match changed in another tab.</strong>
+                  <p>The latest score has been loaded. Review it before choosing your next plan.</p>
+                  <button className="text-link" onClick={() => action.reset()}>
+                    Continue from latest state <ArrowRight size={16} />
+                  </button>
+                </div>
+              ) : action.error ? (
+                <ErrorPanel error={action.error} />
+              ) : null}
               <p className="strategy-footnote">
                 {legacy
                   ? "Your next call comes after this window."
@@ -510,12 +533,11 @@ export function MatchScreen({
           <Link className="button primary" href="/play">
             Draft again. Chase again. <ArrowRight size={18} />
           </Link>
-          {session.data?.kind !== "user" ? (
+          <Link className="button secondary" href="/history">
+            View match history
+          </Link>
+          {session.data?.kind !== "user" && (
             <GoogleLink label="Save this match with Google" />
-          ) : (
-            <Link className="button secondary" href="/history">
-              View match history
-            </Link>
           )}
         </div>
       )}
