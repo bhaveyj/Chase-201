@@ -23,6 +23,7 @@ from chase201.config import get_settings
 from chase201.db import get_db
 from chase201.models import Draft, Match, OAuthAttempt, OAuthIdentity, Session, User, now
 from chase201.schemas import Revision, SessionView
+from chase201.timing import timed
 
 router = APIRouter(prefix="/api/v1")
 DB = Annotated[AsyncSession, Depends(get_db)]
@@ -77,31 +78,30 @@ Principal = Annotated[Session, Depends(require_session)]
 async def mutation_session(
     request: Request,
     response: Response,
-    session: Principal,
     db: DB,
     x_csrf_token: Annotated[str | None, Header()] = None,
     idempotency_key: Annotated[str | None, Header()] = None,
 ) -> Session:
     require_origin(request)
-    if not x_csrf_token or not secrets.compare_digest(x_csrf_token, session.csrf):
+    token = request.cookies.get(COOKIE, "")
+    if not token:
+        raise HTTPException(401, "Your session has expired. Start a new guest session.")
+    with timed("session_lock"):
+        locked = await db.scalar(
+            select(Session)
+            .where(Session.token_hash == digest(token))
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+    if not locked or not future(locked.expires_at):
+        raise HTTPException(401, "Your session has expired. Start a new guest session.")
+    if not x_csrf_token or not secrets.compare_digest(x_csrf_token, locked.csrf):
         raise HTTPException(403, "Invalid CSRF token")
     if not idempotency_key or not 8 <= len(idempotency_key) <= 100:
         raise HTTPException(400, "An Idempotency-Key of 8–100 characters is required")
-    locked = await db.scalar(
-        select(Session)
-        .where(Session.id == session.id)
-        .with_for_update()
-        .execution_options(populate_existing=True)
-    )
-    if (
-        not locked
-        or not future(locked.expires_at)
-        or not secrets.compare_digest(locked.token_hash, digest(request.cookies.get(COOKIE, "")))
-    ):
-        raise HTTPException(401, "Session has expired or was claimed")
     if locked.kind == "guest":
         locked.expires_at = now() + timedelta(days=30)
-        set_cookie(response, COOKIE, request.cookies[COOKIE], 30 * 86400)
+        set_cookie(response, COOKIE, token, 30 * 86400)
     return locked
 
 

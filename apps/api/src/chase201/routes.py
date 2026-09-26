@@ -144,9 +144,9 @@ async def decide(
     svc.check_revision(match, body.expectedRevision)
     people = await svc.load_match_people(db, match)
     with timed("simulation_and_write"):
-        await svc.advance_match(db, match, body, people)
+        new_events = await svc.advance_match(db, match, body, people)
     with timed("view"):
-        view = await svc.match_view(db, match, people, after_revision=body.expectedRevision)
+        view = await svc.match_view(db, match, people, events=new_events)
     return svc.remember(
         db, session, idempotency_key, scope, payload, view
     )

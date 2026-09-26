@@ -414,8 +414,8 @@ class MatchPeople:
 
 
 async def load_match_people(db: AsyncSession, match: Match) -> MatchPeople:
+    ids = [entry["player_id"] for entry in match.state["batting"]]
     with timed("roster"):
-        ids = await team_ids(db, match.team_id)
         rows = (
             await db.execute(
                 select(Player, SimulationProfile)
@@ -523,7 +523,7 @@ async def advance_match(
     match: Match,
     decision: StrategyDecision | V2StrategyDecision | LegacyStrategyDecision,
     people: MatchPeople | None = None,
-) -> None:
+) -> list[dict[str, Any]]:
     if match.state["status"] != "LIVE":
         raise HTTPException(409, "This match has finished")
     seed = hmac.new(
@@ -584,15 +584,18 @@ async def advance_match(
         )
     match.revision += 1
     db.add(row)
+    new_events = []
     for sequence, event in enumerate(transition.events):
         db.add(
             MatchEvent(match_id=match.id, revision=match.revision, sequence=sequence, payload=event)
         )
+        new_events.append({"revision": match.revision, "sequence": sequence, **event})
     match.state = asdict(transition.state)
     if transition.state.status != "LIVE":
         match.completed_at = now()
     await persist_scorecard(db, match, transition.state)
     await db.flush()
+    return new_events
 
 
 async def events_view(db: AsyncSession, match_id: str, after_revision: int = 0) -> list[dict]:
@@ -611,6 +614,7 @@ async def match_view(
     match: Match,
     people: MatchPeople | None = None,
     after_revision: int = 0,
+    events: list[dict[str, Any]] | None = None,
 ) -> dict:
     if people is None:
         people = await load_match_people(db, match)
@@ -682,6 +686,6 @@ async def match_view(
             summary(players[i], display_profiles[i], match.ruleset in SIMPLE_RULESETS)
             for i in match.opponent
         ],
-        "events": await events_view(db, match.id, after_revision),
+        "events": events if events is not None else await events_view(db, match.id, after_revision),
         "createdAt": match.created_at.replace(tzinfo=UTC).isoformat(),
     }

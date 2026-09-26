@@ -208,11 +208,14 @@ async def test_complete_guest_chase_idempotency_and_scorecards(client, database)
     old = {"expectedRevision": 0, "strategy": "BALANCED"}
     first_key = str(uuid.uuid4())
     scorecard_statements: list[str] = []
+    read_statements: list[str] = []
     sync_engine = database.kw["bind"].sync_engine
 
     def record_scorecard_sql(connection, cursor, statement, parameters, context, executemany):
         if "batting_performances" in statement or "bowling_performances" in statement:
             scorecard_statements.append(statement)
+        if statement.lstrip().upper().startswith("SELECT"):
+            read_statements.append(statement.lower())
 
     event.listen(sync_engine, "before_cursor_execute", record_scorecard_sql)
     try:
@@ -222,6 +225,9 @@ async def test_complete_guest_chase_idempotency_and_scorecards(client, database)
     assert first.status_code == 200, first.text
     assert len(scorecard_statements) == 2
     assert all("ON CONFLICT" in statement for statement in scorecard_statements)
+    assert sum("from sessions" in statement for statement in read_statements) == 1
+    assert not any("from team_members" in statement for statement in read_statements)
+    assert not any("from match_events" in statement for statement in read_statements)
     assert "total;dur=" in first.headers["Server-Timing"]
     assert "scorecard;dur=" in first.headers["Server-Timing"]
     assert (await mutate(client, "POST", path, old, first_key)).json() == first.json()
