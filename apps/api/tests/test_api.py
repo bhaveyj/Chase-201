@@ -41,6 +41,9 @@ async def guest(client):
 
 async def test_readiness_requires_the_configured_catalog(client, database, monkeypatch):
     assert (await client.get("/health")).status_code == 200
+    head = await client.head("/health")
+    assert head.status_code == 200
+    assert not head.content
     assert (await client.get("/ready")).status_code == 200
     settings = get_settings()
     monkeypatch.setattr(settings, "catalog_version", "missing-catalog")

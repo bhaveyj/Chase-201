@@ -1,7 +1,9 @@
 """Production smoke: run explicitly after deployment; creates one guest draft and match."""
 
 import argparse
+import statistics
 import uuid
+from time import perf_counter
 
 import httpx
 
@@ -16,15 +18,29 @@ def main() -> None:
         "--strategy", choices=["DEFENSIVE", "BALANCED", "AGGRESSIVE"], default="BALANCED"
     )
     args = parser.parse_args()
+    decision_timings: list[dict[str, float]] = []
+    decision_wall_times: list[float] = []
     with httpx.Client(base_url=args.api, headers={"Origin": args.origin}, timeout=30) as client:
         client.get("/health").raise_for_status()
         session = client.get("/api/v1/session").json()
         client.headers["X-CSRF-Token"] = session["csrfToken"]
 
         def write(method: str, path: str, body: dict) -> dict:
+            started = perf_counter()
             response = client.request(
                 method, path, json=body, headers={"Idempotency-Key": str(uuid.uuid4())}
             )
+            if path.endswith("/decisions"):
+                decision_wall_times.append((perf_counter() - started) * 1000)
+                timing_header = response.headers.get("Server-Timing", "")
+                decision_timings.append(
+                    {
+                        name.strip(): float(duration)
+                        for item in timing_header.split(",")
+                        if ";dur=" in item
+                        for name, duration in [item.split(";dur=", 1)]
+                    }
+                )
             response.raise_for_status()
             return response.json()
 
@@ -105,6 +121,16 @@ def main() -> None:
         print(
             f"Smoke passed: {match['rulesetVersion']} · {draft['catalogVersion']} · {args.strategy} · {match['id']} · {state['status']} · {state['runs']}/{state['wickets']}"
         )
+        if decision_wall_times:
+            metrics = sorted({name for sample in decision_timings for name in sample})
+            summary = [
+                f"wall median={statistics.median(decision_wall_times):.0f}ms max={max(decision_wall_times):.0f}ms"
+            ]
+            summary.extend(
+                f"{name} median={statistics.median(sample[name] for sample in decision_timings if name in sample):.0f}ms"
+                for name in metrics
+            )
+            print(f"Decision timings ({len(decision_wall_times)} requests): " + ", ".join(summary))
 
 
 if __name__ == "__main__":
