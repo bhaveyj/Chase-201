@@ -20,16 +20,31 @@ def main() -> None:
     args = parser.parse_args()
     decision_timings: list[dict[str, float]] = []
     decision_wall_times: list[float] = []
+    retries = 0
     with httpx.Client(base_url=args.api, headers={"Origin": args.origin}, timeout=30) as client:
         client.get("/health").raise_for_status()
+        client.head("/health").raise_for_status()
         session = client.get("/api/v1/session").json()
         client.headers["X-CSRF-Token"] = session["csrfToken"]
 
         def write(method: str, path: str, body: dict) -> dict:
+            nonlocal retries
             started = perf_counter()
-            response = client.request(
-                method, path, json=body, headers={"Idempotency-Key": str(uuid.uuid4())}
-            )
+            key = str(uuid.uuid4())
+            for attempt in range(3):
+                try:
+                    response = client.request(
+                        method, path, json=body, headers={"Idempotency-Key": key}
+                    )
+                except httpx.TransportError:
+                    if attempt == 2:
+                        raise
+                    retries += 1
+                    continue
+                if response.status_code in {502, 503, 504} and attempt < 2:
+                    retries += 1
+                    continue
+                break
             if path.endswith("/decisions"):
                 decision_wall_times.append((perf_counter() - started) * 1000)
                 timing_header = response.headers.get("Server-Timing", "")
@@ -130,7 +145,10 @@ def main() -> None:
                 f"{name} median={statistics.median(sample[name] for sample in decision_timings if name in sample):.0f}ms"
                 for name in metrics
             )
-            print(f"Decision timings ({len(decision_wall_times)} requests): " + ", ".join(summary))
+            print(
+                f"Decision timings ({len(decision_wall_times)} requests, {retries} retries): "
+                + ", ".join(summary)
+            )
 
 
 if __name__ == "__main__":
