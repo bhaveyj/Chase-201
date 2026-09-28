@@ -49,7 +49,8 @@ async def security_headers(request: Request, call_next):  # type: ignore[no-unty
     return response
 
 
-@app.api_route("/health", methods=["GET", "HEAD"])
+@app.get("/health")
+@app.head("/health", include_in_schema=False)
 async def health() -> dict:
     return {"status": "ok"}
 

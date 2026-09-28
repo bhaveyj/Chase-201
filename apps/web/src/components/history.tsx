@@ -37,6 +37,7 @@ export function HistoryScreen() {
           ? "Your guest innings from this browser, kept for 30 days."
           : "Your innings, your decisions, your cricket history."}
       </p>
+      {session.data?.kind === "guest" && <GoogleLink />}
       {session.data?.kind === "anonymous" ? (
         <div className="history-empty">
           <Clock3 size={35} />
