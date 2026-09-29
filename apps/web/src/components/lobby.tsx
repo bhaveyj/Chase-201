@@ -17,14 +17,18 @@ export function Lobby({ authStatus }: { authStatus?: string }) {
       let s = await queryClient.fetchQuery({
         queryKey: ["session"],
         queryFn: api.session,
-        staleTime: 0,
+        staleTime: 10_000,
       });
       if (s.kind === "anonymous") s = await api.guest(s);
       queryClient.setQueryData(["session"], s);
       const draft = await api.createDraft(s);
       useUI.getState().setActiveSlot(0);
       queryClient.setQueryData(["draft", draft.id], draft);
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
+      queryClient.setQueryData(["session"], {
+        ...s,
+        revision: s.revision + 1,
+        activeDraftId: draft.id,
+      });
       router.push(`/draft/${draft.id}`);
     },
   });

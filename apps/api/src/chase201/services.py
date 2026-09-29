@@ -9,7 +9,7 @@ from datetime import UTC, timedelta
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,6 +35,7 @@ from chase201.models import (
     Team,
     TeamMember,
     now,
+    uid,
 )
 from chase201.schemas import LegacyStrategyDecision, StrategyDecision, V2StrategyDecision
 from chase201.timing import timed
@@ -178,31 +179,41 @@ def summary(
 
 
 async def draft_view(db: AsyncSession, draft: Draft) -> dict:
-    slots = (
-        await db.scalars(
-            select(DraftSlot).where(DraftSlot.draft_id == draft.id).order_by(DraftSlot.position)
-        )
-    ).all()
-    offers = (
+    rows = (
         await db.execute(
-            select(DraftOffer.slot_id, Player, SimulationProfile)
-            .join(Player, Player.id == DraftOffer.player_id)
-            .join(SimulationProfile, SimulationProfile.player_id == Player.id)
-            .join(DraftSlot, DraftSlot.id == DraftOffer.slot_id)
+            select(DraftSlot, Player, SimulationProfile, Selection.player_id)
+            .outerjoin(DraftOffer, DraftOffer.slot_id == DraftSlot.id)
+            .outerjoin(Player, Player.id == DraftOffer.player_id)
+            .outerjoin(SimulationProfile, SimulationProfile.player_id == Player.id)
+            .outerjoin(Selection, Selection.slot_id == DraftSlot.id)
             .where(DraftSlot.draft_id == draft.id)
-            .order_by(Player.id)
+            .order_by(DraftSlot.position, Player.id)
         )
     ).all()
-    choices = {
-        slot_id: player_id
-        for slot_id, player_id in (
-            await db.execute(
-                select(Selection.slot_id, Selection.player_id).where(Selection.draft_id == draft.id)
+    slots: dict[str, dict] = {}
+    for slot, player, profile, selected_id in rows:
+        if slot.id not in slots:
+            band = rating_band(slot.position, draft.selection_ruleset)
+            slots[slot.id] = {
+                "id": slot.id,
+                "role": slot.role,
+                "position": slot.position,
+                "options": [],
+                "selectedPlayerId": selected_id,
+                "ratingLabel": band.label,
+                "minimumRating": band.minimum,
+                "maximumRating": band.maximum,
+            }
+        if player is not None and profile is not None:
+            slots[slot.id]["options"].append(
+                summary(player, profile, draft.selection_ruleset in SIMPLE_SELECTIONS)
             )
-        ).all()
-    }
-    match_id = await db.scalar(
-        select(Match.id).join(Team, Team.id == Match.team_id).where(Team.draft_id == draft.id)
+    match_id = (
+        await db.scalar(
+            select(Match.id).join(Team, Team.id == Match.team_id).where(Team.draft_id == draft.id)
+        )
+        if draft.status == "CONFIRMED"
+        else None
     )
     return {
         "id": draft.id,
@@ -212,23 +223,7 @@ async def draft_view(db: AsyncSession, draft: Draft) -> dict:
         "selectionRuleset": draft.selection_ruleset,
         "battingOrder": draft.batting_order,
         "matchId": match_id,
-        "slots": [
-            {
-                "id": slot.id,
-                "role": slot.role,
-                "position": slot.position,
-                "options": [
-                    summary(p, profile, draft.selection_ruleset in SIMPLE_SELECTIONS)
-                    for slot_id, p, profile in offers
-                    if slot_id == slot.id
-                ],
-                "selectedPlayerId": choices.get(slot.id),
-                "ratingLabel": rating_band(slot.position, draft.selection_ruleset).label,
-                "minimumRating": rating_band(slot.position, draft.selection_ruleset).minimum,
-                "maximumRating": rating_band(slot.position, draft.selection_ruleset).maximum,
-            }
-            for slot in slots
-        ],
+        "slots": list(slots.values()),
     }
 
 
@@ -272,34 +267,48 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
             ]
     except ValueError as error:
         raise HTTPException(503, str(error)) from error
-    for position, role in enumerate(ROLES):
-        slot = DraftSlot(draft_id=draft.id, position=position, role=role)
-        db.add(slot)
-        await db.flush()
-        for player in offers[position]:
-            db.add(DraftOffer(slot_id=slot.id, player_id=player.id))
+    slots = [
+        DraftSlot(id=uid(), draft_id=draft.id, position=position, role=role)
+        for position, role in enumerate(ROLES)
+    ]
+    db.add_all(slots)
+    await db.flush()
+    db.add_all(
+        DraftOffer(slot_id=slot.id, player_id=player.id)
+        for slot, options in zip(slots, offers, strict=True)
+        for player in options
+    )
     principal.revision += 1
     await db.flush()
     return draft
 
 
 async def select_player(db: AsyncSession, draft: Draft, slot_id: str, player_id: str) -> None:
-    slot = await db.get(DraftSlot, slot_id)
-    offer = await db.get(DraftOffer, (slot_id, player_id))
-    player = await db.get(Player, player_id)
-    if not slot or slot.draft_id != draft.id or not offer or not player or player.role != slot.role:
+    row = (
+        await db.execute(
+            select(DraftSlot, Player)
+            .join(DraftOffer, DraftOffer.slot_id == DraftSlot.id)
+            .join(Player, Player.id == DraftOffer.player_id)
+            .where(DraftSlot.id == slot_id, DraftOffer.player_id == player_id)
+        )
+    ).one_or_none()
+    if row is None:
+        raise HTTPException(422, "Choose a player from this slot's five options")
+    slot, player = row
+    if slot.draft_id != draft.id or player.role != slot.role:
         raise HTTPException(422, "Choose a player from this slot's five options")
     validate_rating(draft, slot, player)
-    duplicate = await db.scalar(
-        select(Selection).where(
-            Selection.draft_id == draft.id,
-            Selection.player_id == player_id,
-            Selection.slot_id != slot_id,
+    choices = (
+        await db.scalars(
+            select(Selection).where(
+                Selection.draft_id == draft.id,
+                or_(Selection.slot_id == slot_id, Selection.player_id == player_id),
+            )
         )
-    )
-    if duplicate:
+    ).all()
+    if any(choice.player_id == player_id and choice.slot_id != slot_id for choice in choices):
         raise HTTPException(422, "A player can only be selected once")
-    choice = await db.get(Selection, slot_id)
+    choice = next((choice for choice in choices if choice.slot_id == slot_id), None)
     if choice:
         choice.player_id = player_id
     else:
@@ -408,7 +417,9 @@ class MatchPeople:
 
     def legacy_team(self, ids: list[str]) -> list[legacy.Player]:
         return [
-            legacy.Player(i, self.profiles[i].batting, self.profiles[i].bowling, self.players[i].role)
+            legacy.Player(
+                i, self.profiles[i].batting, self.profiles[i].bowling, self.players[i].role
+            )
             for i in ids
         ]
 

@@ -1,20 +1,68 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { ErrorPanel, Steps } from "@/components/common";
 import { api, APIError } from "@/lib/api";
 import { HistoryScreen } from "@/components/history";
+import { DraftScreen } from "@/components/draft";
 import { useUI } from "@/lib/ui-store";
 import { BattingPlans, LegacyPlans } from "@/components/batting-plans";
 import { V2Plans } from "@/components/v2-plans";
-import type { Match } from "@/lib/api";
+import type { Draft, Match } from "@/lib/api";
 import {
   PlayerAttributes,
   attributeDescription,
 } from "@/components/player-attributes";
 
 afterEach(() => vi.restoreAllMocks());
+
+it("shows a player choice immediately and restores it if saving fails", async () => {
+  const roles = [
+    "BATTER", "BATTER", "BATTER", "BATTER", "BATTER", "WICKETKEEPER",
+    "ALL_ROUNDER", "ALL_ROUNDER", "BOWLER", "BOWLER", "BOWLER",
+  ];
+  const draft = {
+    id: "draft",
+    revision: 0,
+    status: "DRAFTING",
+    battingOrder: [],
+    catalogVersion: "real-players-v2",
+    selectionRuleset: "real-players-v1",
+    slots: roles.map((role, position) => ({
+      id: `slot-${position}`,
+      role,
+      position,
+      options: position === 0 ? [{
+        id: "player-1", name: "Test Batter", role: "BATTER", overallRating: 90,
+      }] : [],
+      selectedPlayerId: null,
+      ratingLabel: position === 0 || position === 6 ? "Star player" : "Core player",
+      minimumRating: 75,
+      maximumRating: 100,
+    })),
+  } as Draft;
+  let fail!: (error: Error) => void;
+  const pending = new Promise<Draft>((_resolve, reject) => { fail = reject; });
+  vi.spyOn(api, "session").mockResolvedValue({
+    kind: "guest", csrfToken: "token", revision: 1, googleEnabled: false,
+  });
+  vi.spyOn(api, "draft").mockResolvedValue(draft);
+  vi.spyOn(api, "select").mockReturnValue(pending);
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <DraftScreen id="draft" />
+    </QueryClientProvider>,
+  );
+  const card = await screen.findByRole("button", { name: /Select Test Batter/ });
+  await userEvent.click(card);
+  await waitFor(() => expect(card).toHaveAttribute("aria-pressed", "true"));
+  expect(card).toBeDisabled();
+  expect(screen.getByRole("button", { name: /Next position/ })).toBeDisabled();
+
+  fail(new APIError(500, "Save failed"));
+  await waitFor(() => expect(card).toHaveAttribute("aria-pressed", "false"));
+});
 
 it("shows saved guest matches in history", async () => {
   vi.spyOn(api, "session").mockResolvedValue({

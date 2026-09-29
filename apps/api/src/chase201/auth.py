@@ -17,6 +17,7 @@ from sqlalchemy import select, update
 from sqlalchemy import text as sql_text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import ScalarSelect
 
 from chase201.cleanup import prune_guest
 from chase201.config import get_settings
@@ -109,13 +110,7 @@ MutationPrincipal = Annotated[Session, Depends(mutation_session)]
 
 
 async def session_view(session: Session, db: AsyncSession) -> dict[str, Any]:
-    user = await db.get(User, session.user_id) if session.user_id else None
-    active: dict[str, str | None] = {}
-    aggregates: list[tuple[type[Draft] | type[Match], str]] = [
-        (Draft, "activeDraftId"),
-        (Match, "activeMatchId"),
-    ]
-    for entity, key in aggregates:
+    def active_id(entity: type[Draft] | type[Match]) -> ScalarSelect[str]:
         owner = (
             entity.user_id == session.user_id
             if session.user_id
@@ -129,14 +124,24 @@ async def session_view(session: Session, db: AsyncSession) -> dict[str, Any]:
         q = select(entity.id).where(owner, status).order_by(entity.created_at.desc()).limit(1)
         if session.kind == "guest":
             q = q.where(entity.created_at > now() - timedelta(days=30))
-        active[key] = await db.scalar(q)
+        return q.scalar_subquery()
+
+    user_name, draft_id, match_id = (
+        await db.execute(
+            select(User.name, active_id(Draft), active_id(Match))
+            .select_from(Session)
+            .outerjoin(User, User.id == Session.user_id)
+            .where(Session.id == session.id)
+        )
+    ).one()
     return {
-        **active,
+        "activeDraftId": draft_id,
+        "activeMatchId": match_id,
         "kind": session.kind,
         "csrfToken": session.csrf,
         "revision": session.revision,
         "expiresAt": session.expires_at.replace(tzinfo=UTC).isoformat(),
-        "userName": user.name if user else None,
+        "userName": user_name,
         "googleEnabled": bool(get_settings().google_client_id),
     }
 

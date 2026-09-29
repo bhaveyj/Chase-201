@@ -10,7 +10,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { api, roleLabel } from "@/lib/api";
+import { api, roleLabel, type Draft } from "@/lib/api";
 import { useUI } from "@/lib/ui-store";
 import { ErrorPanel, Loading, Steps, useSession } from "./common";
 import { SquadPitch } from "./squad-pitch";
@@ -29,10 +29,27 @@ export function DraftScreen({ id }: { id: string }) {
   const select = useMutation({
     mutationFn: ({ slot, player }: { slot: string; player: string }) =>
       api.select(session.data!, query.data!, slot, player, crypto.randomUUID()),
+    onMutate: async ({ slot, player }) => {
+      await queryClient.cancelQueries({ queryKey: ["draft", id] });
+      const previous = queryClient.getQueryData<Draft>(["draft", id]);
+      queryClient.setQueryData<Draft>(["draft", id], (current) =>
+        current
+          ? {
+              ...current,
+              battingOrder: [],
+              slots: current.slots.map((item) =>
+                item.id === slot ? { ...item, selectedPlayerId: player } : item,
+              ),
+            }
+          : current,
+      );
+      return previous;
+    },
     onSuccess: (data) => {
       queryClient.setQueryData(["draft", id], data);
     },
-    onError: () => {
+    onError: (_error, _variables, previous) => {
+      if (previous) queryClient.setQueryData(["draft", id], previous);
       void queryClient.invalidateQueries({ queryKey: ["draft", id] });
     },
   });

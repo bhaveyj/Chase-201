@@ -90,6 +90,51 @@ async def draft(client):
     return r.json()
 
 
+async def test_draft_requests_use_batched_database_round_trips(client, database):
+    session = await guest(client)
+    statements: list[tuple[str, bool]] = []
+    engine = database.kw["bind"].sync_engine
+
+    def record(connection, cursor, statement, parameters, context, executemany):
+        statements.append((statement.lower(), executemany))
+
+    event.listen(engine, "before_cursor_execute", record)
+    try:
+        response = await client.get("/api/v1/session")
+        assert response.status_code == 200
+        assert len(statements) == 2
+
+        statements.clear()
+        response = await mutate(
+            client, "POST", "/api/v1/drafts", {"expectedRevision": session["revision"]}
+        )
+        assert response.status_code == 200, response.text
+        draft_view = response.json()
+        assert len(draft_view["slots"]) == 11
+        assert all(len(slot["options"]) == 5 for slot in draft_view["slots"])
+        assert sum("insert into draft_slots" in sql for sql, _ in statements) == 1
+        assert sum("insert into draft_offers" in sql for sql, _ in statements) == 1
+        assert all(
+            batched
+            for sql, batched in statements
+            if "insert into draft_slots" in sql or "insert into draft_offers" in sql
+        )
+
+        statements.clear()
+        slot = draft_view["slots"][0]
+        response = await mutate(
+            client,
+            "PUT",
+            f"/api/v1/drafts/{draft_view['id']}/selections/{slot['id']}",
+            {"expectedRevision": 0, "playerId": slot["options"][0]["id"]},
+        )
+        assert response.status_code == 200, response.text
+        assert response.json()["slots"][0]["selectedPlayerId"] == slot["options"][0]["id"]
+        assert sum(sql.lstrip().startswith("select") for sql, _ in statements) <= 6
+    finally:
+        event.remove(engine, "before_cursor_execute", record)
+
+
 async def filled_draft(client):
     d = await draft(client)
     for slot in d["slots"]:
@@ -137,9 +182,7 @@ async def test_bootstrap_csrf_origin_and_ownership(client):
     assert all(len(s["options"]) == 5 for s in d["slots"])
     assert Counter(s["role"] for s in d["slots"]) == COMPOSITION
     assert all(
-        set(p) == {"id", "name", "role", "overallRating"}
-        for s in d["slots"]
-        for p in s["options"]
+        set(p) == {"id", "name", "role", "overallRating"} for s in d["slots"] for p in s["options"]
     )
     assert len({p["id"] for s in d["slots"] for p in s["options"]}) == 55
     payload = {"expectedRevision": 0, "playerId": d["slots"][0]["options"][0]["id"]}
