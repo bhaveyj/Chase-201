@@ -102,14 +102,19 @@ async def test_draft_requests_use_batched_database_round_trips(client, database)
     try:
         response = await client.get("/api/v1/session")
         assert response.status_code == 200
-        assert len(statements) == 2
+        assert len(statements) == 1
+        assert "session_query;dur=" in response.headers["Server-Timing"]
 
         statements.clear()
         response = await mutate(
             client, "POST", "/api/v1/drafts", {"expectedRevision": session["revision"]}
         )
         assert response.status_code == 200, response.text
+        assert "catalog;dur=" in response.headers["Server-Timing"]
+        assert "draft_write;dur=" in response.headers["Server-Timing"]
+        assert "draft_view;dur=" in response.headers["Server-Timing"]
         draft_view = response.json()
+        assert sum(sql.lstrip().startswith("select") for sql, _ in statements) <= 4
         assert len(draft_view["slots"]) == 11
         assert all(len(slot["options"]) == 5 for slot in draft_view["slots"])
         assert sum("insert into draft_slots" in sql for sql, _ in statements) == 1
@@ -121,6 +126,12 @@ async def test_draft_requests_use_batched_database_round_trips(client, database)
         )
 
         statements.clear()
+        response = await client.get("/api/v1/session")
+        assert response.status_code == 200
+        assert response.json()["activeDraftId"] == draft_view["id"]
+        assert len(statements) == 1
+
+        statements.clear()
         slot = draft_view["slots"][0]
         response = await mutate(
             client,
@@ -129,8 +140,10 @@ async def test_draft_requests_use_batched_database_round_trips(client, database)
             {"expectedRevision": 0, "playerId": slot["options"][0]["id"]},
         )
         assert response.status_code == 200, response.text
+        assert "selection_validation;dur=" in response.headers["Server-Timing"]
+        assert "draft_view;dur=" in response.headers["Server-Timing"]
         assert response.json()["slots"][0]["selectedPlayerId"] == slot["options"][0]["id"]
-        assert sum(sql.lstrip().startswith("select") for sql, _ in statements) <= 6
+        assert sum(sql.lstrip().startswith("select") for sql, _ in statements) <= 5
     finally:
         event.remove(engine, "before_cursor_execute", record)
 

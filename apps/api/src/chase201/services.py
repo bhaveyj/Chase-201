@@ -9,10 +9,11 @@ from datetime import UTC, timedelta
 from typing import Any
 
 from fastapi import HTTPException
-from sqlalchemy import or_, select
+from sqlalchemy import and_, select
 from sqlalchemy.dialects.postgresql import insert as postgres_insert
 from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from chase201.catalog import COMPOSITION, ROLES
 from chase201.config import get_settings
@@ -229,11 +230,20 @@ async def draft_view(db: AsyncSession, draft: Draft) -> dict:
 
 async def create_draft(db: AsyncSession, principal: Session, expected: int) -> Draft:
     check_revision(principal, expected)
-    version = await db.get(CatalogVersion, get_settings().catalog_version)
+    with timed("catalog"):
+        catalog_rows = (
+            await db.execute(
+                select(CatalogVersion, Player)
+                .outerjoin(Player, Player.catalog_id == CatalogVersion.id)
+                .where(CatalogVersion.id == get_settings().catalog_version)
+            )
+        ).all()
+    version = catalog_rows[0][0] if catalog_rows else None
     if not version or (get_settings().environment == "production" and not version.approved):
         raise HTTPException(503, "The player catalog is not ready")
     if version.selection_ruleset not in {TRADEOFF_SELECTION, *SIMPLE_SELECTIONS}:
         raise HTTPException(503, "New drafts require a validated simple or tradeoff catalog")
+    catalog = [player for _, player in catalog_rows if player is not None]
     draft = Draft(
         session_id=None if principal.user_id else principal.id,
         user_id=principal.user_id,
@@ -241,8 +251,8 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
         selection_ruleset=version.selection_ruleset,
     )
     db.add(draft)
-    await db.flush()
-    catalog = list((await db.scalars(select(Player).where(Player.catalog_id == version.id))).all())
+    with timed("draft_write"):
+        await db.flush()
     try:
         if version.selection_ruleset in SIMPLE_SELECTIONS:
             offers = draft_offers(catalog, secrets.SystemRandom(), version.selection_ruleset)
@@ -272,43 +282,46 @@ async def create_draft(db: AsyncSession, principal: Session, expected: int) -> D
         for position, role in enumerate(ROLES)
     ]
     db.add_all(slots)
-    await db.flush()
+    with timed("draft_write"):
+        await db.flush()
     db.add_all(
         DraftOffer(slot_id=slot.id, player_id=player.id)
         for slot, options in zip(slots, offers, strict=True)
         for player in options
     )
     principal.revision += 1
-    await db.flush()
+    with timed("draft_write"):
+        await db.flush()
     return draft
 
 
 async def select_player(db: AsyncSession, draft: Draft, slot_id: str, player_id: str) -> None:
+    previous_selection = aliased(Selection)
+    player_selection = aliased(Selection)
     row = (
         await db.execute(
-            select(DraftSlot, Player)
+            select(DraftSlot, Player, previous_selection, player_selection)
             .join(DraftOffer, DraftOffer.slot_id == DraftSlot.id)
             .join(Player, Player.id == DraftOffer.player_id)
+            .outerjoin(previous_selection, previous_selection.slot_id == DraftSlot.id)
+            .outerjoin(
+                player_selection,
+                and_(
+                    player_selection.draft_id == draft.id,
+                    player_selection.player_id == player_id,
+                ),
+            )
             .where(DraftSlot.id == slot_id, DraftOffer.player_id == player_id)
         )
     ).one_or_none()
     if row is None:
         raise HTTPException(422, "Choose a player from this slot's five options")
-    slot, player = row
+    slot, player, choice, previous_player_choice = row
     if slot.draft_id != draft.id or player.role != slot.role:
         raise HTTPException(422, "Choose a player from this slot's five options")
     validate_rating(draft, slot, player)
-    choices = (
-        await db.scalars(
-            select(Selection).where(
-                Selection.draft_id == draft.id,
-                or_(Selection.slot_id == slot_id, Selection.player_id == player_id),
-            )
-        )
-    ).all()
-    if any(choice.player_id == player_id and choice.slot_id != slot_id for choice in choices):
+    if previous_player_choice and previous_player_choice.slot_id != slot_id:
         raise HTTPException(422, "A player can only be selected once")
-    choice = next((choice for choice in choices if choice.slot_id == slot_id), None)
     if choice:
         choice.player_id = player_id
     else:

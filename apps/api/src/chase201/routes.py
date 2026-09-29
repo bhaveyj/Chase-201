@@ -35,15 +35,21 @@ async def create_draft(
     scope, payload = "drafts:create", body.model_dump()
     if result := await svc.replay(db, session, idempotency_key, scope, payload):
         return result
-    draft = await svc.create_draft(db, session, body.expectedRevision)
+    with timed("draft_create"):
+        draft = await svc.create_draft(db, session, body.expectedRevision)
+    with timed("draft_view"):
+        view = await svc.draft_view(db, draft)
     return svc.remember(
-        db, session, idempotency_key, scope, payload, await svc.draft_view(db, draft)
+        db, session, idempotency_key, scope, payload, view
     )
 
 
 @router.get("/drafts/{draft_id}", response_model=DraftView)
 async def read_draft(draft_id: str, db: DB, session: Principal) -> dict:
-    return await svc.draft_view(db, await svc.get_draft(db, draft_id, session, lock=True))
+    with timed("draft_lookup"):
+        draft = await svc.get_draft(db, draft_id, session, lock=True)
+    with timed("draft_view"):
+        return await svc.draft_view(db, draft)
 
 
 async def edit_draft(
@@ -55,7 +61,8 @@ async def edit_draft(
     session: MutationPrincipal,
     slot_id: str | None = None,
 ) -> dict:
-    draft = await svc.get_draft(db, draft_id, session, lock=True)
+    with timed("draft_lock"):
+        draft = await svc.get_draft(db, draft_id, session, lock=True)
     scope, payload = f"draft:{draft.id}:{action}:{slot_id or ''}", body.model_dump()
     if result := await svc.replay(db, session, key, scope, payload):
         return result
@@ -63,15 +70,19 @@ async def edit_draft(
     if draft.status != "DRAFTING":
         raise HTTPException(409, "Confirmed teams cannot be changed")
     if isinstance(body, SelectionIn) and slot_id:
-        await svc.select_player(db, draft, slot_id, body.playerId)
+        with timed("selection_validation"):
+            await svc.select_player(db, draft, slot_id, body.playerId)
     elif isinstance(body, OrderIn):
         await svc.validate_order(db, draft, body.playerIds)
         draft.batting_order = body.playerIds
     elif action == "confirm":
         await svc.confirm_team(db, draft)
     draft.revision += 1
-    await db.flush()
-    return svc.remember(db, session, key, scope, payload, await svc.draft_view(db, draft))
+    with timed("draft_write"):
+        await db.flush()
+    with timed("draft_view"):
+        view = await svc.draft_view(db, draft)
+    return svc.remember(db, session, key, scope, payload, view)
 
 
 @router.put("/drafts/{draft_id}/selections/{slot_id}", response_model=DraftView)

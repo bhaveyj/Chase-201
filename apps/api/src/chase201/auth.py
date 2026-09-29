@@ -13,7 +13,7 @@ from fastapi.responses import RedirectResponse
 from itsdangerous import BadSignature, URLSafeTimedSerializer
 from joserfc import jwt
 from joserfc.jwk import KeySet, KeySetSerialization
-from sqlalchemy import select, update
+from sqlalchemy import and_, or_, select, update
 from sqlalchemy import text as sql_text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -109,31 +109,50 @@ async def mutation_session(
 MutationPrincipal = Annotated[Session, Depends(mutation_session)]
 
 
-async def session_view(session: Session, db: AsyncSession) -> dict[str, Any]:
-    def active_id(entity: type[Draft] | type[Match]) -> ScalarSelect[str]:
-        owner = (
-            entity.user_id == session.user_id
-            if session.user_id
-            else entity.session_id == session.id
+def active_id(entity: type[Draft] | type[Match]) -> ScalarSelect[str]:
+    owner = or_(
+        and_(Session.user_id.is_not(None), entity.user_id == Session.user_id),
+        and_(Session.user_id.is_(None), entity.session_id == Session.id),
+    )
+    status = (
+        Draft.status == "DRAFTING"
+        if entity is Draft
+        else Match.state["status"].as_string() == "LIVE"
+    )
+    return (
+        select(entity.id)
+        .where(
+            owner,
+            status,
+            or_(Session.kind != "guest", entity.created_at > now() - timedelta(days=30)),
         )
-        status = (
-            Draft.status == "DRAFTING"
-            if entity is Draft
-            else Match.state["status"].as_string() == "LIVE"
-        )
-        q = select(entity.id).where(owner, status).order_by(entity.created_at.desc()).limit(1)
-        if session.kind == "guest":
-            q = q.where(entity.created_at > now() - timedelta(days=30))
-        return q.scalar_subquery()
+        .order_by(entity.created_at.desc())
+        .limit(1)
+        .correlate(Session)
+        .scalar_subquery()
+    )
 
-    user_name, draft_id, match_id = (
-        await db.execute(
-            select(User.name, active_id(Draft), active_id(Match))
-            .select_from(Session)
-            .outerjoin(User, User.id == Session.user_id)
-            .where(Session.id == session.id)
-        )
-    ).one()
+
+async def session_row(
+    db: AsyncSession, *, token_hash: str | None = None, session_id: str | None = None
+) -> tuple[Session, str | None, str | None, str | None] | None:
+    statement = (
+        select(Session, User.name, active_id(Draft), active_id(Match))
+        .outerjoin(User, User.id == Session.user_id)
+    )
+    if token_hash is not None:
+        statement = statement.where(Session.token_hash == token_hash)
+    elif session_id is not None:
+        statement = statement.where(Session.id == session_id)
+    else:
+        raise ValueError("Session lookup needs a token hash or session ID")
+    row = (await db.execute(statement)).one_or_none()
+    return (row[0], row[1], row[2], row[3]) if row else None
+
+
+def session_payload(
+    session: Session, user_name: str | None, draft_id: str | None, match_id: str | None
+) -> dict[str, Any]:
     return {
         "activeDraftId": draft_id,
         "activeMatchId": match_id,
@@ -144,6 +163,14 @@ async def session_view(session: Session, db: AsyncSession) -> dict[str, Any]:
         "userName": user_name,
         "googleEnabled": bool(get_settings().google_client_id),
     }
+
+
+async def session_view(session: Session, db: AsyncSession) -> dict[str, Any]:
+    row = await session_row(db, session_id=session.id)
+    if row is None:
+        raise HTTPException(401, "Your session has expired. Start a new guest session.")
+    _, user_name, draft_id, match_id = row
+    return session_payload(session, user_name, draft_id, match_id)
 
 
 async def new_session(db: AsyncSession, response: Response, user_id: str | None = None) -> Session:
@@ -164,10 +191,14 @@ async def new_session(db: AsyncSession, response: Response, user_id: str | None 
 
 @router.get("/session", response_model=SessionView)
 async def get_session(
-    response: Response, db: DB, session: Annotated[Session | None, Depends(optional_session)]
+    request: Request, response: Response, db: DB
 ) -> dict:
-    if session:
-        return await session_view(session, db)
+    token = request.cookies.get(COOKIE, "")
+    if token:
+        with timed("session_query"):
+            row = await session_row(db, token_hash=digest(token))
+        if row and future(row[0].expires_at):
+            return session_payload(*row)
     token = secrets.token_urlsafe(32)
     signed = URLSafeTimedSerializer(get_settings().secret_key, salt="bootstrap").dumps(token)
     set_cookie(response, BOOTSTRAP, signed, 3600)
