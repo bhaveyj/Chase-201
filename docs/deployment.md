@@ -27,26 +27,26 @@ For local development, apply `alembic upgrade head`, seed the bundled roster wit
 
 ## Render
 
-The root `render.yaml` defines the free Render Docker web service `chase201-api`. Its `DATABASE_URL` is a secret supplied in the Render Dashboard, not a Render Postgres reference. An existing Render Postgres resource is not deleted when its Blueprint definition is removed; leave it in place until any data migration and cutover are verified.
+The root `render.yaml` defines the original Oregon service `chase201-api` and the active Singapore service `chase201-api-sg`. Singapore keeps the API near the Neon database. Both use the same Docker image and production database. The Singapore service references the original service's dashboard-managed `DATABASE_URL` and generated `SECRET_KEY` through Render Blueprint `fromService`; neither secret is stored in Git. Keep the original service while those references exist. Before retiring it, move both secrets to the Singapore service's Render environment settings or a suitable Render-managed group and update the Blueprint references. An existing Render Postgres resource is not deleted when its Blueprint definition is removed; leave it in place until any data migration and cutover are verified.
 
 Set Render's `DATABASE_URL` to the pooled Neon production URL (the hostname contains `-pooler`). The API uses the pooled endpoint for requests; Alembic uses the direct endpoint for migrations. You may set `DATABASE_URL_UNPOOLED` to the direct URL, or the API derives it from the pooled hostname. For an existing deployment that only has the direct Neon URL, the API derives the pooled hostname for requests and preserves the direct URL for migrations. This allows the existing Render environment to keep working during rollout without changing dashboard secrets. Neon URLs are converted to SQLAlchemy/asyncpg and use verified TLS. Do not put either URL or password in Git. On an existing Render Blueprint, `sync: false` does not replace the dashboard value.
 
 The Render-to-Neon cutover completed on 2026-09-26. The transfer preserved the existing sessions, drafts, teams, matches, decisions, events, performance rows, idempotency records, and the bundled 200-player catalog. Row counts and content fingerprints were checked after the live deployment. Keep the old Render database temporarily as a rollback source; it is no longer used by `chase201-api`.
 
-`/health` is a cheap process check and does not query Neon; Render uses it for its health check. `/ready` checks database connectivity and the configured approved catalog. UptimeRobot checking only `/health` keeps Render awake while Neon may suspend. Monitoring `/ready` continuously would keep Neon active and consume more compute hours, so reserve it for diagnosis or a deliberate always-active database policy. The Docker startup still requires the database and catalog to be ready before it serves requests.
+`/health` is a cheap process check and does not query Neon. `/ready` checks database connectivity and the configured approved catalog; the Singapore service uses it for its Render health check. Point the UptimeRobot monitor at `https://chase201-api-sg.onrender.com/ready` to keep the active Free service warm. The original Oregon monitor must be changed or disabled after cutover to avoid keeping both Free services running against the workspace's shared monthly hour allowance. The Docker startup still requires the database and catalog to be ready before it serves requests.
 
-Decision responses contain only events produced by that decision. A fresh `GET /api/v1/matches/{id}` returns the full event history; `GET /api/v1/matches/{id}/events?after_revision=N` returns later events. The frontend merges decision events into its cached match. The API returns a `Server-Timing` header (including `roster`, `simulation_and_write`, `scorecard`, `view`, and `total` durations in milliseconds) and logs decision timings. Use browser Network timings and these spans to compare warm decision latency after deployment.
+Decision responses contain only events produced by that decision. A fresh `GET /api/v1/matches/{id}` returns the full event history; `GET /api/v1/matches/{id}/events?after_revision=N` returns later events. The frontend merges decision events into its cached match. The API returns a `Server-Timing` header for session, draft, and match phases and logs decision timings. Use browser Network timings and these spans to compare warm request latency after deployment.
 
 After syncing the Blueprint and deploying the frontend to Vercel, the default service URLs are expected to be:
 
 ```text
 Frontend: https://web-omega-eight-96.vercel.app
-API:      https://chase201-api.onrender.com
+API:      https://chase201-api-sg.onrender.com
 ```
 
 If Render or Vercel assigns different hostnames, update `FRONTEND_URL`, `API_URL`, `CORS_ORIGINS`, and `NEXT_PUBLIC_API_URL`, then redeploy the affected services.
 
-Guest-only launch does not require Google credentials. To enable sign-in later, provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on `chase201-api` and register exactly `https://chase201-api.onrender.com/api/v1/auth/google/callback`, or the equivalent custom API domain.
+Guest-only launch does not require Google credentials. To enable sign-in later, provide `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` on `chase201-api-sg` and register exactly `https://chase201-api-sg.onrender.com/api/v1/auth/google/callback`, or the equivalent custom API domain. The API cookie is scoped to its host, so the Oregon-to-Singapore hostname change resets access to existing guest browser sessions even though their records remain in the shared database.
 
 Render cron jobs are not part of the free Blueprint. For production retention cleanup, add a paid Render cron job or another scheduler that runs `python -m chase201.cleanup` hourly against the same API image and environment.
 
@@ -63,7 +63,7 @@ The application refuses production startup with an unknown environment name, a d
 
 ## Vercel
 
-Import or deploy `apps/web` as the Vercel project. `apps/web/vercel.json` supplies installation/build commands for a standalone Vercel deploy. Set `NEXT_PUBLIC_API_URL=https://chase201-api.onrender.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
+Import or deploy `apps/web` as the Vercel project. `apps/web/vercel.json` supplies installation/build commands for a standalone Vercel deploy. Set `NEXT_PUBLIC_API_URL=https://chase201-api-sg.onrender.com` before building and attach the related frontend domain. Production builds now fail fast when that variable is missing; it is the only frontend environment variable required.
 
 Use related HTTPS custom domains for cookie-based authentication when you enable sign-in. Default unrelated Vercel/Render hostnames are acceptable for guest-only preview, but are not the intended final topology for OAuth-backed sessions. Add any preview origin explicitly only when it is an approved related domain; never use wildcard credentialed CORS.
 
@@ -79,7 +79,7 @@ Use related HTTPS custom domains for cookie-based authentication when you enable
 From an installed API environment:
 
 ```sh
-python scripts/smoke.py --api https://chase201-api.onrender.com --origin https://web-omega-eight-96.vercel.app
+python scripts/smoke.py --api https://chase201-api-sg.onrender.com --origin https://web-omega-eight-96.vercel.app
 ```
 
 This intentionally creates one guest draft, completes a chase, and checks score reconciliation. The guest data expires through normal retention. If Google sign-in is enabled, also verify actual Google consent/sign-in in a browser and confirm that a guest match appears in authenticated history. The mocked test flow cannot validate a live Google project’s redirect configuration or consent screen.
