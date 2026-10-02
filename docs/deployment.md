@@ -40,7 +40,7 @@ Decision responses contain only events produced by that decision. A fresh `GET /
 After syncing the Blueprint and deploying the frontend to Vercel, the default service URLs are expected to be:
 
 ```text
-Frontend: https://web-omega-eight-96.vercel.app
+Frontend: https://chase-201.vercel.app
 API:      https://chase201-api-sg.onrender.com
 ```
 
@@ -79,7 +79,7 @@ Use related HTTPS custom domains for cookie-based authentication when you enable
 From an installed API environment:
 
 ```sh
-python scripts/smoke.py --api https://chase201-api-sg.onrender.com --origin https://web-omega-eight-96.vercel.app
+python scripts/smoke.py --api https://chase201-api-sg.onrender.com --origin https://chase-201.vercel.app
 ```
 
 This intentionally creates one guest draft, completes a chase, and checks score reconciliation. The guest data expires through normal retention. If Google sign-in is enabled, also verify actual Google consent/sign-in in a browser and confirm that a guest match appears in authenticated history. The mocked test flow cannot validate a live Google project’s redirect configuration or consent screen.

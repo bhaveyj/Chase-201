@@ -16,11 +16,11 @@ services:
       - key: CATALOG_VERSION
         value: real-players-v2
       - key: FRONTEND_URL
-        value: https://web-omega-eight-96.vercel.app
+        value: https://chase-201.vercel.app
       - key: API_URL
         value: https://chase201-api.onrender.com
       - key: CORS_ORIGINS
-        value: '["https://web-omega-eight-96.vercel.app"]'
+        value: '["https://chase-201.vercel.app","https://web-omega-eight-96.vercel.app"]'
   - type: web
     name: chase201-api-sg
     runtime: docker
@@ -45,11 +45,11 @@ services:
       - key: CATALOG_VERSION
         value: real-players-v2
       - key: FRONTEND_URL
-        value: https://web-omega-eight-96.vercel.app
+        value: https://chase-201.vercel.app
       - key: API_URL
         fromService:
           type: web
           name: chase201-api-sg
           envVarKey: RENDER_EXTERNAL_URL
       - key: CORS_ORIGINS
-        value: '["https://web-omega-eight-96.vercel.app"]'
+        value: '["https://chase-201.vercel.app","https://web-omega-eight-96.vercel.app"]'
